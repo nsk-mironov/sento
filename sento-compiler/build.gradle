@@ -4,9 +4,19 @@ buildscript {
   }
 }
 
+configurations {
+  provided
+  compile.extendsFrom provided
+}
+
 apply plugin: "kotlin"
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
 
 dependencies {
+  compile project(":sento-core")
+
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+  compile "com.google.guava:guava:$guavaVersion"
+
+  provided "com.google.android:android:2.3.3"
 }

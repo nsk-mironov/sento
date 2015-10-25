@@ -2,6 +2,11 @@ plugins {
   id 'nu.studer.plugindev' version '1.0.3'
 }
 
+configurations {
+  provided
+  compile.extendsFrom provided
+}
+
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
@@ -9,6 +14,8 @@ group = GROUP
 version = VERSION_NAME
 
 dependencies {
+  provided "com.android.tools.build:gradle:$androidToolsVersion"
+
   compile project(":sento-core")
   compile project(":sento-compiler")
 
