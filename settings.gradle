@@ -1,0 +1,2 @@
+include ':sento-runtime'
+include ':sento-sample'

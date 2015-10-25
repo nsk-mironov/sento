@@ -1,0 +1,15 @@
+apply plugin: "com.android.application"
+
+android {
+  compileSdkVersion projectCompileSdkVersion
+  buildToolsVersion projectBuildToolsVersion
+
+  defaultConfig {
+    targetSdkVersion projectTargetSdkVersion
+    minSdkVersion projectMinSdkVersion
+  }
+}
+
+dependencies {
+  compile project(':sento-runtime')
+}

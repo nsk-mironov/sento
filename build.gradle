@@ -1,0 +1,26 @@
+buildscript {
+  ext.kotlinVersion = "1.0.0-beta-1038"
+
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:1.4.0-beta6"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+  }
+}
+
+allprojects {
+  repositories {
+    jcenter()
+  }
+}
+
+ext {
+  projectCompileSdkVersion = 23
+  projectBuildToolsVersion = "23.0.1"
+
+  projectMinSdkVersion = 14
+  projectTargetSdkVersion = 23
+}
