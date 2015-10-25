@@ -1,0 +1,35 @@
+plugins {
+  id 'nu.studer.plugindev' version '1.0.3'
+}
+
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+group = GROUP
+version = VERSION_NAME
+
+dependencies {
+  compile project(":sento-core")
+  compile project(":sento-compiler")
+
+  compile localGroovy()
+  compile gradleApi()
+}
+
+plugindev {
+  pluginId GROUP
+  pluginName POM_ARTIFACT_ID
+  pluginImplementationClass 'com.github.vmironov.sento.plugin.SentoPlugin'
+  pluginDescription POM_DESCRIPTION
+  pluginLicenses POM_LICENCE_SHORT
+  pluginTags POM_TAGS
+
+  authorId POM_DEVELOPER_ID
+  authorName POM_DEVELOPER_NAME
+  authorEmail POM_DEVELOPER_EMAIL
+
+  projectUrl POM_URL
+  projectInceptionYear POM_DEVELOPER_YEAR
+
+  done() // do not omit this
+}

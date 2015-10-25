@@ -1,2 +1,5 @@
+include ':sento-core'
 include ':sento-runtime'
+include ':sento-compiler'
+include ':sento-plugin'
 include ':sento-sample'

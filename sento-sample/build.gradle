@@ -1,4 +1,12 @@
+buildscript {
+  dependencies {
+    classpath "com.android.tools.build:gradle:$androidToolsVersion"
+    classpath "com.github.vmironov.sento:sento-plugin:0.10.0"
+  }
+}
+
 apply plugin: "com.android.application"
+apply plugin: "com.github.vmironov.sento"
 
 android {
   compileSdkVersion projectCompileSdkVersion
@@ -8,8 +16,4 @@ android {
     targetSdkVersion projectTargetSdkVersion
     minSdkVersion projectMinSdkVersion
   }
-}
-
-dependencies {
-  compile project(':sento-runtime')
 }

@@ -1,3 +1,9 @@
+buildscript {
+  dependencies {
+    classpath "com.android.tools.build:gradle:$androidToolsVersion"
+  }
+}
+
 apply plugin: "com.android.library"
 
 android {
@@ -8,6 +14,10 @@ android {
     targetSdkVersion projectTargetSdkVersion
     minSdkVersion projectMinSdkVersion
   }
+}
+
+dependencies {
+  compile project(":sento-core")
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
