@@ -17,8 +17,6 @@ public class SentoCompiler() {
     val generator = createBindingGenerator()
     val registry = createRegistry(options.input, generator)
 
-    FileUtils.copyDirectory(options.input, options.output)
-
     registry.classes.forEach {
       if (generator.shouldGenerateBinding(it, registry)) {
         val bytecode = generator.onGenerate(it, registry)
@@ -27,6 +25,8 @@ public class SentoCompiler() {
         FileUtils.writeByteArrayToFile(file, bytecode)
       }
     }
+
+    FileUtils.copyDirectory(options.input, options.output)
   }
 
   private fun createRegistry(directory: File, generator: BindingGenerator): SentoRegistry {

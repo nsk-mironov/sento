@@ -1,6 +1,5 @@
 package com.github.vmironov.sento.compiler.generators
 
-import android.view.View
 import com.github.vmironov.sento.Bind
 import com.github.vmironov.sento.Binding
 import com.github.vmironov.sento.Finder
@@ -47,34 +46,32 @@ public class DefaultBindingGenerator : BindingGenerator {
   }
 
   override fun onGenerate(clazz: ClassSpec, registry: SentoRegistry): ByteArray {
-    val bindingType = Type.getObjectType("${clazz.type.internalName}\$\$SentoBinding")
-    val targetType = clazz.type
+    return with (ClassWriter(0)) {
+      visitHeader(clazz)
+      visitConstructor(clazz)
 
-    val writer = ClassWriter(0)
+      visitBindMethod(clazz)
+      visitUnbindMethod(clazz)
+      visitBindBridge(clazz)
+      visitUnbindBridge(clazz)
+      visitEnd()
 
-    writer.visitHeader(clazz, bindingType, targetType)
-    writer.visitConstructor(clazz, bindingType, targetType)
-    writer.visitBindMethod(clazz, bindingType, targetType)
-    writer.visitUnbindMethod(clazz, bindingType, targetType)
-    writer.visitBindBridge(clazz, bindingType, targetType)
-    writer.visitUnbindBridge(clazz, bindingType, targetType)
-    writer.visitEnd()
-
-    return writer.toByteArray()
+      toByteArray()
+    }
   }
 
-  private fun ClassWriter.visitHeader(clazz: ClassSpec, bindingType: Type, targetType: Type) = apply {
-    val name = bindingType.internalName
-    val signature = "L${TYPE_OBJECT.internalName};L${TYPE_BINDING.internalName}<L${targetType.internalName};>;"
+  private fun ClassWriter.visitHeader(clazz: ClassSpec) = apply {
+    val name = clazz.bindingType.internalName
+    val signature = "L${TYPE_OBJECT.internalName};L${TYPE_BINDING.internalName}<L${clazz.targetType.internalName};>;"
     val superName = TYPE_OBJECT.internalName
     val interfaces = arrayOf(TYPE_BINDING.internalName)
-    val source = bindingType.toSource()
+    val source = clazz.bindingType.toSource()
 
     visit(50, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
     visitSource(source, null)
   }
 
-  private fun ClassWriter.visitConstructor(clazz: ClassSpec, bindingType: Type, targetType: Type) {
+  private fun ClassWriter.visitConstructor(clazz: ClassSpec) {
     val visitor = visitMethod(ACC_PUBLIC, "<init>", "()V", null, null)
 
     val start = Label()
@@ -86,13 +83,13 @@ public class DefaultBindingGenerator : BindingGenerator {
     visitor.visitMethodInsn(INVOKESPECIAL, TYPE_OBJECT.internalName, "<init>", "()V", false)
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", bindingType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("this", clazz.bindingType.descriptor, null, start, end, 0)
     visitor.visitMaxs(1, 1)
     visitor.visitEnd()
   }
 
-  private fun ClassWriter.visitBindMethod(clazz: ClassSpec, bindingType: Type, targetType: Type) {
-    val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${targetType.internalName};L${TYPE_OBJECT.internalName};L${TYPE_FINDER.internalName};)V", "<S:L${TYPE_OBJECT.internalName};>(L${targetType.internalName};TS;L${TYPE_FINDER.internalName}<-TS;>;)V", null)
+  private fun ClassWriter.visitBindMethod(clazz: ClassSpec) {
+    val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${clazz.targetType.internalName};L${TYPE_OBJECT.internalName};L${TYPE_FINDER.internalName};)V", "<S:L${TYPE_OBJECT.internalName};>(L${clazz.targetType.internalName};TS;L${TYPE_FINDER.internalName}<-TS;>;)V", null)
 
     val start = Label()
     val end = Label()
@@ -107,22 +104,21 @@ public class DefaultBindingGenerator : BindingGenerator {
       visitor.visitVarInsn(ALOAD, 2)
       visitor.visitMethodInsn(INVOKEINTERFACE, TYPE_FINDER.internalName, "find", "(IL${TYPE_OBJECT.internalName};)Landroid/view/View;", true)
       visitor.visitTypeInsn(CHECKCAST, it.type.internalName)
-      visitor.visitFieldInsn(PUTFIELD, targetType.internalName, it.name, it.type.descriptor)
-      visitor.visitLabel(Label())
+      visitor.visitFieldInsn(PUTFIELD, clazz.targetType.internalName, it.name, it.type.descriptor)
     }
 
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", "L${bindingType.internalName};", null, start, end, 0)
-    visitor.visitLocalVariable("target", "L${targetType.internalName};", null, start, end, 1)
-    visitor.visitLocalVariable("source", "L${TYPE_OBJECT.internalName};", "TS;", start, end, 2)
-    visitor.visitLocalVariable("finder", "L${TYPE_FINDER.internalName};", "L${TYPE_FINDER.internalName}<-TS;>;", start, end, 3)
+    visitor.visitLocalVariable("this", clazz.bindingType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("target", clazz.targetType.descriptor, null, start, end, 1)
+    visitor.visitLocalVariable("source", TYPE_OBJECT.descriptor, "TS;", start, end, 2)
+    visitor.visitLocalVariable("finder", TYPE_FINDER.descriptor, "L${TYPE_FINDER.internalName}<-TS;>;", start, end, 3)
     visitor.visitMaxs(4, 4)
     visitor.visitEnd()
   }
   
-  private fun ClassWriter.visitUnbindMethod(clazz: ClassSpec, bindingType: Type, targetType: Type) {
-    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${targetType.internalName};)V", null, null)
+  private fun ClassWriter.visitUnbindMethod(clazz: ClassSpec) {
+    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${clazz.targetType.internalName};)V", null, null)
 
     val start = Label()
     val end = Label()
@@ -133,19 +129,18 @@ public class DefaultBindingGenerator : BindingGenerator {
     clazz.fields.forEach {
       visitor.visitVarInsn(ALOAD, 1)
       visitor.visitInsn(ACONST_NULL)
-      visitor.visitFieldInsn(PUTFIELD, targetType.internalName, it.name, it.type.descriptor)
-      visitor.visitLabel(Label())
+      visitor.visitFieldInsn(PUTFIELD, clazz.targetType.internalName, it.name, it.type.descriptor)
     }
     
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", "L${bindingType.internalName};", null, start, end, 0)
-    visitor.visitLocalVariable("target", "L${targetType.internalName};", null, start, end, 1)
+    visitor.visitLocalVariable("this", clazz.bindingType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("target", clazz.targetType.descriptor, null, start, end, 1)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
   }
 
-  private fun ClassWriter.visitBindBridge(clazz: ClassSpec, bindingType: Type, targetType: Type) {
+  private fun ClassWriter.visitBindBridge(clazz: ClassSpec) {
     val visitor = visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "bind", "(L${TYPE_OBJECT.internalName};L${TYPE_OBJECT.internalName};L${TYPE_FINDER.internalName};)V", null, null)
 
     val start = Label()
@@ -155,18 +150,18 @@ public class DefaultBindingGenerator : BindingGenerator {
     visitor.visitLabel(start)
     visitor.visitVarInsn(ALOAD, 0)
     visitor.visitVarInsn(ALOAD, 1)
-    visitor.visitTypeInsn(CHECKCAST, targetType.internalName)
+    visitor.visitTypeInsn(CHECKCAST, clazz.targetType.internalName)
     visitor.visitVarInsn(ALOAD, 2)
     visitor.visitVarInsn(ALOAD, 3)
-    visitor.visitMethodInsn(INVOKEVIRTUAL, bindingType.internalName, "bind", "(L${targetType.internalName};L${TYPE_OBJECT.internalName};L${TYPE_FINDER.internalName};)V", false)
+    visitor.visitMethodInsn(INVOKEVIRTUAL, clazz.bindingType.internalName, "bind", "(L${clazz.targetType.internalName};L${TYPE_OBJECT.internalName};L${TYPE_FINDER.internalName};)V", false)
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", bindingType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("this", clazz.bindingType.descriptor, null, start, end, 0)
     visitor.visitMaxs(4, 4)
     visitor.visitEnd()
   }
 
-  private fun ClassWriter.visitUnbindBridge(clazz: ClassSpec, bindingType: Type, targetType: Type) {
+  private fun ClassWriter.visitUnbindBridge(clazz: ClassSpec) {
     val visitor = visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "unbind", "(L${TYPE_OBJECT.internalName};)V", null, null)
 
     val start = Label()
@@ -176,11 +171,11 @@ public class DefaultBindingGenerator : BindingGenerator {
     visitor.visitLabel(start)
     visitor.visitVarInsn(ALOAD, 0)
     visitor.visitVarInsn(ALOAD, 1)
-    visitor.visitTypeInsn(CHECKCAST, targetType.internalName)
-    visitor.visitMethodInsn(INVOKEVIRTUAL, bindingType.internalName, "unbind", "(L${targetType.internalName};)V", false)
+    visitor.visitTypeInsn(CHECKCAST, clazz.targetType.internalName)
+    visitor.visitMethodInsn(INVOKEVIRTUAL, clazz.bindingType.internalName, "unbind", "(L${clazz.targetType.internalName};)V", false)
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", bindingType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("this", clazz.bindingType.descriptor, null, start, end, 0)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
   }
@@ -200,4 +195,10 @@ public class DefaultBindingGenerator : BindingGenerator {
     private val TYPE_BINDING = Type.getType(Binding::class.java)
     private val TYPE_FINDER = Type.getType(Finder::class.java)
   }
+
+  private val ClassSpec.bindingType: Type
+    get() = Type.getObjectType("${type.internalName}\$\$SentoBinding")
+
+  private val ClassSpec.targetType: Type
+    get() = type
 }
