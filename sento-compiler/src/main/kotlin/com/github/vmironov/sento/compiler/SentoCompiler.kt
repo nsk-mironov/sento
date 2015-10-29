@@ -3,6 +3,7 @@ package com.github.vmironov.sento.compiler
 import com.google.common.io.Files
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
+import java.io.File
 
 public class SentoCompiler() {
   public fun compile(options: SentoOptions) {
@@ -11,32 +12,36 @@ public class SentoCompiler() {
     println("incremental ${options.incremental}")
     println("dry ${options.dryRun}")
 
-    Files.fileTreeTraverser().preOrderTraversal(options.input).forEach {
+    createSentoRegistry(options.input).classes.forEach {
+      println("class ${it.type}")
+
+      it.fields.forEach {
+        println("    field $it")
+      }
+
+      it.methods.forEach {
+        println("    method $it")
+      }
+    }
+  }
+
+  private fun createSentoRegistry(directory: File): SentoRegistry {
+    val builder = SentoRegistry.Builder()
+
+    Files.fileTreeTraverser().preOrderTraversal(directory).forEach {
       if (it.isFile && Files.getFileExtension(it.absolutePath) == "class") {
         val bytes = Files.toByteArray(it)
         val reader = ClassReader(bytes)
-
-        println("file ${it.absolutePath}")
-        println("    ${reader.className}")
-        println("    ${reader.superName}")
 
         val type = Type.getObjectType(reader.className)
         val parent = Type.getObjectType(reader.superName)
 
         reader.accept(SentoClassSpecVisitor(type, parent) {
-          it.annotations.forEach {
-            println("    annotation $it")
-          }
-
-          it.fields.forEach {
-            println("    field $it")
-          }
-
-          it.methods.forEach {
-            println("    method $it")
-          }
+          builder.spec(it)
         }, 0)
       }
     }
+
+    return builder.build()
   }
 }
