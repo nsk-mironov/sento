@@ -30,6 +30,5 @@ ext {
   kotlinVersion = "1.0.0-beta-1038"
 
   commonsIoVersion = "2.4"
-  guavaVersion = "18.0"
   asmVersion = "5.0.4"
 }

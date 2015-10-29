@@ -16,11 +16,11 @@ dependencies {
   compile project(":sento-core")
 
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-  compile "com.google.guava:guava:$guavaVersion"
+  compile "commons-io:commons-io:$commonsIoVersion"
 
   compile "org.ow2.asm:asm:$asmVersion"
   compile "org.ow2.asm:asm-util:$asmVersion"
-  compile "commons-io:commons-io:$commonsIoVersion"
 
   provided "com.google.android:android:2.3.3"
+
 }
