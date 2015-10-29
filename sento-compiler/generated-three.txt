@@ -35,6 +35,7 @@ mv.visitCode();
 Label l0 = new Label();
 mv.visitLabel(l0);
 mv.visitLineNumber(9, l0);
+
 mv.visitVarInsn(ALOAD, 1);
 mv.visitVarInsn(ALOAD, 3);
 mv.visitLdcInsn(new Integer(333333333));
@@ -44,6 +45,7 @@ mv.visitTypeInsn(CHECKCAST, "android/widget/TextView");
 mv.visitFieldInsn(PUTFIELD, "com/github/vmironov/sento/sample/SampleActivity", "firstname", "Landroid/widget/TextView;");
 Label l1 = new Label();
 mv.visitLabel(l1);
+
 mv.visitLineNumber(10, l1);
 mv.visitVarInsn(ALOAD, 1);
 mv.visitVarInsn(ALOAD, 3);
@@ -54,6 +56,7 @@ mv.visitTypeInsn(CHECKCAST, "android/widget/TextView");
 mv.visitFieldInsn(PUTFIELD, "com/github/vmironov/sento/sample/SampleActivity", "lastname", "Landroid/widget/TextView;");
 Label l2 = new Label();
 mv.visitLabel(l2);
+
 mv.visitLineNumber(11, l2);
 mv.visitVarInsn(ALOAD, 1);
 mv.visitVarInsn(ALOAD, 3);
@@ -64,6 +67,7 @@ mv.visitTypeInsn(CHECKCAST, "android/widget/ImageView");
 mv.visitFieldInsn(PUTFIELD, "com/github/vmironov/sento/sample/SampleActivity", "avatar", "Landroid/widget/ImageView;");
 Label l3 = new Label();
 mv.visitLabel(l3);
+
 mv.visitLineNumber(12, l3);
 mv.visitInsn(RETURN);
 Label l4 = new Label();
@@ -80,24 +84,28 @@ mv = cw.visitMethod(ACC_PUBLIC, "unbind", "(Lcom/github/vmironov/sento/sample/Sa
 mv.visitCode();
 Label l0 = new Label();
 mv.visitLabel(l0);
+
 mv.visitLineNumber(16, l0);
 mv.visitVarInsn(ALOAD, 1);
 mv.visitInsn(ACONST_NULL);
 mv.visitFieldInsn(PUTFIELD, "com/github/vmironov/sento/sample/SampleActivity", "firstname", "Landroid/widget/TextView;");
 Label l1 = new Label();
 mv.visitLabel(l1);
+
 mv.visitLineNumber(17, l1);
 mv.visitVarInsn(ALOAD, 1);
 mv.visitInsn(ACONST_NULL);
 mv.visitFieldInsn(PUTFIELD, "com/github/vmironov/sento/sample/SampleActivity", "lastname", "Landroid/widget/TextView;");
 Label l2 = new Label();
 mv.visitLabel(l2);
+
 mv.visitLineNumber(18, l2);
 mv.visitVarInsn(ALOAD, 1);
 mv.visitInsn(ACONST_NULL);
 mv.visitFieldInsn(PUTFIELD, "com/github/vmironov/sento/sample/SampleActivity", "avatar", "Landroid/widget/ImageView;");
 Label l3 = new Label();
 mv.visitLabel(l3);
+
 mv.visitLineNumber(19, l3);
 mv.visitInsn(RETURN);
 Label l4 = new Label();

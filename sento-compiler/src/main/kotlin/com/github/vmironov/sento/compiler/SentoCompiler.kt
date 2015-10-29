@@ -1,6 +1,9 @@
 package com.github.vmironov.sento.compiler
 
+import com.github.vmironov.sento.compiler.generators.BindingGenerator
+import com.github.vmironov.sento.compiler.generators.DefaultBindingGenerator
 import com.google.common.io.Files
+import org.apache.commons.io.FileUtils
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
 import java.io.File
@@ -12,20 +15,22 @@ public class SentoCompiler() {
     println("incremental ${options.incremental}")
     println("dry ${options.dryRun}")
 
-    createSentoRegistry(options.input).classes.forEach {
-      println("class ${it.type}")
+    val generator = createBindingGenerator()
+    val registry = createRegistry(options.input, generator)
 
-      it.fields.forEach {
-        println("    field $it")
-      }
+    FileUtils.copyDirectory(options.input, options.output)
 
-      it.methods.forEach {
-        println("    method $it")
+    registry.classes.forEach {
+      if (generator.shouldGenerateBinding(it, registry)) {
+        val bytecode = generator.onGenerate(it, registry)
+        val file = File(options.output, "${it.type.internalName}\$\$SentoBinding.class")
+
+        Files.write(bytecode, file)
       }
     }
   }
 
-  private fun createSentoRegistry(directory: File): SentoRegistry {
+  private fun createRegistry(directory: File, generator: BindingGenerator): SentoRegistry {
     val builder = SentoRegistry.Builder()
 
     Files.fileTreeTraverser().preOrderTraversal(directory).forEach {
@@ -36,12 +41,16 @@ public class SentoCompiler() {
         val type = Type.getObjectType(reader.className)
         val parent = Type.getObjectType(reader.superName)
 
-        reader.accept(SentoClassSpecVisitor(type, parent) {
+        reader.accept(SentoClassVisitor(type, parent, generator) {
           builder.spec(it)
         }, 0)
       }
     }
 
     return builder.build()
+  }
+
+  private fun createBindingGenerator(): BindingGenerator {
+    return DefaultBindingGenerator()
   }
 }
