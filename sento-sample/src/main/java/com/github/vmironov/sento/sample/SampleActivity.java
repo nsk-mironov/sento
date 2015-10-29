@@ -4,15 +4,15 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.github.vmironov.sento.Bind;
 import com.github.vmironov.sento.Sento;
 
 public class SampleActivity extends Activity {
-  @Bind(R.id.avatar) ImageView avatar;
-  @Bind(R.id.firstname) TextView firstname;
-  @Bind(R.id.lastname) TextView lastname;
+  @Bind(R.id.fragment_container) FrameLayout container;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -20,9 +20,11 @@ public class SampleActivity extends Activity {
     setContentView(R.layout.activity_sample);
     Sento.bind(this, this);
 
-    firstname.setText("Hello");
-    lastname.setText("Sento");
-
-    avatar.setImageDrawable(new ColorDrawable(Color.RED));
+    if (savedInstanceState == null) {
+      getFragmentManager()
+          .beginTransaction()
+          .add(container.getId(), SampleFragment.newInstance(), "SampleFragment")
+          .commit();
+    }
   }
 }
