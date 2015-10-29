@@ -10,9 +10,9 @@ import com.github.vmironov.sento.Bind;
 import com.github.vmironov.sento.Sento;
 
 public class SampleActivity extends Activity {
+  @Bind(R.id.avatar) ImageView avatar;
   @Bind(R.id.firstname) TextView firstname;
   @Bind(R.id.lastname) TextView lastname;
-  @Bind(R.id.avatar) ImageView avatar;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
