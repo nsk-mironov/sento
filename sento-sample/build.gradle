@@ -1,5 +1,6 @@
 buildscript {
   dependencies {
+    classpath "net.rdrei.android.buildtimetracker:gradle-plugin:0.5.0"
     classpath "com.android.tools.build:gradle:$androidToolsVersion"
     classpath "com.github.vmironov.sento:sento-plugin:0.10.0"
   }
@@ -7,6 +8,7 @@ buildscript {
 
 apply plugin: "com.android.application"
 apply plugin: "com.github.vmironov.sento"
+apply plugin: "build-time-tracker"
 
 android {
   compileSdkVersion projectCompileSdkVersion
@@ -15,5 +17,25 @@ android {
   defaultConfig {
     targetSdkVersion projectTargetSdkVersion
     minSdkVersion projectMinSdkVersion
+  }
+}
+
+buildtimetracker {
+  reporters {
+    csv {
+      output "build/times.csv"
+      append true
+      header false
+    }
+
+    summary {
+      ordered false
+      threshold 50
+      barstyle "unicode"
+    }
+
+    csvSummary {
+      csv "build/times.csv"
+    }
   }
 }
