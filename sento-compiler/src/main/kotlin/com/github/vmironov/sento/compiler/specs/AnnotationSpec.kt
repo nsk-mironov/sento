@@ -1,5 +1,6 @@
 package com.github.vmironov.sento.compiler.specs
 
+import com.github.vmironov.sento.compiler.common.AnnotationProxy
 import org.objectweb.asm.Type
 import java.util.LinkedHashMap
 
@@ -17,5 +18,9 @@ internal data class AnnotationSpec(
     public fun build(): AnnotationSpec {
       return AnnotationSpec(type, values)
     }
+  }
+
+  public inline fun <reified A : Annotation> resolve(): A {
+    return AnnotationProxy.create(Class.forName(type.className).asSubclass(A::class.java), values)
   }
 }

@@ -1,7 +1,6 @@
 package com.github.vmironov.sento.compiler.generators
 
-import com.github.vmironov.sento.Bind
-import com.github.vmironov.sento.OnClick
+import com.github.vmironov.sento.*
 import com.github.vmironov.sento.compiler.ClassRegistry
 import com.github.vmironov.sento.compiler.Types
 import com.github.vmironov.sento.compiler.specs.ClassSpec
@@ -10,22 +9,21 @@ import org.objectweb.asm.Label
 import org.objectweb.asm.Type
 
 import org.objectweb.asm.Opcodes.*
-import java.io.Serializable
+import java.util.*
 
 internal class BindingBytecodeGenerator : BytecodeGenerator {
-  private val annotations = listOf<Type>(
-      Type.getType(Bind::class.java),
-      Type.getType(OnClick::class.java)
-  )
+  private val generators = HashMap<Type, FieldBindingGenerator<out Annotation>>().apply {
+    put(Type.getType(Bind::class.java), BindViewBindingGenerator())
+  }
 
   override fun shouldGenerateBytecode(clazz: ClassSpec, registry: ClassRegistry): Boolean {
     return clazz.fields.any {
       it.annotations.any {
-        annotations.contains(it.type)
+        generators.containsKey(it.type)
       }
     } || clazz.methods.any {
       it.annotations.any {
-        annotations.contains(it.type)
+        generators.containsKey(it.type)
       }
     }
   }
@@ -82,15 +80,17 @@ internal class BindingBytecodeGenerator : BytecodeGenerator {
     visitor.visitCode()
     visitor.visitLabel(start)
 
-    clazz.fields.forEach {
-      val annotation = it.getAnnotation(Bind::class.java)
+    clazz.fields.forEach { field ->
+      field.annotations.forEach { annotation ->
+        val generator = generators.get(annotation.type)
+        val value = annotation.resolve<Annotation>()
 
-      if (annotation != null) {
-        val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-        val context = FieldBindingContext(it, clazz, annotation, visitor, variables)
-        val binding = BindViewBindingGenerator()
+        if (generator != null) {
+          val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
+          val context = FieldBindingContext(field, clazz, value, visitor, variables)
 
-        binding.bind(context)
+          generator.bind(context)
+        }
       }
     }
 
@@ -113,15 +113,17 @@ internal class BindingBytecodeGenerator : BytecodeGenerator {
     visitor.visitCode()
     visitor.visitLabel(start)
 
-    clazz.fields.forEach {
-      val annotation = it.getAnnotation(Bind::class.java)
+    clazz.fields.forEach { field ->
+      field.annotations.forEach { annotation ->
+        val generator = generators.get(annotation.type)
+        val value = annotation.resolve<Annotation>()
 
-      if (annotation != null) {
-        val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-        val context = FieldBindingContext(it, clazz, annotation, visitor, variables)
-        val binding = BindViewBindingGenerator()
+        if (generator != null) {
+          val variables = mapOf("this" to 0, "target" to 1)
+          val context = FieldBindingContext(field, clazz, value, visitor, variables)
 
-        binding.unbind(context)
+          generator.unbind(context)
+        }
       }
     }
 
