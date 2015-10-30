@@ -79,6 +79,6 @@ public class SentoTransform extends Transform implements AsInputTransform {
 
   @Override
   public boolean isIncremental() {
-    return true
+    return false
   }
 }
