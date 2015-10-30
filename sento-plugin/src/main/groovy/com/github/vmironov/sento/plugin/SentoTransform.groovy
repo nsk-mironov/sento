@@ -15,12 +15,13 @@ public class SentoTransform extends Transform implements AsInputTransform {
   @Override
   public void transform(final Context context, final Map<TransformInput, TransformOutput> inputs, final Collection<TransformInput> references, final boolean incremental) throws IOException, TransformException, InterruptedException {
     final def compiler = new SentoCompiler()
-    final def builder = new SentoOptions.Builder()
 
     final def entry = Iterables.getOnlyElement(inputs.keySet())
+    final def input = Iterables.getOnlyElement(entry.files)
+    final def output = Iterables.getOnlyElement(inputs.values()).outFile
 
-    builder.input(Iterables.getOnlyElement(entry.files))
-    builder.output(Iterables.getOnlyElement(inputs.values()).outFile)
+    final def builder = new SentoOptions.Builder(input, output)
+
     builder.incremental(incremental)
     builder.dryRun(true)
 
@@ -44,7 +45,7 @@ public class SentoTransform extends Transform implements AsInputTransform {
 
   @Override
   public Set<ScopedContent.Scope> getScopes() {
-    return EnumSet.of(ScopedContent.Scope.PROJECT, ScopedContent.Scope.SUB_PROJECTS)
+    return EnumSet.of(ScopedContent.Scope.PROJECT)
   }
 
   @Override

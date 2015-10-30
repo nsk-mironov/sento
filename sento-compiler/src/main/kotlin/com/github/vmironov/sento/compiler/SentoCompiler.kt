@@ -1,7 +1,8 @@
 package com.github.vmironov.sento.compiler
 
-import com.github.vmironov.sento.compiler.generators.BindingGenerator
+import com.github.vmironov.sento.compiler.generators.BytecodeGenerator
 import com.github.vmironov.sento.compiler.generators.DefaultBindingGenerator
+import com.github.vmironov.sento.compiler.visitors.ClassSpecVisitor
 import org.apache.commons.io.FileUtils
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
@@ -14,12 +15,12 @@ public class SentoCompiler() {
     println("incremental ${options.incremental}")
     println("dry ${options.dryRun}")
 
+    val registry = createClassRegistry(options.input)
     val generator = createBindingGenerator()
-    val registry = createRegistry(options.input, generator)
 
     registry.classes.forEach {
-      if (generator.shouldGenerateBinding(it, registry)) {
-        val bytecode = generator.onGenerate(it, registry)
+      if (generator.shouldGenerateBytecode(it, registry)) {
+        val bytecode = generator.onGenerateBytecode(it, registry)
         val file = File(options.output, "${it.type.internalName}\$\$SentoBinding.class")
 
         FileUtils.writeByteArrayToFile(file, bytecode)
@@ -29,8 +30,8 @@ public class SentoCompiler() {
     FileUtils.copyDirectory(options.input, options.output)
   }
 
-  private fun createRegistry(directory: File, generator: BindingGenerator): SentoRegistry {
-    val builder = SentoRegistry.Builder()
+  private fun createClassRegistry(directory: File): ClassRegistry {
+    val builder = ClassRegistry.Builder()
 
     FileUtils.iterateFiles(directory, arrayOf("class"), true).forEach {
       val bytes = FileUtils.readFileToByteArray(it)
@@ -39,7 +40,7 @@ public class SentoCompiler() {
       val type = Type.getObjectType(reader.className)
       val parent = Type.getObjectType(reader.superName)
 
-      reader.accept(SentoClassVisitor(type, parent, generator) {
+      reader.accept(ClassSpecVisitor(type, parent) {
         builder.spec(it)
       }, 0)
     }
@@ -47,7 +48,7 @@ public class SentoCompiler() {
     return builder.build()
   }
 
-  private fun createBindingGenerator(): BindingGenerator {
+  private fun createBindingGenerator(): BytecodeGenerator {
     return DefaultBindingGenerator()
   }
 }
