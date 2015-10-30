@@ -1,7 +1,7 @@
 package com.github.vmironov.sento.compiler
 
 import com.github.vmironov.sento.compiler.generators.BytecodeGenerator
-import com.github.vmironov.sento.compiler.generators.DefaultBindingGenerator
+import com.github.vmironov.sento.compiler.generators.BindingBytecodeGenerator
 import com.github.vmironov.sento.compiler.visitors.ClassSpecVisitor
 import org.apache.commons.io.FileUtils
 import org.objectweb.asm.ClassReader
@@ -16,7 +16,7 @@ public class SentoCompiler() {
     println("dry ${options.dryRun}")
 
     val registry = createClassRegistry(options.input)
-    val generator = createBindingGenerator()
+    val generator = createBytecodeGenerator()
 
     registry.classes.forEach {
       if (generator.shouldGenerateBytecode(it, registry)) {
@@ -48,7 +48,7 @@ public class SentoCompiler() {
     return builder.build()
   }
 
-  private fun createBindingGenerator(): BytecodeGenerator {
-    return DefaultBindingGenerator()
+  private fun createBytecodeGenerator(): BytecodeGenerator {
+    return BindingBytecodeGenerator()
   }
 }

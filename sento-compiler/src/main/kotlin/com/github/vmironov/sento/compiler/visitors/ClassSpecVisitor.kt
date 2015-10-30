@@ -13,7 +13,7 @@ internal class ClassSpecVisitor(val type: Type, val parent: Type, val action: (C
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
     return AnnotationSpecVisitor(Type.getType(desc)) {
-        builder.annotation(it)
+      builder.annotation(it)
     }
   }
 
