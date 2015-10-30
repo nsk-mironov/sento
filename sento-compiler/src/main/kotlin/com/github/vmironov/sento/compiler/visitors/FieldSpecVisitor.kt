@@ -6,7 +6,7 @@ import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-public class FieldSpecVisitor(
+internal class FieldSpecVisitor(
     public val name: String,
     public val type: Type,
     public val action: (FieldSpec) -> Unit

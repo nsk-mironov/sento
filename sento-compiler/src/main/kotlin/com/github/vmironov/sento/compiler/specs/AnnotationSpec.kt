@@ -3,7 +3,7 @@ package com.github.vmironov.sento.compiler.specs
 import org.objectweb.asm.Type
 import java.util.LinkedHashMap
 
-public data class AnnotationSpec(
+internal data class AnnotationSpec(
     public val type: Type,
     public val values: Map<String, Any?>
 ) {

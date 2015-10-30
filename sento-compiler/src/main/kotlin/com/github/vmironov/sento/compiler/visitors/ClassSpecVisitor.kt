@@ -8,7 +8,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-public class ClassSpecVisitor(val type: Type, val parent: Type, val action: (ClassSpec) -> Unit) : ClassVisitor(Opcodes.ASM5) {
+internal class ClassSpecVisitor(val type: Type, val parent: Type, val action: (ClassSpec) -> Unit) : ClassVisitor(Opcodes.ASM5) {
   private val builder = ClassSpec.Builder(type, parent)
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {

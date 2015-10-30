@@ -3,7 +3,7 @@ package com.github.vmironov.sento.compiler.specs
 import org.objectweb.asm.Type
 import java.util.ArrayList
 
-public data class ClassSpec(
+internal data class ClassSpec(
     public val type: Type,
     public val parent: Type,
     public val annotations: List<AnnotationSpec>,

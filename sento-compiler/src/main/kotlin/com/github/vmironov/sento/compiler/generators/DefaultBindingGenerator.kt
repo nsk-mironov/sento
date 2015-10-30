@@ -15,7 +15,7 @@ import org.objectweb.asm.Type
 
 import org.objectweb.asm.Opcodes.*
 
-public class DefaultBindingGenerator : BindingGenerator {
+internal class DefaultBindingGenerator : BindingGenerator {
   private val annotations = listOf<Type>(
       Type.getType(Bind::class.java),
       Type.getType(OnClick::class.java)

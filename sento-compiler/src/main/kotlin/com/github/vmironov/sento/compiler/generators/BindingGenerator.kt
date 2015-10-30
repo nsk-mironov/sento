@@ -6,7 +6,7 @@ import com.github.vmironov.sento.compiler.specs.ClassSpec
 import com.github.vmironov.sento.compiler.specs.FieldSpec
 import com.github.vmironov.sento.compiler.specs.MethodSpec
 
-public interface BindingGenerator {
+internal interface BindingGenerator {
   public fun shouldAcceptClassAnnotation(annotation: AnnotationSpec): Boolean
 
   public fun shouldAcceptClassField(field: FieldSpec): Boolean

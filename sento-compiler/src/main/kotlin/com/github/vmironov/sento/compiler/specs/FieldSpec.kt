@@ -4,7 +4,7 @@ import com.github.vmironov.sento.compiler.common.AnnotationProxy
 import org.objectweb.asm.Type
 import java.util.ArrayList
 
-public data class FieldSpec(
+internal data class FieldSpec(
     public val name: String,
     public val type: Type,
     public val annotations: List<AnnotationSpec>

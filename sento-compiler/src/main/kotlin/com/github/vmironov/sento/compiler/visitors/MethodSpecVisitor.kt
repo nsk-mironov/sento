@@ -6,7 +6,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-public class MethodSpecVisitor(
+internal class MethodSpecVisitor(
     public val name: String,
     public val type: Type,
     public val action: (MethodSpec) -> Unit
