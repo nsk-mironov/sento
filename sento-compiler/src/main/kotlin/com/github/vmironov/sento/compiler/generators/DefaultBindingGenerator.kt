@@ -98,13 +98,17 @@ public class DefaultBindingGenerator : BindingGenerator {
     visitor.visitLabel(start)
 
     clazz.fields.forEach {
-      visitor.visitVarInsn(ALOAD, 1)
-      visitor.visitVarInsn(ALOAD, 3)
-      visitor.visitLdcInsn(it.annotations[0].values["value"])
-      visitor.visitVarInsn(ALOAD, 2)
-      visitor.visitMethodInsn(INVOKEINTERFACE, TYPE_FINDER.internalName, "find", "(IL${TYPE_OBJECT.internalName};)Landroid/view/View;", true)
-      visitor.visitTypeInsn(CHECKCAST, it.type.internalName)
-      visitor.visitFieldInsn(PUTFIELD, clazz.targetType.internalName, it.name, it.type.descriptor)
+      val annotation = it.getAnnotation(Bind::class.java)
+
+      if (annotation != null) {
+        visitor.visitVarInsn(ALOAD, 1)
+        visitor.visitVarInsn(ALOAD, 3)
+        visitor.visitLdcInsn(annotation.value)
+        visitor.visitVarInsn(ALOAD, 2)
+        visitor.visitMethodInsn(INVOKEINTERFACE, TYPE_FINDER.internalName, "find", "(IL${TYPE_OBJECT.internalName};)Landroid/view/View;", true)
+        visitor.visitTypeInsn(CHECKCAST, it.type.internalName)
+        visitor.visitFieldInsn(PUTFIELD, clazz.targetType.internalName, it.name, it.type.descriptor)
+      }
     }
 
     visitor.visitInsn(RETURN)
@@ -127,9 +131,11 @@ public class DefaultBindingGenerator : BindingGenerator {
     visitor.visitLabel(start)
     
     clazz.fields.forEach {
-      visitor.visitVarInsn(ALOAD, 1)
-      visitor.visitInsn(ACONST_NULL)
-      visitor.visitFieldInsn(PUTFIELD, clazz.targetType.internalName, it.name, it.type.descriptor)
+      if (it.getAnnotation(Bind::class.java) != null) {
+        visitor.visitVarInsn(ALOAD, 1)
+        visitor.visitInsn(ACONST_NULL)
+        visitor.visitFieldInsn(PUTFIELD, clazz.targetType.internalName, it.name, it.type.descriptor)
+      }
     }
     
     visitor.visitInsn(RETURN)

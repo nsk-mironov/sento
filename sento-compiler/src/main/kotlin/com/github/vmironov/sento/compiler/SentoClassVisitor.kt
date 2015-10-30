@@ -12,7 +12,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-public class SentoClassVisitor(val type: Type, val parent: Type, val generator: BindingGenerator, val action: (ClassSpec) -> Unit) : ClassVisitor(Opcodes.ASM5) {
+internal class SentoClassVisitor(val type: Type, val parent: Type, val generator: BindingGenerator, val action: (ClassSpec) -> Unit) : ClassVisitor(Opcodes.ASM5) {
   private val builder = ClassSpec.Builder(type, parent)
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
