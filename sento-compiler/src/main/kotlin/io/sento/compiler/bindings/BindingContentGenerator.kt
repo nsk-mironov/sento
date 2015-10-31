@@ -9,10 +9,7 @@ import io.sento.BindDrawable
 import io.sento.BindInteger
 import io.sento.BindString
 import io.sento.compiler.api.ContentGenerator
-import io.sento.compiler.api.ClassRegistry
 import io.sento.compiler.api.GeneratedContent
-import io.sento.compiler.bindings.FieldBindingContext
-import io.sento.compiler.bindings.FieldBindingGenerator
 import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.bindings.resources.BindArrayBindingGenerator
 import io.sento.compiler.bindings.resources.BindBoolBindingGenerator
@@ -24,12 +21,19 @@ import io.sento.compiler.bindings.resources.BindStringBindingGenerator
 import io.sento.compiler.bindings.views.BindViewBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.specs.ClassSpec
+import io.sento.compiler.specs.FieldSpec
+import io.sento.compiler.specs.MethodSpec
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Label
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 import org.objectweb.asm.Opcodes.*
-import java.io.File
+import java.util.ArrayList
 import java.util.HashMap
 
 internal class BindingContentGenerator : ContentGenerator {
@@ -45,10 +49,11 @@ internal class BindingContentGenerator : ContentGenerator {
   }
 
   override fun onGenerateContent(clazz: ClassSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    return if (shouldGenerateBindingClass(clazz, environment)) {
-      listOf(GeneratedContent(onGenerateBindingClass(clazz, environment), clazz.generatedType.toClassFilePath()))
-    } else {
-      emptyList()
+    return ArrayList<GeneratedContent>().apply {
+      if (shouldGenerateBindingClass(clazz, environment)) {
+        add(GeneratedContent(onGenerateBindingClass(clazz, environment), clazz.generatedType.toClassFilePath()))
+        add(GeneratedContent(onGenerateTargetClass(clazz, environment), clazz.originalType.toClassFilePath()))
+      }
     }
   }
 
@@ -67,15 +72,48 @@ internal class BindingContentGenerator : ContentGenerator {
     }
   }
 
+  private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
+    val reader = clazz.toClassReader()
+    val writer = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
+
+    reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
+      override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
+        return super.visitField(if (shouldGenerateBindingForField(clazz.field(name))) {
+          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
+        } else {
+          access
+        }, name, desc, signature, value)
+      }
+
+      override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
+        return super.visitMethod(if (shouldGenerateBindingForMethod(clazz.method(name))) {
+          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
+        } else {
+          access
+        }, name, desc, signature, exceptions)
+      }
+    }, ClassReader.SKIP_FRAMES)
+
+    return writer.toByteArray()
+  }
+
   private fun shouldGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
     return clazz.fields.any {
-      it.annotations.any {
-        generators.containsKey(it.type)
-      }
+      shouldGenerateBindingForField(it)
     } || clazz.methods.any {
-      it.annotations.any {
-        generators.containsKey(it.type)
-      }
+      shouldGenerateBindingForMethod(it)
+    }
+  }
+
+  private fun shouldGenerateBindingForField(field: FieldSpec?): Boolean {
+    return field != null && field.annotations.any {
+      generators.containsKey(it.type)
+    }
+  }
+
+  private fun shouldGenerateBindingForMethod(method: MethodSpec?): Boolean {
+    return method != null && method.annotations.any {
+      generators.containsKey(it.type)
     }
   }
 

@@ -24,7 +24,9 @@ public class SentoCompiler() {
     FileUtils.copyDirectory(options.input, options.output).apply {
       registry.classes.forEach {
         generator.onGenerateContent(it, environment).forEach {
-          FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)
+          FileUtils.deleteQuietly(File(options.output, it.path)).apply {
+            FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)
+          }
         }
       }
     }
@@ -40,7 +42,7 @@ public class SentoCompiler() {
       val type = Type.getObjectType(reader.className)
       val parent = Type.getObjectType(reader.superName)
 
-      reader.accept(ClassSpecVisitor(type, parent) {
+      reader.accept(ClassSpecVisitor(it, type, parent) {
         builder.spec(it)
       }, 0)
     }
