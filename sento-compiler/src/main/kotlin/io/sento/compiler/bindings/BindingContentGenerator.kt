@@ -1,4 +1,4 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings
 
 import io.sento.Bind
 import io.sento.BindArray
@@ -8,8 +8,20 @@ import io.sento.BindDimen
 import io.sento.BindDrawable
 import io.sento.BindInteger
 import io.sento.BindString
-import io.sento.compiler.ClassRegistry
-import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.api.ContentGenerator
+import io.sento.compiler.api.ClassRegistry
+import io.sento.compiler.api.GeneratedContent
+import io.sento.compiler.bindings.FieldBindingContext
+import io.sento.compiler.bindings.FieldBindingGenerator
+import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.bindings.resources.BindArrayBindingGenerator
+import io.sento.compiler.bindings.resources.BindBoolBindingGenerator
+import io.sento.compiler.bindings.resources.BindColorBindingGenerator
+import io.sento.compiler.bindings.resources.BindDimenBindingGenerator
+import io.sento.compiler.bindings.resources.BindDrawableBindingGenerator
+import io.sento.compiler.bindings.resources.BindIntegerBindingGenerator
+import io.sento.compiler.bindings.resources.BindStringBindingGenerator
+import io.sento.compiler.bindings.views.BindViewBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.specs.ClassSpec
 import org.objectweb.asm.ClassWriter
@@ -17,9 +29,10 @@ import org.objectweb.asm.Label
 import org.objectweb.asm.Type
 
 import org.objectweb.asm.Opcodes.*
+import java.io.File
 import java.util.HashMap
 
-internal class BindingBytecodeGenerator : BytecodeGenerator {
+internal class BindingContentGenerator : ContentGenerator {
   private val generators = HashMap<Type, FieldBindingGenerator<out Annotation>>().apply {
     put(Type.getType(Bind::class.java), BindViewBindingGenerator())
     put(Type.getType(BindArray::class.java), BindArrayBindingGenerator())
@@ -31,19 +44,15 @@ internal class BindingBytecodeGenerator : BytecodeGenerator {
     put(Type.getType(BindString::class.java), BindStringBindingGenerator())
   }
 
-  override fun shouldGenerateBytecode(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
-    return clazz.fields.any {
-      it.annotations.any {
-        generators.containsKey(it.type)
-      }
-    } || clazz.methods.any {
-      it.annotations.any {
-        generators.containsKey(it.type)
-      }
+  override fun onGenerateContent(clazz: ClassSpec, environment: GenerationEnvironment): List<GeneratedContent> {
+    return if (shouldGenerateBindingClass(clazz, environment)) {
+      listOf(GeneratedContent(onGenerateBindingClass(clazz, environment), clazz.generatedType.toClassFilePath()))
+    } else {
+      emptyList()
     }
   }
 
-  override fun onGenerateBytecode(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
+  private fun onGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
     return with (ClassWriter(0)) {
       visitHeader(clazz, environment)
       visitConstructor(clazz, environment)
@@ -55,6 +64,18 @@ internal class BindingBytecodeGenerator : BytecodeGenerator {
       visitEnd()
 
       toByteArray()
+    }
+  }
+
+  private fun shouldGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
+    return clazz.fields.any {
+      it.annotations.any {
+        generators.containsKey(it.type)
+      }
+    } || clazz.methods.any {
+      it.annotations.any {
+        generators.containsKey(it.type)
+      }
     }
   }
 
@@ -198,6 +219,14 @@ internal class BindingBytecodeGenerator : BytecodeGenerator {
     } else {
       "$className.java"
     }
+  }
+
+  private fun Type.toJavaFilePath(): String {
+    return "$internalName.java"
+  }
+
+  private fun Type.toClassFilePath(): String {
+    return "$internalName.class"
   }
 
   private val ClassSpec.generatedType: Type

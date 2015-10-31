@@ -1,12 +1,14 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings.resources
 
 import io.sento.BindArray
-import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.bindings.FieldBindingContext
+import io.sento.compiler.bindings.FieldBindingGenerator
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-public class BindArrayBindingGenerator : FieldBindingGenerator<BindArray> {
+internal class BindArrayBindingGenerator : FieldBindingGenerator<BindArray> {
   override fun bind(context: FieldBindingContext<BindArray>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation

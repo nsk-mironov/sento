@@ -1,10 +1,10 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings
 
 import io.sento.compiler.specs.ClassSpec
 import io.sento.compiler.specs.FieldSpec
 import org.objectweb.asm.MethodVisitor
 
-public class FieldBindingContext<A : Annotation>(
+internal class FieldBindingContext<A : Annotation>(
     public val field: FieldSpec,
     public val clazz: ClassSpec,
     public val annotation: A,

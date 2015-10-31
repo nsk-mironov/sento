@@ -1,12 +1,14 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings.resources
 
-import io.sento.BindInteger
-import io.sento.compiler.GenerationEnvironment
+import io.sento.BindDrawable
+import io.sento.compiler.bindings.FieldBindingContext
+import io.sento.compiler.bindings.FieldBindingGenerator
+import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-public class BindIntegerBindingGenerator : FieldBindingGenerator<BindInteger> {
-  override fun bind(context: FieldBindingContext<BindInteger>, environment: GenerationEnvironment) {
+internal class BindDrawableBindingGenerator : FieldBindingGenerator<BindDrawable> {
+  override fun bind(context: FieldBindingContext<BindDrawable>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -20,7 +22,8 @@ public class BindIntegerBindingGenerator : FieldBindingGenerator<BindInteger> {
     visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true)
     visitor.visitLdcInsn(annotation.value)
 
-    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getInteger", "(I)I", false)
+    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDrawable", "(I)L${Types.TYPE_DRAWABLE.internalName};", false)
+    visitor.visitTypeInsn(Opcodes.CHECKCAST, field.type.internalName)
     visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
   }
 }

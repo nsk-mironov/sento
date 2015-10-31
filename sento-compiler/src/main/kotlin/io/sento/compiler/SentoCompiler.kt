@@ -1,7 +1,9 @@
 package io.sento.compiler
 
-import io.sento.compiler.generators.BytecodeGenerator
-import io.sento.compiler.generators.BindingBytecodeGenerator
+import io.sento.compiler.api.ClassRegistry
+import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.api.ContentGenerator
+import io.sento.compiler.bindings.BindingContentGenerator
 import io.sento.compiler.visitors.ClassSpecVisitor
 import org.apache.commons.io.FileUtils
 import org.objectweb.asm.ClassReader
@@ -19,17 +21,13 @@ public class SentoCompiler() {
     val registry = createClassRegistry(options.input)
     val generator = createBytecodeGenerator()
 
-    registry.classes.forEach {
-      if (generator.shouldGenerateBytecode(it, environment)) {
-        val bytecode = generator.onGenerateBytecode(it, environment)
-        val file = File(options.output, "${it.type.internalName}\$\$SentoBinding.class")
-
-
-        FileUtils.writeByteArrayToFile(file, bytecode)
+    FileUtils.copyDirectory(options.input, options.output).apply {
+      registry.classes.forEach {
+        generator.onGenerateContent(it, environment).forEach {
+          FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)
+        }
       }
     }
-
-    FileUtils.copyDirectory(options.input, options.output)
   }
 
   private fun createClassRegistry(directory: File): ClassRegistry {
@@ -50,7 +48,7 @@ public class SentoCompiler() {
     return builder.build()
   }
 
-  private fun createBytecodeGenerator(): BytecodeGenerator {
-    return BindingBytecodeGenerator()
+  private fun createBytecodeGenerator(): ContentGenerator {
+    return BindingContentGenerator()
   }
 }

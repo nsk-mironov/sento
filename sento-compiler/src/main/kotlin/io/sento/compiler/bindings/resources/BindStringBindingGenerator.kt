@@ -1,12 +1,14 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings.resources
 
-import io.sento.BindDimen
-import io.sento.compiler.GenerationEnvironment
+import io.sento.BindString
+import io.sento.compiler.bindings.FieldBindingContext
+import io.sento.compiler.bindings.FieldBindingGenerator
+import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-public class BindDimenBindingGenerator : FieldBindingGenerator<BindDimen> {
-  override fun bind(context: FieldBindingContext<BindDimen>, environment: GenerationEnvironment) {
+internal class BindStringBindingGenerator : FieldBindingGenerator<BindString> {
+  override fun bind(context: FieldBindingContext<BindString>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -21,18 +23,18 @@ public class BindDimenBindingGenerator : FieldBindingGenerator<BindDimen> {
     visitor.visitLdcInsn(annotation.value)
 
     when (field.type) {
-      Types.TYPE_FLOAT -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDimension", "(I)F", false)
+      Types.TYPE_STRING -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getString", "(I)L${Types.TYPE_STRING.internalName};", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
-      Types.TYPE_INT -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDimensionPixelSize", "(I)I", false)
+      Types.TYPE_CHAR_SEQUENCE -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getText", "(I)L${Types.TYPE_CHAR_SEQUENCE.internalName};", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
       else -> {
-        environment.fatal("Unsupported type \"${field.type.className}\" for @BindDimen")
+        environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindString")
       }
     }
   }

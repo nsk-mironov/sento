@@ -1,12 +1,14 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings.resources
 
-import io.sento.BindString
-import io.sento.compiler.GenerationEnvironment
+import io.sento.BindColor
+import io.sento.compiler.bindings.FieldBindingContext
+import io.sento.compiler.bindings.FieldBindingGenerator
+import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-public class BindStringBindingGenerator : FieldBindingGenerator<BindString> {
-  override fun bind(context: FieldBindingContext<BindString>, environment: GenerationEnvironment) {
+internal class BindColorBindingGenerator : FieldBindingGenerator<BindColor> {
+  override fun bind(context: FieldBindingContext<BindColor>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -21,18 +23,18 @@ public class BindStringBindingGenerator : FieldBindingGenerator<BindString> {
     visitor.visitLdcInsn(annotation.value)
 
     when (field.type) {
-      Types.TYPE_STRING -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getString", "(I)L${Types.TYPE_STRING.internalName};", false)
+      Types.TYPE_INT -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getColor", "(I)I", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
-      Types.TYPE_CHAR_SEQUENCE -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getText", "(I)L${Types.TYPE_CHAR_SEQUENCE.internalName};", false)
+      Types.TYPE_COLOR_STATE_LIST -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getColorStateList", "(I)L${Types.TYPE_COLOR_STATE_LIST.internalName};", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
       else -> {
-        environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindString")
+        environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindColor")
       }
     }
   }

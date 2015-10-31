@@ -1,4 +1,4 @@
-package io.sento.compiler
+package io.sento.compiler.api
 
 import io.sento.compiler.specs.ClassSpec
 import java.util.ArrayList

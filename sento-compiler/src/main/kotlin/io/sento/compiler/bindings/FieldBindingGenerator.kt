@@ -1,8 +1,8 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings
 
-import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.api.GenerationEnvironment
 
-public interface FieldBindingGenerator<A : Annotation> {
+internal interface FieldBindingGenerator<A : Annotation> {
   public fun bind(context: FieldBindingContext<A>, environment: GenerationEnvironment) {
     // nothing to do by default
   }

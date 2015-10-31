@@ -1,12 +1,14 @@
-package io.sento.compiler.generators
+package io.sento.compiler.bindings.resources
 
-import io.sento.BindColor
-import io.sento.compiler.GenerationEnvironment
+import io.sento.BindDimen
+import io.sento.compiler.bindings.FieldBindingContext
+import io.sento.compiler.bindings.FieldBindingGenerator
+import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-public class BindColorBindingGenerator : FieldBindingGenerator<BindColor> {
-  override fun bind(context: FieldBindingContext<BindColor>, environment: GenerationEnvironment) {
+internal class BindDimenBindingGenerator : FieldBindingGenerator<BindDimen> {
+  override fun bind(context: FieldBindingContext<BindDimen>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -21,18 +23,18 @@ public class BindColorBindingGenerator : FieldBindingGenerator<BindColor> {
     visitor.visitLdcInsn(annotation.value)
 
     when (field.type) {
-      Types.TYPE_INT -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getColor", "(I)I", false)
+      Types.TYPE_FLOAT -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDimension", "(I)F", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
-      Types.TYPE_COLOR_STATE_LIST -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getColorStateList", "(I)L${Types.TYPE_COLOR_STATE_LIST.internalName};", false)
+      Types.TYPE_INT -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDimensionPixelSize", "(I)I", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
       else -> {
-        environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindColor")
+        environment.fatal("Unsupported type \"${field.type.className}\" for @BindDimen")
       }
     }
   }
