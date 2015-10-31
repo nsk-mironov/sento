@@ -1,6 +1,7 @@
 package io.sento;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.view.View;
 import io.sento.Binding;
 import io.sento.Finder;
@@ -78,6 +79,11 @@ public class Sento {
     public <V extends View> V find(final int id, final Activity source) {
       return (V) source.findViewById(id);
     }
+
+    @Override
+    public Resources resources(final Activity source) {
+      return source.getResources();
+    }
   };
 
   private static Finder<View> VIEW_FINDER = new Finder<View>() {
@@ -85,6 +91,11 @@ public class Sento {
     @SuppressWarnings("unchecked")
     public <V extends View> V find(final int id, final View source) {
       return (V) source.findViewById(id);
+    }
+
+    @Override
+    public Resources resources(final View source) {
+      return source.getResources();
     }
   };
 }
