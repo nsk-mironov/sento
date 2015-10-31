@@ -1,0 +1,10 @@
+-keep class io.sento.** { *; }
+-keep class **$$SentoBinding { *; }
+
+-keepclasseswithmembernames class * {
+  @io.sento.* <fields>;
+}
+
+-keepclasseswithmembernames class * {
+  @io.sento.* <methods>;
+}
