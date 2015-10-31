@@ -17,10 +17,23 @@ public class BindStringBindingGenerator : FieldBindingGenerator<BindString> {
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
 
-    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true);
-    visitor.visitLdcInsn(annotation.value);
+    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true)
+    visitor.visitLdcInsn(annotation.value)
 
-    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getString", "(I)Ljava/lang/String;", false);
-    visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor);
+    when (field.type) {
+      Types.TYPE_STRING -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getString", "(I)L${Types.TYPE_STRING.internalName};", false)
+        visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
+      }
+
+      Types.TYPE_CHAR_SEQUENCE -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getText", "(I)L${Types.TYPE_CHAR_SEQUENCE.internalName};", false)
+        visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
+      }
+
+      else -> {
+        environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindString")
+      }
+    }
   }
 }
