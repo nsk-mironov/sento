@@ -1,6 +1,13 @@
 package io.sento.compiler.generators
 
 import io.sento.Bind
+import io.sento.BindArray
+import io.sento.BindBool
+import io.sento.BindColor
+import io.sento.BindDimen
+import io.sento.BindDrawable
+import io.sento.BindInteger
+import io.sento.BindString
 import io.sento.compiler.ClassRegistry
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Types
@@ -15,6 +22,13 @@ import java.util.HashMap
 internal class BindingBytecodeGenerator : BytecodeGenerator {
   private val generators = HashMap<Type, FieldBindingGenerator<out Annotation>>().apply {
     put(Type.getType(Bind::class.java), BindViewBindingGenerator())
+    put(Type.getType(BindArray::class.java), BindArrayBindingGenerator())
+    put(Type.getType(BindBool::class.java), BindBoolBindingGenerator())
+    put(Type.getType(BindColor::class.java), BindColorBindingGenerator())
+    put(Type.getType(BindDimen::class.java), BindDimenBindingGenerator())
+    put(Type.getType(BindDrawable::class.java), BindDrawableBindingGenerator())
+    put(Type.getType(BindInteger::class.java), BindIntegerBindingGenerator())
+    put(Type.getType(BindString::class.java), BindStringBindingGenerator())
   }
 
   override fun shouldGenerateBytecode(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
