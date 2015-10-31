@@ -1,7 +1,9 @@
 package io.sento.sample
 
 import android.app.Fragment
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -15,15 +17,9 @@ import io.sento.BindDimen
 import io.sento.BindString
 import io.sento.Sento
 
-fun <T> notNull(): T = null as T
+public fun <T> notNull(): T = null as T
 
 public class SampleFragment : Fragment() {
-  public companion object {
-    public fun newInstance(): SampleFragment {
-      return SampleFragment()
-    }
-  }
-
   @Bind(R.id.first_name_input) val first_name_input: EditText = notNull()
   @Bind(R.id.first_name_label) val first_name_label: TextView = notNull()
 
@@ -36,19 +32,19 @@ public class SampleFragment : Fragment() {
   @BindString(R.string.last_name_label) val lastNameLabel: String = notNull()
   @BindString(R.string.last_name_hint) val lastNameHint: String = notNull()
 
-  @BindDimen(R.dimen.padding_tiny) val paddingTiny: Int = notNull()
-  @BindDimen(R.dimen.padding_small) val paddingSmall: Int = notNull()
-  @BindDimen(R.dimen.padding_large) val paddingLarge: Int = notNull()
+  @BindDimen(R.dimen.padding_tiny) val paddingTiny = 0
+  @BindDimen(R.dimen.padding_small) val paddingSmall = 0
+  @BindDimen(R.dimen.padding_large) val paddingLarge = 0
 
-  @BindColor(R.color.color_primary) val colorPrimary: Int = notNull()
-  @BindColor(R.color.color_background) val colorBackground: Int = notNull()
-  @BindColor(R.color.color_text) val colorText: Int = notNull()
-  @BindColor(R.color.color_hint) val colorHint: Int = notNull()
+  @BindColor(R.color.color_primary) val colorPrimary = 0
+  @BindColor(R.color.color_background) val colorBackground = 0
+  @BindColor(R.color.color_text) val colorText = 0
+  @BindColor(R.color.color_hint) val colorHint = 0
 
-  @BindDimen(R.dimen.font_small) val fontSmall: Float = notNull()
-  @BindDimen(R.dimen.font_normal) val fontNormal: Float = notNull()
+  @BindDimen(R.dimen.font_small) val fontSmall = 0.0f
+  @BindDimen(R.dimen.font_normal) val fontNormal = 0.0f
 
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle): View? {
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     return inflater.inflate(R.layout.fragment_sample, container, false)
   }
 

@@ -17,7 +17,8 @@ public class BindViewBindingGenerator : FieldBindingGenerator<Bind> {
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
     visitor.visitLdcInsn(annotation.value)
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
-    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "find", "(IL${Types.TYPE_OBJECT.internalName};)Landroid/view/View;", true)
+
+    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "find", "(IL${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_VIEW.internalName};", true)
     visitor.visitTypeInsn(Opcodes.CHECKCAST, field.type.internalName)
     visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
   }
