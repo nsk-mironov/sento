@@ -24,6 +24,7 @@ public class SentoCompiler() {
         val bytecode = generator.onGenerateBytecode(it, environment)
         val file = File(options.output, "${it.type.internalName}\$\$SentoBinding.class")
 
+
         FileUtils.writeByteArrayToFile(file, bytecode)
       }
     }

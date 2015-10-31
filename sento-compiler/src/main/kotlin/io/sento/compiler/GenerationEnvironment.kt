@@ -1,6 +1,6 @@
 package io.sento.compiler
 
-public class GenerationEnvironment {
+internal class GenerationEnvironment {
   public fun debug(message: String) {
     println("[DEBUG] $message")
   }
