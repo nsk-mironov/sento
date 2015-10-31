@@ -1,10 +1,10 @@
 package io.sento.compiler.generators
 
-import io.sento.compiler.ClassRegistry
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.specs.ClassSpec
 
 internal interface BytecodeGenerator {
-  public fun shouldGenerateBytecode(clazz: ClassSpec, registry: ClassRegistry): Boolean
+  public fun shouldGenerateBytecode(clazz: ClassSpec, environment: GenerationEnvironment): Boolean
 
-  public fun onGenerateBytecode(clazz: ClassSpec, registry: ClassRegistry): ByteArray
+  public fun onGenerateBytecode(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray
 }

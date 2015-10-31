@@ -1,7 +1,9 @@
 package io.sento.compiler.generators
 
-public interface FieldBindingGenerator<A : Annotation> {
-  public fun bind(context: FieldBindingContext<A>)
+import io.sento.compiler.GenerationEnvironment
 
-  public fun unbind(context: FieldBindingContext<A>)
+public interface FieldBindingGenerator<A : Annotation> {
+  public fun bind(context: FieldBindingContext<A>, environment: GenerationEnvironment)
+
+  public fun unbind(context: FieldBindingContext<A>, environment: GenerationEnvironment)
 }

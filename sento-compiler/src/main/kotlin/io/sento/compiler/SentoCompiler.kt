@@ -15,12 +15,13 @@ public class SentoCompiler() {
     println("incremental ${options.incremental}")
     println("dry ${options.dryRun}")
 
+    val environment = GenerationEnvironment()
     val registry = createClassRegistry(options.input)
     val generator = createBytecodeGenerator()
 
     registry.classes.forEach {
-      if (generator.shouldGenerateBytecode(it, registry)) {
-        val bytecode = generator.onGenerateBytecode(it, registry)
+      if (generator.shouldGenerateBytecode(it, environment)) {
+        val bytecode = generator.onGenerateBytecode(it, environment)
         val file = File(options.output, "${it.type.internalName}\$\$SentoBinding.class")
 
         FileUtils.writeByteArrayToFile(file, bytecode)

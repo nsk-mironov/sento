@@ -1,4 +1,4 @@
-package io.sento.compiler
+package io.sento.compiler.common
 
 import io.sento.Binding
 import io.sento.Finder
