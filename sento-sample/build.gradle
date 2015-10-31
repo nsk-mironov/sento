@@ -2,13 +2,13 @@ buildscript {
   dependencies {
     classpath "net.rdrei.android.buildtimetracker:gradle-plugin:0.5.0"
     classpath "com.android.tools.build:gradle:$androidToolsVersion"
-    classpath "com.github.vmironov.sento:sento-plugin:0.10.0"
+    classpath "io.sento:sento-plugin:0.10.0"
   }
 }
 
 apply plugin: "com.android.application"
-apply plugin: "com.github.vmironov.sento"
 apply plugin: "build-time-tracker"
+apply plugin: "io.sento"
 
 android {
   compileSdkVersion projectCompileSdkVersion
