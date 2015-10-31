@@ -14,6 +14,6 @@ internal class GenerationEnvironment {
   }
 
   public fun fatal(message: String) {
-    throw RuntimeException("message")
+    throw RuntimeException(message)
   }
 }

@@ -17,11 +17,11 @@ public class BindDrawableBindingGenerator : FieldBindingGenerator<BindDrawable> 
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
 
-    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true);
-    visitor.visitLdcInsn(annotation.value);
+    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true)
+    visitor.visitLdcInsn(annotation.value)
 
-    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDrawable", "(I)Landroid/graphics/drawable/Drawable;", false);
+    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDrawable", "(I)L${Types.TYPE_DRAWABLE.internalName};", false)
     visitor.visitTypeInsn(Opcodes.CHECKCAST, field.type.internalName)
-    visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor);
+    visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
   }
 }

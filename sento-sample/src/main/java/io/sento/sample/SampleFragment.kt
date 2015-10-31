@@ -1,9 +1,7 @@
 package io.sento.sample
 
 import android.app.Fragment
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater

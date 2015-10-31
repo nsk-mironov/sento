@@ -17,10 +17,10 @@ public class BindIntegerBindingGenerator : FieldBindingGenerator<BindInteger> {
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
 
-    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true);
-    visitor.visitLdcInsn(annotation.value);
+    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true)
+    visitor.visitLdcInsn(annotation.value)
 
-    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getInteger", "(I)I", false);
-    visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor);
+    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getInteger", "(I)I", false)
+    visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
   }
 }
