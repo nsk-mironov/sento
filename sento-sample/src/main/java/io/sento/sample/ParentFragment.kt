@@ -17,33 +17,33 @@ import io.sento.Sento
 
 public fun <T> notNull(): T = null as T
 
-public class SampleFragment : Fragment() {
-  @Bind(R.id.first_name_input) val first_name_input: EditText = notNull()
-  @Bind(R.id.first_name_label) val first_name_label: TextView = notNull()
+public open class ParentFragment : Fragment() {
+  private @Bind(R.id.first_name_input) val first_name_input: EditText = notNull()
+  private @Bind(R.id.first_name_label) val first_name_label: TextView = notNull()
 
-  @Bind(R.id.last_name_input) val last_name_input: EditText = notNull()
-  @Bind(R.id.last_name_label) val last_name_label: TextView = notNull()
+  private @Bind(R.id.last_name_input) val last_name_input: EditText = notNull()
+  private @Bind(R.id.last_name_label) val last_name_label: TextView = notNull()
 
-  @BindString(R.string.first_name_label) val firstNameLabel: String = notNull()
-  @BindString(R.string.first_name_hint) val firstNameHint: String = notNull()
+  private @BindString(R.string.first_name_label) val firstNameLabel: String = notNull()
+  private @BindString(R.string.first_name_hint) val firstNameHint: String = notNull()
 
-  @BindString(R.string.last_name_label) val lastNameLabel: String = notNull()
-  @BindString(R.string.last_name_hint) val lastNameHint: String = notNull()
+  private @BindString(R.string.last_name_label) val lastNameLabel: String = notNull()
+  private @BindString(R.string.last_name_hint) val lastNameHint: String = notNull()
 
-  @BindDimen(R.dimen.padding_tiny) val paddingTiny = 0
-  @BindDimen(R.dimen.padding_small) val paddingSmall = 0
-  @BindDimen(R.dimen.padding_large) val paddingLarge = 0
+  private @BindDimen(R.dimen.padding_tiny) val paddingTiny = 0
+  private @BindDimen(R.dimen.padding_small) val paddingSmall = 0
+  private @BindDimen(R.dimen.padding_large) val paddingLarge = 0
 
-  @BindColor(R.color.color_primary) val colorPrimary = 0
-  @BindColor(R.color.color_background) val colorBackground = 0
-  @BindColor(R.color.color_text) val colorText = 0
-  @BindColor(R.color.color_hint) val colorHint = 0
+  private @BindColor(R.color.color_primary) val colorPrimary = 0
+  private @BindColor(R.color.color_background) val colorBackground = 0
+  private @BindColor(R.color.color_text) val colorText = 0
+  private @BindColor(R.color.color_hint) val colorHint = 0
 
-  @BindDimen(R.dimen.font_small) val fontSmall = 0.0f
-  @BindDimen(R.dimen.font_normal) val fontNormal = 0.0f
+  private @BindDimen(R.dimen.font_small) val fontSmall = 0.0f
+  private @BindDimen(R.dimen.font_normal) val fontNormal = 0.0f
 
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-    return inflater.inflate(R.layout.fragment_sample, container, false)
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    return inflater.inflate(R.layout.fragment_parent, container, false)
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

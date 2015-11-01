@@ -3,11 +3,8 @@ package io.sento;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.view.View;
-import io.sento.Binding;
-import io.sento.Finder;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Sento {
   private static Map<Class<?>, Binding<Object>> BINDINGS = new IdentityHashMap<>();
@@ -34,27 +31,26 @@ public class Sento {
       return DEFAULT_BINDING;
     }
 
-    if (BINDINGS.containsKey(clazz)) {
-      return BINDINGS.get(clazz);
+    if (!BINDINGS.containsKey(clazz)) {
+      BINDINGS.put(clazz, createBinding(clazz));
     }
 
-    final Binding<Object> binding = createBinding(clazz);
-
-    if (binding == null) {
-      return findOrCreateBinding(clazz.getSuperclass());
-    }
-
-    BINDINGS.put(clazz, binding);
-    return binding;
+    return BINDINGS.get(clazz);
   }
 
   @SuppressWarnings("unchecked")
   private static Binding<Object> createBinding(final Class<?> clazz) {
-    try {
-      return (Binding<Object>) Class.forName(clazz.getName() + "$$SentoBinding").newInstance();
-    } catch (Exception exception) {
-      return null;
+    final List<Binding<Object>> bindings = new ArrayList<>();
+
+    for (Class parent = clazz; parent != null && !isSystemClass(parent); parent = parent.getSuperclass()) {
+      try {
+        bindings.add((Binding<Object>) Class.forName(parent.getName() + "$$SentoBinding").newInstance());
+      } catch (final Exception exception) {
+        // nothing to do. expected
+      }
     }
+
+    return new CompositeBinding<>(bindings);
   }
 
   private static boolean isSystemClass(final Class<?> clazz) {
@@ -63,6 +59,28 @@ public class Sento {
 
   private static String asResourceName(final int id, final Resources resources) {
     return "R." + resources.getResourceTypeName(id) + "." + resources.getResourceEntryName(id);
+  }
+
+  private static class CompositeBinding<T> implements Binding<T> {
+    private final List<Binding<T>> bindings;
+
+    private CompositeBinding(final List<Binding<T>> bindings) {
+      this.bindings = bindings;
+    }
+
+    @Override
+    public <S> void bind(final T target, final S source, final Finder<? super S> finder) {
+      for (int i = 0, size = bindings.size(); i < size; i++) {
+        bindings.get(i).bind(target, source, finder);
+      }
+    }
+
+    @Override
+    public void unbind(final T target) {
+      for (int i = 0, size = bindings.size(); i < size; i++) {
+        bindings.get(i).unbind(target);
+      }
+    }
   }
 
   private static Binding<Object> DEFAULT_BINDING = new Binding<Object>() {
