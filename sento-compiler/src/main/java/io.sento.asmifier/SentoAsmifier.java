@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 public class SentoAsmifier {
   public static void main(final String[] args) throws Exception {
-    final ClassReader reader = new ClassReader(ParentBinding.class.getName());
+    final ClassReader reader = new ClassReader(GrandChildBinding.class.getName());
     final PrintWriter writer = new PrintWriter(System.out);
     final ClassVisitor visitor = new TraceClassVisitor(null, new ASMifier(), writer);
 
