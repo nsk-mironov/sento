@@ -74,7 +74,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
     val reader = clazz.toClassReader()
-    val writer = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
+    val writer = ClassWriter(0)
 
     reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
       override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
@@ -124,7 +124,7 @@ internal class BindingContentGenerator : ContentGenerator {
     val interfaces = arrayOf(Types.TYPE_BINDING.internalName)
     val source = clazz.generatedType.toSource()
 
-    visit(50, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
+    visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
     visitSource(source, null)
   }
 
