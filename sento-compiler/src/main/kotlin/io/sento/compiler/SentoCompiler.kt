@@ -17,8 +17,8 @@ public class SentoCompiler() {
     println("incremental ${options.incremental}")
     println("dry ${options.dryRun}")
 
-    val environment = GenerationEnvironment()
     val registry = createClassRegistry(options.input)
+    val environment = GenerationEnvironment(registry)
     val generator = createBytecodeGenerator()
 
     FileUtils.copyDirectory(options.input, options.output).apply {

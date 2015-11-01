@@ -73,10 +73,9 @@ internal class BindingContentGenerator : ContentGenerator {
   }
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
-    val reader = clazz.toClassReader()
     val writer = ClassWriter(0)
 
-    reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
+    clazz.toClassReader().accept(object : ClassVisitor(Opcodes.ASM5, writer) {
       override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
         return super.visitField(if (shouldGenerateBindingForField(clazz.field(name))) {
           access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
@@ -98,11 +97,11 @@ internal class BindingContentGenerator : ContentGenerator {
   }
 
   private fun shouldGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
-    return clazz.fields.any {
+    return !Types.isSystemClass(clazz.type) && (clazz.fields.any {
       shouldGenerateBindingForField(it)
     } || clazz.methods.any {
       shouldGenerateBindingForMethod(it)
-    }
+    })
   }
 
   private fun shouldGenerateBindingForField(field: FieldSpec?): Boolean {

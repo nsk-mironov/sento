@@ -1,6 +1,6 @@
 package io.sento.compiler.api
 
-internal class GenerationEnvironment {
+internal class GenerationEnvironment(val registry: ClassRegistry) {
   public fun info(message: String) {
     println("[INFO] $message")
   }

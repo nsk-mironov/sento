@@ -19,4 +19,8 @@ internal object Types {
 
   public val TYPE_BINDING = Type.getType(Binding::class.java)
   public val TYPE_FINDER = Type.getType(Finder::class.java)
+
+  public fun isSystemClass(type: Type): Boolean {
+    return type.className != null && (type.className.startsWith("android.") || type.className.startsWith("java."))
+  }
 }

@@ -3,6 +3,7 @@ package io.sento.compiler.bindings
 import io.sento.compiler.specs.ClassSpec
 import io.sento.compiler.specs.FieldSpec
 import org.objectweb.asm.MethodVisitor
+import java.util.NoSuchElementException
 
 internal class FieldBindingContext<A : Annotation>(
     public val field: FieldSpec,
@@ -12,6 +13,6 @@ internal class FieldBindingContext<A : Annotation>(
     public val variables: Map<String, Int>
 ) {
   public fun variable(name: String): Int {
-    return variables.get(name) ?: throw UnsupportedOperationException("Unknown variable \"$name\"")
+    return variables.get(name) ?: throw NoSuchElementException("Unknown variable \"$name\"")
   }
 }
