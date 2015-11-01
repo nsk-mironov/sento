@@ -119,7 +119,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
   private fun ClassWriter.visitHeader(clazz: ClassSpec, environment: GenerationEnvironment) = apply {
     val name = clazz.generatedType.internalName
-    val signature = "L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_BINDING.internalName}<L${clazz.originalType.internalName};>;"
+    val signature = "<T:L${clazz.originalType.internalName};>L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_BINDING.internalName}<TT;>;"
     val superName = Types.TYPE_OBJECT.internalName
     val interfaces = arrayOf(Types.TYPE_BINDING.internalName)
     val source = clazz.generatedType.toSource()
@@ -140,13 +140,13 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitMethodInsn(INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, "L${clazz.generatedType.internalName}<TT;>;", start, end, 0)
     visitor.visitMaxs(1, 1)
     visitor.visitEnd()
   }
 
   private fun ClassWriter.visitBindMethod(clazz: ClassSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${clazz.originalType.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", "<S:L${Types.TYPE_OBJECT.internalName};>(L${clazz.originalType.internalName};TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V", null)
+    val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${clazz.originalType.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", "<S:L${Types.TYPE_OBJECT.internalName};>(TT;TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V", null)
 
     val start = Label()
     val end = Label()
@@ -170,16 +170,18 @@ internal class BindingContentGenerator : ContentGenerator {
 
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, null, start, end, 0)
-    visitor.visitLocalVariable("target", clazz.originalType.descriptor, null, start, end, 1)
+
+    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, "L${clazz.generatedType.internalName}<TT;>;", start, end, 0)
+    visitor.visitLocalVariable("target", clazz.originalType.descriptor, "TT;", start, end, 1)
     visitor.visitLocalVariable("source", Types.TYPE_OBJECT.descriptor, "TS;", start, end, 2)
     visitor.visitLocalVariable("finder", Types.TYPE_FINDER.descriptor, "L${Types.TYPE_FINDER.internalName}<-TS;>;", start, end, 3)
+
     visitor.visitMaxs(4, 4)
     visitor.visitEnd()
   }
 
   private fun ClassWriter.visitUnbindMethod(clazz: ClassSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${clazz.originalType.internalName};)V", null, null)
+    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${clazz.originalType.internalName};)V", "(TT;)V", null)
 
     val start = Label()
     val end = Label()
@@ -203,8 +205,8 @@ internal class BindingContentGenerator : ContentGenerator {
 
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, null, start, end, 0)
-    visitor.visitLocalVariable("target", clazz.originalType.descriptor, null, start, end, 1)
+    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, "L${clazz.generatedType.internalName}<TT;>;", start, end, 0)
+    visitor.visitLocalVariable("target", clazz.originalType.descriptor, "TT;", start, end, 1)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
   }
@@ -225,7 +227,7 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitMethodInsn(INVOKEVIRTUAL, clazz.generatedType.internalName, "bind", "(L${clazz.originalType.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", false)
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, "L${clazz.generatedType.internalName}<TT;>;", start, end, 0)
     visitor.visitMaxs(4, 4)
     visitor.visitEnd()
   }
@@ -244,7 +246,7 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitMethodInsn(INVOKEVIRTUAL, clazz.generatedType.internalName, "unbind", "(L${clazz.originalType.internalName};)V", false)
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("this", clazz.generatedType.descriptor, "L${clazz.generatedType.internalName}<TT;>;", start, end, 0)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
   }
