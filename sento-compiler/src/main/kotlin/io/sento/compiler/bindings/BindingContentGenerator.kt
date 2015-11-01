@@ -176,7 +176,7 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitLocalVariable("source", Types.TYPE_OBJECT.descriptor, "TS;", start, end, 2)
     visitor.visitLocalVariable("finder", Types.TYPE_FINDER.descriptor, "L${Types.TYPE_FINDER.internalName}<-TS;>;", start, end, 3)
 
-    visitor.visitMaxs(4, 4)
+    visitor.visitMaxs(5, 4)
     visitor.visitEnd()
   }
 

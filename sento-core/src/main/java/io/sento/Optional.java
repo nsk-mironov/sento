@@ -6,7 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
-@Target(ElementType.METHOD)
-public @interface OnClick {
-  public int value();
+@Target({ElementType.METHOD, ElementType.FIELD})
+public @interface Optional {
 }

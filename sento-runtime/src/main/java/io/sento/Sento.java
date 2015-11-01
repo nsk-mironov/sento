@@ -61,6 +61,10 @@ public class Sento {
     return clazz.getName().startsWith("android.") || clazz.getName().startsWith("java.");
   }
 
+  private static String asResourceName(final int id, final Resources resources) {
+    return "R." + resources.getResourceTypeName(id) + "." + resources.getResourceEntryName(id);
+  }
+
   private static Binding<Object> DEFAULT_BINDING = new Binding<Object>() {
     @Override
     public <S> void bind(Object target, S source, Finder<? super S> finder) {
@@ -76,8 +80,14 @@ public class Sento {
   private static Finder<Activity> ACTIVITY_FINDER = new Finder<Activity>() {
     @Override
     @SuppressWarnings("unchecked")
-    public <V extends View> V find(final int id, final Activity source) {
-      return (V) source.findViewById(id);
+    public <V extends View> V find(final int id, final Activity source, final boolean optional) {
+      final View result = source.findViewById(id);
+
+      if (result == null && !optional) {
+        throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)));
+      }
+
+      return (V) result;
     }
 
     @Override
@@ -89,8 +99,14 @@ public class Sento {
   private static Finder<View> VIEW_FINDER = new Finder<View>() {
     @Override
     @SuppressWarnings("unchecked")
-    public <V extends View> V find(final int id, final View source) {
-      return (V) source.findViewById(id);
+    public <V extends View> V find(final int id, final View source, final boolean optional) {
+      final View result = source.findViewById(id);
+
+      if (result == null && !optional) {
+        throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)));
+      }
+
+      return (V) result;
     }
 
     @Override
