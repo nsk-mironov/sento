@@ -18,6 +18,8 @@ internal object Types {
   public val TYPE_BINDING = Type.getObjectType("io/sento/Binding")
   public val TYPE_FINDER = Type.getObjectType("io/sento/Finder")
 
+  public val TYPE_ON_CLICK_LISTENER = Type.getObjectType("android/view/View\$OnClickListener")
+
   public fun isSystemClass(type: Type): Boolean {
     return type.className != null && (type.className.startsWith("android.") || type.className.startsWith("java."))
   }
