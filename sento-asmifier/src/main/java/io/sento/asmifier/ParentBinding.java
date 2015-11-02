@@ -13,6 +13,8 @@ public class ParentBinding<T extends Parent> implements Binding<T> {
     target.padding = finder.resources(source).getDimension(456789);
     target.enabled = finder.resources(source).getBoolean(456789);
     target.title = finder.resources(source).getString(456789);
+
+    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(target));
   }
 
   @Override
