@@ -1,7 +1,5 @@
 package io.sento.compiler.common
 
-import io.sento.Binding
-import io.sento.Finder
 import org.objectweb.asm.Type
 
 internal object Types {
@@ -17,8 +15,8 @@ internal object Types {
   public val TYPE_RESOURCES = Type.getObjectType("android/content/res/Resources")
   public val TYPE_DRAWABLE = Type.getObjectType("android/graphics/drawable/Drawable")
 
-  public val TYPE_BINDING = Type.getType(Binding::class.java)
-  public val TYPE_FINDER = Type.getType(Finder::class.java)
+  public val TYPE_BINDING = Type.getObjectType("io/sento/Binding")
+  public val TYPE_FINDER = Type.getType("io/sento/Finder")
 
   public fun isSystemClass(type: Type): Boolean {
     return type.className != null && (type.className.startsWith("android.") || type.className.startsWith("java."))
