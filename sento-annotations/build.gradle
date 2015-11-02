@@ -1,15 +1,6 @@
 apply plugin: "java"
 
-configurations {
-  provided
-  compile.extendsFrom provided
-}
-
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
-
-dependencies {
-  provided "com.google.android:android:2.3.3"
-}
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

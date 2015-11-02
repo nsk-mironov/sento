@@ -4,13 +4,7 @@ buildscript {
   }
 }
 
-configurations {
-  provided
-  compile.extendsFrom provided
-}
-
 apply plugin: "kotlin"
-apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
 
 dependencies {
   compile project(":sento-annotations")
@@ -22,6 +16,6 @@ dependencies {
   compile "org.ow2.asm:asm:$asmVersion"
   compile "org.ow2.asm:asm-commons:$asmVersion"
   compile "org.ow2.asm:asm-util:$asmVersion"
-
-  provided "com.google.android:android:2.3.3"
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
