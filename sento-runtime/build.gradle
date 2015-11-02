@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-  compile project(":sento-core")
+  compile project(":sento-annotations")
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

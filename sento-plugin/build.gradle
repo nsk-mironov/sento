@@ -16,7 +16,7 @@ version = VERSION_NAME
 dependencies {
   provided "com.android.tools.build:gradle:$androidToolsVersion"
 
-  compile project(":sento-core")
+  compile project(":sento-annotations")
   compile project(":sento-compiler")
 
   compile localGroovy()
