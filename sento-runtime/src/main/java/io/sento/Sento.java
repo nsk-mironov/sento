@@ -7,7 +7,7 @@ import android.view.View;
 import java.util.*;
 
 public class Sento {
-  private static Map<Class<?>, Binding<Object>> BINDINGS = new IdentityHashMap<>();
+  private final static Map<Class<?>, Binding<Object>> BINDINGS = new IdentityHashMap<>();
 
   public static void bind(final Object target, final Activity activity) {
     findOrCreateBinding(target.getClass()).bind(target, activity, ACTIVITY_FINDER);
@@ -48,6 +48,14 @@ public class Sento {
       } catch (final Exception exception) {
         // nothing to do. expected
       }
+    }
+
+    if (bindings.isEmpty()) {
+      return DEFAULT_BINDING;
+    }
+
+    if (bindings.size() == 1) {
+      return bindings.get(0);
     }
 
     return new CompositeBinding<>(bindings);
