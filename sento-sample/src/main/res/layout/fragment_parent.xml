@@ -34,13 +34,31 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/padding_large"/>
 
-  <Button
-    android:id="@+id/button_done"
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/padding_small"
-    android:paddingRight="@dimen/padding_small"
-    android:gravity="center"
-    android:text="@string/action_done"/>
+    android:orientation="horizontal">
+
+    <Button
+      android:id="@+id/button_cancel"
+      android:layout_width="0dip"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:paddingLeft="@dimen/padding_small"
+      android:paddingRight="@dimen/padding_small"
+      android:gravity="center"
+      android:text="@string/action_cancel"/>
+
+    <Button
+      android:id="@+id/button_done"
+      android:layout_width="0dip"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:paddingLeft="@dimen/padding_small"
+      android:paddingRight="@dimen/padding_small"
+      android:gravity="center"
+      android:text="@string/action_done"/>
+
+  </LinearLayout>
 
 </LinearLayout>

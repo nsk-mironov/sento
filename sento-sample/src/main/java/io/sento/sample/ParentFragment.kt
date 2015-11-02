@@ -84,4 +84,8 @@ public open class ParentFragment : Fragment() {
   private @OnClick(R.id.button_done) fun onDoneClick() {
     Toast.makeText(context, "Done clicked!", Toast.LENGTH_SHORT).show()
   }
+
+  private @OnClick(R.id.button_cancel) fun onCancelClick() {
+    Toast.makeText(context, "Done clicked!", Toast.LENGTH_SHORT).show()
+  }
 }
