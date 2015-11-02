@@ -125,7 +125,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
   private fun shouldGenerateBindingForMethod(method: MethodSpec?): Boolean {
     return method != null && method.annotations.any {
-      fieldGenerators.containsKey(it.type)
+      methodGenerators.containsKey(it.type)
     }
   }
 

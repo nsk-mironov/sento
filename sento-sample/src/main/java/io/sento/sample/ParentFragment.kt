@@ -81,11 +81,11 @@ public open class ParentFragment : Fragment() {
     Sento.unbind(this)
   }
 
-  private @OnClick(R.id.button_done) fun onDoneClick() {
-    Toast.makeText(context, "Done clicked!", Toast.LENGTH_SHORT).show()
+  private @OnClick(R.id.button_done) fun onDoneClick(view: View) {
+    Toast.makeText(activity, "Done clicked!", Toast.LENGTH_SHORT).show()
   }
 
-  private @OnClick(R.id.button_cancel) fun onCancelClick() {
-    Toast.makeText(context, "Done clicked!", Toast.LENGTH_SHORT).show()
+  private @OnClick(R.id.button_cancel) fun onCancelClick(view: View) {
+    Toast.makeText(activity, "Cancel clicked!", Toast.LENGTH_SHORT).show()
   }
 }

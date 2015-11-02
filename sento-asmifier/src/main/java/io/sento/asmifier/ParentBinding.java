@@ -15,6 +15,10 @@ public class ParentBinding<T extends Parent> implements Binding<T> {
     target.title = finder.resources(source).getString(456789);
 
     finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(target));
+    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(target));
+    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(target));
+    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(target));
+    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(target));
   }
 
   @Override

@@ -1,6 +1,7 @@
 package io.sento.compiler.bindings.views
 
 import io.sento.OnClick
+import io.sento.Optional
 import io.sento.compiler.api.GeneratedContent
 import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.bindings.MethodBindingContext
@@ -18,26 +19,44 @@ import org.objectweb.asm.Type
 
 public class OnClickBindingGenerator : MethodBindingGenerator<OnClick> {
   override fun bind(context: MethodBindingContext<OnClick>, environment: GenerationEnvironment): List<GeneratedContent> {
-    return listOf(onCreateOnClickListener(context, environment))
+    val listener = ListenerSpec(context.factory.newAnonymousType(), context.clazz.type, context.method)
+    val result = listOf(onCreateOnClickListener(listener, environment))
+
+    val visitor = context.visitor
+    val annotation = context.annotation
+    val clazz = context.clazz
+
+    val method = context.method
+    val optional = method.getAnnotation(Optional::class.java) != null
+
+    visitor.visitVarInsn(ALOAD, context.variable("finder"))
+    visitor.visitLdcInsn(annotation.value)
+    visitor.visitVarInsn(ALOAD, context.variable("source"))
+    visitor.visitInsn(if (optional) Opcodes.ICONST_1 else Opcodes.ICONST_0)
+    visitor.visitMethodInsn(INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "find", "(IL${Types.TYPE_OBJECT.internalName};Z)L${Types.TYPE_VIEW.internalName};", true)
+    visitor.visitTypeInsn(NEW, listener.type.internalName)
+    visitor.visitInsn(DUP)
+    visitor.visitVarInsn(ALOAD, context.variable("target"))
+    visitor.visitMethodInsn(INVOKESPECIAL, listener.type.internalName, "<init>", "(L${clazz.type.internalName};)V", false)
+    visitor.visitMethodInsn(INVOKEVIRTUAL, Types.TYPE_VIEW.internalName, "setOnClickListener", "(L${Types.TYPE_VIEW.internalName}\$OnClickListener;)V", false)
+
+    return result
   }
 
-  private fun onCreateOnClickListener(context: MethodBindingContext<OnClick>, environment: GenerationEnvironment): GeneratedContent {
-    val type = context.factory.newAnonymousType()
-    val listener = ListenerSpec(type, context.clazz.type, context.method)
-    val writer = ClassWriter(0)
-
-    writer.visitListenerHeader(listener, environment)
-    writer.visitListenerFields(listener, environment)
-    writer.visitListenerConstructor(listener, environment)
-    writer.visitListenerOnClick(listener, environment)
-
-    return GeneratedContent(type.toClassFilePath(), writer.toByteArray())
+  private fun onCreateOnClickListener(listener: ListenerSpec, environment: GenerationEnvironment): GeneratedContent {
+    return GeneratedContent(listener.type.toClassFilePath(), with (ClassWriter(0)) {
+      visitListenerHeader(listener, environment)
+      visitListenerFields(listener, environment)
+      visitListenerConstructor(listener, environment)
+      visitListenerOnClick(listener, environment)
+      toByteArray()
+    })
   }
 
   private fun ClassVisitor.visitListenerHeader(listener: ListenerSpec, environment: GenerationEnvironment) {
-    visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, Types.TYPE_OBJECT.internalName, arrayOf("android/view/View\$OnClickListener"))
+    visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, Types.TYPE_OBJECT.internalName, arrayOf("${Types.TYPE_VIEW.internalName}\$OnClickListener"))
     visitSource(listener.type.toSourceFilePath(), null)
-    visitInnerClass("android/view/View\$OnClickListener", "android/view/View", "OnClickListener", ACC_PUBLIC + ACC_STATIC + ACC_ABSTRACT + ACC_INTERFACE)
+    visitInnerClass("${Types.TYPE_VIEW.internalName}\$OnClickListener", Types.TYPE_VIEW.internalName, "OnClickListener", ACC_PUBLIC + ACC_STATIC + ACC_ABSTRACT + ACC_INTERFACE)
   }
 
   private fun ClassVisitor.visitListenerFields(listener: ListenerSpec, environment: GenerationEnvironment) {
@@ -66,7 +85,7 @@ public class OnClickBindingGenerator : MethodBindingGenerator<OnClick> {
   }
 
   private fun ClassVisitor.visitListenerOnClick(listener: ListenerSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_PUBLIC, "onClick", "(Landroid/view/View;)V", null, null)
+    val visitor = visitMethod(ACC_PUBLIC, "onClick", "(L${Types.TYPE_VIEW.internalName};)V", null, null)
 
     val start = Label()
     val end = Label()
