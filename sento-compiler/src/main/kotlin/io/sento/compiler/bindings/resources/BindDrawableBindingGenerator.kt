@@ -2,13 +2,13 @@ package io.sento.compiler.bindings.resources
 
 import io.sento.BindDrawable
 import io.sento.compiler.bindings.FieldBindingContext
-import io.sento.compiler.bindings.FieldBindingGenerator
 import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.bindings.SimpleFieldBindingGenerator
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-internal class BindDrawableBindingGenerator : FieldBindingGenerator<BindDrawable> {
-  override fun bind(context: FieldBindingContext<BindDrawable>, environment: GenerationEnvironment) {
+internal class BindDrawableBindingGenerator : SimpleFieldBindingGenerator<BindDrawable>() {
+  override fun onBind(context: FieldBindingContext<BindDrawable>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 

@@ -3,13 +3,13 @@ package io.sento.compiler.bindings.views
 import io.sento.Bind
 import io.sento.Optional
 import io.sento.compiler.bindings.FieldBindingContext
-import io.sento.compiler.bindings.FieldBindingGenerator
 import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.bindings.SimpleFieldBindingGenerator
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-internal class BindViewBindingGenerator : FieldBindingGenerator<Bind> {
-  override fun bind(context: FieldBindingContext<Bind>, environment: GenerationEnvironment) {
+internal class BindViewBindingGenerator : SimpleFieldBindingGenerator<Bind>() {
+  override fun onBind(context: FieldBindingContext<Bind>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -29,7 +29,7 @@ internal class BindViewBindingGenerator : FieldBindingGenerator<Bind> {
     visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
   }
 
-  override fun unbind(context: FieldBindingContext<Bind>, environment: GenerationEnvironment) {
+  override fun onUnbind(context: FieldBindingContext<Bind>, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val field = context.field
     val clazz = context.clazz

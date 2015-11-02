@@ -49,27 +49,30 @@ internal class BindingContentGenerator : ContentGenerator {
   }
 
   override fun onGenerateContent(clazz: ClassSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    return ArrayList<GeneratedContent>().apply {
-      if (shouldGenerateBindingClass(clazz, environment)) {
-        add(GeneratedContent(onGenerateBindingClass(clazz, environment), clazz.generatedType.toClassFilePath()))
-        add(GeneratedContent(onGenerateTargetClass(clazz, environment), clazz.originalType.toClassFilePath()))
-      }
+    if (!shouldGenerateBindingClass(clazz, environment)) {
+      return emptyList()
     }
-  }
 
-  private fun onGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
-    return with (ClassWriter(0)) {
-      visitHeader(clazz, environment)
-      visitConstructor(clazz, environment)
+    val result = ArrayList<GeneratedContent>()
+    val writer = ClassWriter(0)
 
-      visitBindMethod(clazz, environment)
-      visitUnbindMethod(clazz, environment)
-      visitBindBridge(clazz, environment)
-      visitUnbindBridge(clazz, environment)
-      visitEnd()
+    writer.visitHeader(clazz, environment)
+    writer.visitConstructor(clazz, environment)
 
-      toByteArray()
-    }
+    val binders = writer.visitBindMethod(clazz, environment)
+    val unbinders = writer.visitUnbindMethod(clazz, environment)
+
+    writer.visitBindBridge(clazz, environment)
+    writer.visitUnbindBridge(clazz, environment)
+    writer.visitEnd()
+
+    result.add(GeneratedContent(clazz.originalType.toClassFilePath(), onGenerateTargetClass(clazz, environment)))
+    result.add(GeneratedContent(clazz.generatedType.toClassFilePath(), writer.toByteArray()))
+
+    result.addAll(binders)
+    result.addAll(unbinders)
+
+    return result
   }
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
@@ -144,8 +147,9 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitEnd()
   }
 
-  private fun ClassWriter.visitBindMethod(clazz: ClassSpec, environment: GenerationEnvironment) {
+  private fun ClassWriter.visitBindMethod(clazz: ClassSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${clazz.originalType.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", "<S:L${Types.TYPE_OBJECT.internalName};>(TT;TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V", null)
+    val result = ArrayList<GeneratedContent>()
 
     val start = Label()
     val end = Label()
@@ -162,7 +166,7 @@ internal class BindingContentGenerator : ContentGenerator {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
           val context = FieldBindingContext(field, clazz, value, visitor, variables)
 
-          generator.bind(context, environment)
+          result.addAll(generator.bind(context, environment))
         }
       }
     }
@@ -177,10 +181,13 @@ internal class BindingContentGenerator : ContentGenerator {
 
     visitor.visitMaxs(5, 4)
     visitor.visitEnd()
+
+    return result
   }
 
-  private fun ClassWriter.visitUnbindMethod(clazz: ClassSpec, environment: GenerationEnvironment) {
+  private fun ClassWriter.visitUnbindMethod(clazz: ClassSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${clazz.originalType.internalName};)V", "(TT;)V", null)
+    val result = ArrayList<GeneratedContent>()
 
     val start = Label()
     val end = Label()
@@ -197,7 +204,7 @@ internal class BindingContentGenerator : ContentGenerator {
           val variables = mapOf("this" to 0, "target" to 1)
           val context = FieldBindingContext(field, clazz, value, visitor, variables)
 
-          generator.unbind(context, environment)
+          result.addAll(generator.unbind(context, environment))
         }
       }
     }
@@ -208,6 +215,8 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitLocalVariable("target", clazz.originalType.descriptor, "TT;", start, end, 1)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
+
+    return result
   }
 
   private fun ClassWriter.visitBindBridge(clazz: ClassSpec, environment: GenerationEnvironment) {
@@ -251,17 +260,11 @@ internal class BindingContentGenerator : ContentGenerator {
   }
 
   private fun Type.toSource(): String {
-    val className = className
-
     return if (className.contains('.')) {
       "${className.substring(className.lastIndexOf('.') + 1)}.java"
     } else {
       "$className.java"
     }
-  }
-
-  private fun Type.toJavaFilePath(): String {
-    return "$internalName.java"
   }
 
   private fun Type.toClassFilePath(): String {
