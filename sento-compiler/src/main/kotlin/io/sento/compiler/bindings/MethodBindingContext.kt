@@ -1,7 +1,6 @@
 package io.sento.compiler.bindings
 
 import io.sento.compiler.specs.ClassSpec
-import io.sento.compiler.specs.FieldSpec
 import io.sento.compiler.specs.MethodSpec
 import org.objectweb.asm.MethodVisitor
 import java.util.NoSuchElementException
