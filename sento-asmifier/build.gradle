@@ -1,0 +1,17 @@
+buildscript {
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+  }
+}
+
+apply plugin: "kotlin"
+
+dependencies {
+  compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+  compile "org.ow2.asm:asm:$asmVersion"
+  compile "org.ow2.asm:asm-commons:$asmVersion"
+  compile "org.ow2.asm:asm-util:$asmVersion"
+
+  compile "com.google.android:android:2.3.3"
+}
