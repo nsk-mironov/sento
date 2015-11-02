@@ -9,10 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import io.sento.Bind
 import io.sento.BindColor
 import io.sento.BindDimen
 import io.sento.BindString
+import io.sento.OnClick
 import io.sento.Sento
 
 public fun <T> notNull(): T = null as T
@@ -77,5 +79,9 @@ public open class ParentFragment : Fragment() {
   override fun onDestroyView() {
     super.onDestroyView()
     Sento.unbind(this)
+  }
+
+  private @OnClick(R.id.button_done) fun onDoneClick() {
+    Toast.makeText(context, "Done clicked!", Toast.LENGTH_SHORT).show()
   }
 }
