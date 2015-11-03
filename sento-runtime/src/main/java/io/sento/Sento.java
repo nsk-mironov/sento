@@ -6,8 +6,8 @@ import android.view.View;
 
 import java.util.*;
 
-public class Sento {
-  private final static Map<Class<?>, Binding<Object>> BINDINGS = new IdentityHashMap<>();
+public final class Sento {
+  private static final Map<Class<?>, Binding<Object>> BINDINGS = new IdentityHashMap<>();
 
   public static void bind(final Object target, final Activity activity) {
     findOrCreateBinding(target.getClass()).bind(target, activity, ACTIVITY_FINDER);
@@ -69,7 +69,7 @@ public class Sento {
     return "R." + resources.getResourceTypeName(id) + "." + resources.getResourceEntryName(id);
   }
 
-  private static class CompositeBinding<T> implements Binding<T> {
+  private static final class CompositeBinding<T> implements Binding<T> {
     private final List<Binding<T>> bindings;
 
     private CompositeBinding(final List<Binding<T>> bindings) {
@@ -91,7 +91,7 @@ public class Sento {
     }
   }
 
-  private static Binding<Object> DEFAULT_BINDING = new Binding<Object>() {
+  private static final Binding<Object> DEFAULT_BINDING = new Binding<Object>() {
     @Override
     public <S> void bind(Object target, S source, Finder<? super S> finder) {
       // nothing to do
@@ -103,7 +103,7 @@ public class Sento {
     }
   };
 
-  private static Finder<Activity> ACTIVITY_FINDER = new Finder<Activity>() {
+  private static final Finder<Activity> ACTIVITY_FINDER = new Finder<Activity>() {
     @Override
     @SuppressWarnings("unchecked")
     public <V extends View> V find(final int id, final Activity source, final boolean optional) {
@@ -122,7 +122,7 @@ public class Sento {
     }
   };
 
-  private static Finder<View> VIEW_FINDER = new Finder<View>() {
+  private static final Finder<View> VIEW_FINDER = new Finder<View>() {
     @Override
     @SuppressWarnings("unchecked")
     public <V extends View> V find(final int id, final View source, final boolean optional) {
