@@ -21,12 +21,12 @@ allprojects {
 
 ext {
   projectCompileSdkVersion = 23
-  projectBuildToolsVersion = "23.0.1"
+  projectBuildToolsVersion = "23.0.2"
 
   projectMinSdkVersion = 14
   projectTargetSdkVersion = 23
 
-  androidToolsVersion = "1.4.0-beta6"
+  androidToolsVersion = "1.5.0-beta1"
   kotlinVersion = "1.0.0-beta-1103"
 
   guavaVersion = "18.0"

@@ -1,31 +1,32 @@
 package io.sento
 
-import com.android.build.transform.api.AsInputTransform
 import com.android.build.transform.api.Context
-import com.android.build.transform.api.ScopedContent
+import com.android.build.transform.api.Format
+import com.android.build.transform.api.QualifiedContent
 import com.android.build.transform.api.Transform
 import com.android.build.transform.api.TransformException
 import com.android.build.transform.api.TransformInput
-import com.android.build.transform.api.TransformOutput
+import com.android.build.transform.api.TransformOutputProvider
 import com.google.common.collect.Iterables
 import io.sento.compiler.SentoCompiler
 import io.sento.compiler.SentoOptions
 
-public class SentoTransform extends Transform implements AsInputTransform {
+public class SentoTransform extends Transform {
   @Override
-  public void transform(final Context context, final Map<TransformInput, TransformOutput> inputs, final Collection<TransformInput> references, final boolean incremental) throws IOException, TransformException, InterruptedException {
+  public void transform(final Context context, final Collection<TransformInput> inputs, final Collection<TransformInput> references, final TransformOutputProvider provider, final boolean incremental) throws IOException, TransformException, InterruptedException {
     final def compiler = new SentoCompiler()
 
-    final def entry = Iterables.getOnlyElement(inputs.keySet())
-    final def input = Iterables.getOnlyElement(entry.files)
-    final def output = Iterables.getOnlyElement(inputs.values()).outFile
+    final def transformInput = Iterables.getOnlyElement(inputs)
+    final def directoryInput = Iterables.getOnlyElement(transformInput.directoryInputs)
 
-    final def builder = new SentoOptions.Builder(input, output)
+    final def output = provider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
+    final def input = directoryInput.file
 
-    builder.incremental(incremental)
-    builder.dryRun(true)
-
-    compiler.compile(builder.build())
+    compiler.compile(new SentoOptions.Builder(input, output)
+        .incremental(incremental)
+        .dryRun(false)
+        .build()
+    )
   }
 
   @Override
@@ -34,43 +35,38 @@ public class SentoTransform extends Transform implements AsInputTransform {
   }
 
   @Override
-  public Set<ScopedContent.ContentType> getInputTypes() {
-    return Collections.singleton(ScopedContent.ContentType.CLASSES)
+  public Set<QualifiedContent.Scope> getScopes() {
+    return EnumSet.of(QualifiedContent.Scope.PROJECT)
   }
 
   @Override
-  public Set<ScopedContent.ContentType> getOutputTypes() {
-    return EnumSet.of(ScopedContent.ContentType.CLASSES)
+  public Set<QualifiedContent.ContentType> getInputTypes() {
+    return EnumSet.of(QualifiedContent.DefaultContentType.CLASSES)
   }
 
   @Override
-  public Set<ScopedContent.Scope> getScopes() {
-    return EnumSet.of(ScopedContent.Scope.PROJECT)
+  public Set<QualifiedContent.ContentType> getOutputTypes() {
+    return EnumSet.of(QualifiedContent.DefaultContentType.CLASSES)
   }
 
   @Override
-  public Set<ScopedContent.Scope> getReferencedScopes() {
+  public Set<QualifiedContent.Scope> getReferencedScopes() {
     return Collections.emptySet()
   }
 
   @Override
-  public ScopedContent.Format getOutputFormat() {
-    return ScopedContent.Format.SINGLE_FOLDER
-  }
-
-  @Override
   public Collection<File> getSecondaryFileInputs() {
-    return Collections.emptyList()
+    return Collections.emptySet()
   }
 
   @Override
   public Collection<File> getSecondaryFileOutputs() {
-    return Collections.emptyList()
+    return Collections.emptySet()
   }
 
   @Override
-  public Collection<File> getSecondaryFolderOutputs() {
-    return Collections.emptyList()
+  public Collection<File> getSecondaryDirectoryOutputs() {
+    return Collections.emptySet()
   }
 
   @Override
