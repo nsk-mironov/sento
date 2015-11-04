@@ -19,7 +19,7 @@ import io.sento.Sento
 
 public fun <T> notNull(): T = null as T
 
-public open class ParentFragment : Fragment() {
+public class SampleFragment : Fragment() {
   private @Bind(R.id.first_name_input) val first_name_input: EditText = notNull()
   private @Bind(R.id.first_name_label) val first_name_label: TextView = notNull()
 
