@@ -172,7 +172,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
         if (generator != null) {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-          val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory)
+          val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory, environment)
 
           result.addAll(generator.bind(context, environment))
         }
@@ -186,7 +186,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
         if (generator != null) {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-          val context = MethodBindingContext(method, binding.clazz, value, visitor, variables, binding.factory)
+          val context = MethodBindingContext(method, binding.clazz, value, visitor, variables, binding.factory, environment)
 
           result.addAll(generator.bind(context, environment))
         }
@@ -224,7 +224,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
         if (generator != null) {
           val variables = mapOf("this" to 0, "target" to 1)
-          val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory)
+          val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory, environment)
 
           result.addAll(generator.unbind(context, environment))
         }
@@ -238,7 +238,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
         if (generator != null) {
           val variables = mapOf("this" to 0, "target" to 1)
-          val context = MethodBindingContext(method, binding.clazz, value, visitor, variables, binding.factory)
+          val context = MethodBindingContext(method, binding.clazz, value, visitor, variables, binding.factory, environment)
 
           result.addAll(generator.unbind(context, environment))
         }
