@@ -169,7 +169,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.fields.forEach { field ->
       field.annotations.forEach { annotation ->
-        val generator = fieldGenerators.get(annotation.type)
+        val generator = fieldGenerators[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {
@@ -183,7 +183,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.methods.forEach { method ->
       method.annotations.forEach { annotation ->
-        val generator = methodGenerators.get(annotation.type)
+        val generator = methodGenerators[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {
@@ -221,7 +221,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.fields.forEach { field ->
       field.annotations.forEach { annotation ->
-        val generator = fieldGenerators.get(annotation.type)
+        val generator = fieldGenerators[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {
@@ -235,7 +235,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.methods.forEach { method ->
       method.annotations.forEach { annotation ->
-        val generator = methodGenerators.get(annotation.type)
+        val generator = methodGenerators[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {

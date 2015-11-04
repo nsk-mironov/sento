@@ -17,7 +17,7 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 
-public class OnClickBindingGenerator : MethodBindingGenerator<OnClick> {
+internal class OnClickBindingGenerator : MethodBindingGenerator<OnClick> {
   override fun bind(context: MethodBindingContext<OnClick>, environment: GenerationEnvironment): List<GeneratedContent> {
     val listener = ListenerSpec(context.factory.newAnonymousType(), context.clazz.type, context.method)
     val result = listOf(onCreateOnClickListener(listener, environment))

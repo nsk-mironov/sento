@@ -3,7 +3,7 @@ package io.sento.compiler.bindings
 import io.sento.compiler.api.GeneratedContent
 import io.sento.compiler.api.GenerationEnvironment
 
-public open class SimpleFieldBindingGenerator<A : Annotation> : FieldBindingGenerator<A> {
+internal open class SimpleFieldBindingGenerator<A : Annotation> : FieldBindingGenerator<A> {
   override final fun bind(context: FieldBindingContext<A>, environment: GenerationEnvironment): List<GeneratedContent> {
     return super.bind(context, environment).apply {
       onBind(context, environment)

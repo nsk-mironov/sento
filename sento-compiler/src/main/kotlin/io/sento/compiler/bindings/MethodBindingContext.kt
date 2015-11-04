@@ -15,6 +15,6 @@ internal class MethodBindingContext<A : Annotation>(
     public val factory: TypeFactory
 ) {
   public fun variable(name: String): Int {
-    return variables.get(name) ?: throw NoSuchElementException("Unknown variable \"$name\"")
+    return variables[name] ?: throw NoSuchElementException("Unknown variable \"$name\"")
   }
 }
