@@ -72,8 +72,6 @@ internal class BindingContentGenerator : ContentGenerator {
     val binders = writer.visitBindMethod(binding, environment)
     val unbinders = writer.visitUnbindMethod(binding, environment)
 
-    writer.visitBindBridge(binding, environment)
-    writer.visitUnbindBridge(binding, environment)
     writer.visitEnd()
 
     result.add(GeneratedContent(binding.originalType.toClassFilePath(), onGenerateTargetClass(clazz, environment)))
@@ -158,7 +156,7 @@ internal class BindingContentGenerator : ContentGenerator {
   }
 
   private fun ClassWriter.visitBindMethod(binding: BindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${binding.originalType.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", "<S:L${Types.TYPE_OBJECT.internalName};>(TT;TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V", null)
+    val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", "<S:L${Types.TYPE_OBJECT.internalName};>(TT;TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V", null)
     val result = ArrayList<GeneratedContent>()
 
     val start = Label()
@@ -210,7 +208,7 @@ internal class BindingContentGenerator : ContentGenerator {
   }
 
   private fun ClassWriter.visitUnbindMethod(binding: BindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${binding.originalType.internalName};)V", "(TT;)V", null)
+    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${Types.TYPE_OBJECT.internalName};)V", "(TT;)V", null)
     val result = ArrayList<GeneratedContent>()
 
     val start = Label()
@@ -255,46 +253,6 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitEnd()
 
     return result
-  }
-
-  private fun ClassWriter.visitBindBridge(binding: BindingSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "bind", "(L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", null, null)
-
-    val start = Label()
-    val end = Label()
-
-    visitor.visitCode()
-    visitor.visitLabel(start)
-    visitor.visitVarInsn(ALOAD, 0)
-    visitor.visitVarInsn(ALOAD, 1)
-    visitor.visitTypeInsn(CHECKCAST, binding.originalType.internalName)
-    visitor.visitVarInsn(ALOAD, 2)
-    visitor.visitVarInsn(ALOAD, 3)
-    visitor.visitMethodInsn(INVOKEVIRTUAL, binding.generatedType.internalName, "bind", "(L${binding.originalType.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", false)
-    visitor.visitInsn(RETURN)
-    visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", binding.generatedType.descriptor, "L${binding.generatedType.internalName}<TT;>;", start, end, 0)
-    visitor.visitMaxs(4, 4)
-    visitor.visitEnd()
-  }
-
-  private fun ClassWriter.visitUnbindBridge(binding: BindingSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "unbind", "(L${Types.TYPE_OBJECT.internalName};)V", null, null)
-
-    val start = Label()
-    val end = Label()
-
-    visitor.visitCode()
-    visitor.visitLabel(start)
-    visitor.visitVarInsn(ALOAD, 0)
-    visitor.visitVarInsn(ALOAD, 1)
-    visitor.visitTypeInsn(CHECKCAST, binding.originalType.internalName)
-    visitor.visitMethodInsn(INVOKEVIRTUAL, binding.generatedType.internalName, "unbind", "(L${binding.originalType.internalName};)V", false)
-    visitor.visitInsn(RETURN)
-    visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", binding.generatedType.descriptor, "L${binding.generatedType.internalName}<TT;>;", start, end, 0)
-    visitor.visitMaxs(2, 2)
-    visitor.visitEnd()
   }
 
   private class BindingSpec(
