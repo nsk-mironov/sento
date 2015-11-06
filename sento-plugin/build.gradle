@@ -1,18 +1,12 @@
-plugins {
-  id "de.fuerstenau.buildconfig" version "1.0.5"
-  id "nu.studer.plugindev" version "1.0.3"
+buildscript {
+  dependencies {
+    classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
+  }
 }
 
-configurations {
-  provided
-  compile.extendsFrom provided
-}
-
-apply plugin: 'groovy'
-apply plugin: 'maven'
-
-group = GROUP
-version = VERSION_NAME
+apply plugin: "groovy"
+apply plugin: "com.jfrog.bintray"
+apply plugin: "maven-publish"
 
 dependencies {
   provided "com.android.tools.build:gradle:$androidToolsVersion"
@@ -24,37 +18,44 @@ dependencies {
   compile gradleApi()
 }
 
-plugindev {
-  pluginId GROUP
-  pluginName POM_ARTIFACT_ID
-  pluginImplementationClass 'io.sento.SentoPlugin'
-  pluginDescription POM_DESCRIPTION
-  pluginLicenses POM_LICENCE_SHORT
-  pluginTags POM_TAGS
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      groupId POM_GROUP
+      artifactId POM_ARTIFACT_ID
+      version POM_VERSION_NAME
 
-  authorId POM_DEVELOPER_ID
-  authorName POM_DEVELOPER_NAME
-  authorEmail POM_DEVELOPER_EMAIL
+      artifact sourceJar
+      artifact javadocJar
 
-  projectUrl POM_URL
-  projectInceptionYear POM_DEVELOPER_YEAR
+      pom.withXml {
+        asNode().dependencies.'*'.findAll {
+          it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
+            dep.name == it.artifactId.text()
+          }
+        } each {
+          it.scope*.value = 'compile'
+        }
 
-  done() // do not omit this
-}
+        asNode().dependencies.'*'.findAll {
+          it.groupId.text() == "com.android.tools.build"
+        } each {
+          it.scope*.value = 'provided'
+        }
+      }
 
-buildConfig {
-  sourceSets {
-    main {
-      version = VERSION_NAME
+      from components.java
     }
   }
 }
 
-sourceSets {
-  main {
-    groovy {
-      srcDir "build/buildConfigSources"
-    }
-  }
+task sourceJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+  classifier = 'javadoc'
+  from javadoc.destinationDir
 }
 

@@ -3,4 +3,7 @@ include ':sento-asmifier'
 include ':sento-runtime'
 include ':sento-compiler'
 include ':sento-plugin'
-include ':sento-sample'
+
+if (!hasProperty("skipSample")) {
+  include ':sento-sample'
+}
