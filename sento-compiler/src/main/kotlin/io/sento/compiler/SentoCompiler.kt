@@ -13,7 +13,7 @@ public class SentoCompiler() {
     println("libs ${options.libs}")
     println("dry ${options.dryRun}")
 
-    val registry = ClassRegistryFactory.from(options)
+    val registry = ClassRegistryFactory.create(options)
     val environment = GenerationEnvironment(registry)
     val generator = BindingContentGenerator()
 

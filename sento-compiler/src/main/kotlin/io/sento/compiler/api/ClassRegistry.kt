@@ -43,19 +43,23 @@ internal class ClassRegistry(
     return lookupRefs[type]
   }
 
-  public fun isSubclassOf(child: Type, parent: Type): Boolean {
-    if (child == Types.TYPE_OBJECT && parent != Types.TYPE_OBJECT) {
+  public fun isSubclassOf(type: Type, parent: Type): Boolean {
+    if (type == Types.TYPE_OBJECT && parent != Types.TYPE_OBJECT) {
       return false
     }
 
-    if (child == parent) {
+    if (type == parent) {
       return true
     }
 
-    if (lookupRefs[child] == null) {
+    if (lookupRefs[type] == null) {
       return false
     }
 
-    return isSubclassOf(lookupRefs[child]!!.parent, parent)
+    return isSubclassOf(lookupRefs[type]!!.parent, parent)
+  }
+
+  public fun isInterface(type: Type): Boolean {
+    return lookupRefs[type]?.isInterface ?: false
   }
 }

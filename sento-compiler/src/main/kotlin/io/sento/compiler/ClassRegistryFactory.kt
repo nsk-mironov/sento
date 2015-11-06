@@ -11,43 +11,33 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
 import java.util.zip.ZipFile
 
-internal object  ClassRegistryFactory {
-  public fun from(options: SentoOptions): ClassRegistry {
+internal object ClassRegistryFactory {
+  private const val EXTENSION_CLASS = "class"
+  private const val EXTENSION_JAR = "jar"
+
+  public fun create(options: SentoOptions): ClassRegistry {
     val builder = ClassRegistry.Builder()
 
     options.libs.forEach {
       if (it.isDirectory) {
-        FileUtils.iterateFiles(it, arrayOf("class"), true).forEach {
-          val bytes = FileUtils.readFileToByteArray(it)
-          val reader = ClassReader(bytes)
-
-          val type = Type.getObjectType(reader.className)
-          val parent = Type.getObjectType(reader.superName)
-
-          builder.reference(ClassRef(type, parent))
+        FileUtils.iterateFiles(it, arrayOf(EXTENSION_CLASS), true).forEach {
+          builder.reference(asClassRef(FileUtils.readFileToByteArray(it)))
         }
       }
 
-      if (it.isFile && FilenameUtils.getExtension(it.absolutePath) == "jar") {
+      if (it.isFile && FilenameUtils.getExtension(it.absolutePath) == EXTENSION_JAR) {
         ZipFile(it).apply {
           for (entry in entries()) {
-            if (FilenameUtils.getExtension(entry.name) == "class") {
-              val bytes = IOUtils.toByteArray(getInputStream(entry))
-              val reader = ClassReader(bytes)
-
-              val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
-              val type = Type.getObjectType(reader.className)
-
-              builder.reference(ClassRef(type, parent))
+            if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
+              builder.reference(asClassRef(IOUtils.toByteArray(getInputStream(entry))))
             }
           }
         }
       }
     }
 
-    FileUtils.iterateFiles(options.input, arrayOf("class"), true).forEach {
-      val bytes = FileUtils.readFileToByteArray(it)
-      val reader = ClassReader(bytes)
+    FileUtils.iterateFiles(options.input, arrayOf(EXTENSION_CLASS), true).forEach {
+      val reader = ClassReader(FileUtils.readFileToByteArray(it))
 
       val type = Type.getObjectType(reader.className)
       val parent = Type.getObjectType(reader.superName)
@@ -58,5 +48,14 @@ internal object  ClassRegistryFactory {
     }
 
     return builder.build()
+  }
+
+  private fun asClassRef(bytes: ByteArray): ClassRef {
+    val reader = ClassReader(bytes)
+
+    val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
+    val type = Type.getObjectType(reader.className)
+
+    return ClassRef(type, parent, reader.access)
   }
 }
