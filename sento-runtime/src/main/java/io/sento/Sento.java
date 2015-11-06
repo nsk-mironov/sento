@@ -93,12 +93,12 @@ public final class Sento {
 
   private static final Binding<Object> DEFAULT_BINDING = new Binding<Object>() {
     @Override
-    public <S> void bind(Object target, S source, Finder<? super S> finder) {
+    public <S> void bind(final Object target, final S source, final Finder<? super S> finder) {
       // nothing to do
     }
 
     @Override
-    public void unbind(Object target) {
+    public void unbind(final Object target) {
       // nothing to do
     }
   };
