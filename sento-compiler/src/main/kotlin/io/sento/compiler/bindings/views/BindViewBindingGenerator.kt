@@ -18,6 +18,10 @@ internal class BindViewBindingGenerator : SimpleFieldBindingGenerator<Bind>() {
 
     val optional = field.getAnnotation(Optional::class.java) != null
 
+    if (!environment.registry.isSubclassOf(field.type, Types.TYPE_VIEW)) {
+      throw RuntimeException("${field.type.className} isn't a subclass of ${Types.TYPE_VIEW.internalName}")
+    }
+
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("target"))
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
     visitor.visitLdcInsn(annotation.value)
