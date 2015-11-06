@@ -4,7 +4,7 @@ import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.Type
 import java.util.ArrayList
 
-internal class ClassRegistry(val classes: List<ClassSpec>) {
+internal class ClassRegistry(val classes: Collection<ClassSpec>) {
   private val lookup = classes.toMapBy {
     it.type
   }

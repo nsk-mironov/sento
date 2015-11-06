@@ -10,9 +10,9 @@ internal data class ClassSpec(
     public val file: File,
     public val type: Type,
     public val parent: Type,
-    public val annotations: List<AnnotationSpec>,
-    public val fields: List<FieldSpec>,
-    public val methods: List<MethodSpec>
+    public val annotations: Collection<AnnotationSpec>,
+    public val fields: Collection<FieldSpec>,
+    public val methods: Collection<MethodSpec>
 ) {
   public class Builder(val file: File, val type: Type, val parent: Type) {
     private val annotations = ArrayList<AnnotationSpec>()

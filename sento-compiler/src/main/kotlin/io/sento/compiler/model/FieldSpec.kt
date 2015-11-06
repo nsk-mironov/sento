@@ -7,7 +7,7 @@ import java.util.ArrayList
 internal data class FieldSpec(
     public val name: String,
     public val type: Type,
-    public val annotations: List<AnnotationSpec>
+    public val annotations: Collection<AnnotationSpec>
 ) {
   public class Builder(val name: String, val type: Type) {
     private val annotations = ArrayList<AnnotationSpec>()
