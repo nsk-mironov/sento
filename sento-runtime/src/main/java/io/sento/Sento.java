@@ -42,11 +42,11 @@ public final class Sento {
   private static Binding<Object> createBinding(final Class<?> clazz) {
     final List<Binding<Object>> bindings = new ArrayList<>();
 
-    for (Class parent = clazz; parent != null && !isSystemClass(parent); parent = parent.getSuperclass()) {
-      try {
-        bindings.add((Binding<Object>) Class.forName(parent.getName() + "$$SentoBinding").newInstance());
-      } catch (final Exception exception) {
-        // nothing to do. expected
+    for (Class current = clazz; current != null && !isSystemClass(current); current = current.getSuperclass()) {
+      final Binding<Object> binding = SentoFactory.createBinding(current);
+
+      if (binding != null) {
+        bindings.add(binding);
       }
     }
 
