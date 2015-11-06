@@ -1,5 +1,6 @@
 package io.sento
 
+import com.android.build.gradle.AppExtension
 import com.android.build.transform.api.Context
 import com.android.build.transform.api.Format
 import com.android.build.transform.api.QualifiedContent
@@ -29,8 +30,8 @@ public class SentoTransform extends Transform {
     final def output = provider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
     final def input = directoryInput.file
 
-    final def classpath = (List<File>) project.android.bootClasspath
-    final def libs = new ArrayList<File>(classpath)
+    final def android = project.extensions.findByType(AppExtension)
+    final def libs = new ArrayList<File>(android.bootClasspath)
 
     references.each {
       libs.addAll(it.directoryInputs*.file)
