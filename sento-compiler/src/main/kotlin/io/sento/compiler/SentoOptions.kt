@@ -1,14 +1,18 @@
 package io.sento.compiler
 
 import java.io.File
+import java.util.ArrayList
 
 public class SentoOptions(
-    val input: File,
-    val output: File,
-    val incremental: Boolean,
-    val dryRun: Boolean
+    public val input: File,
+    public val output: File,
+    public val libs: Collection<File>,
+    public val incremental: Boolean,
+    public val dryRun: Boolean
 ) {
   public class Builder(val input: File, val output: File) {
+    private val libs = ArrayList<File>()
+
     private var incremental = false
     private var dryRun = false
 
@@ -20,8 +24,12 @@ public class SentoOptions(
       dryRun = enabled
     }
 
+    public fun libs(files: List<File>) = apply {
+      libs.addAll(files)
+    }
+
     public fun build(): SentoOptions {
-      return SentoOptions(input, output, incremental, dryRun)
+      return SentoOptions(input, output, libs, incremental, dryRun)
     }
   }
 }

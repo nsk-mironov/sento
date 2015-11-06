@@ -16,6 +16,6 @@ public class SentoPlugin implements Plugin<Project> {
   }
 
   private static void onPrepareTransforms(final Project project) {
-    project.android.registerTransform(new SentoTransform())
+    project.android.registerTransform(new SentoTransform(project))
   }
 }

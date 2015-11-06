@@ -10,8 +10,15 @@ import com.android.build.transform.api.TransformOutputProvider
 import com.google.common.collect.Iterables
 import io.sento.compiler.SentoCompiler
 import io.sento.compiler.SentoOptions
+import org.gradle.api.Project
 
 public class SentoTransform extends Transform {
+  private final Project project
+
+  public SentoTransform(final Project project) {
+    this.project = project
+  }
+
   @Override
   public void transform(final Context context, final Collection<TransformInput> inputs, final Collection<TransformInput> references, final TransformOutputProvider provider, final boolean incremental) throws IOException, TransformException, InterruptedException {
     final def compiler = new SentoCompiler()
@@ -22,8 +29,17 @@ public class SentoTransform extends Transform {
     final def output = provider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
     final def input = directoryInput.file
 
+    final def classpath = (List<File>) project.android.bootClasspath
+    final def libs = new ArrayList<File>(classpath)
+
+    references.each {
+      libs.addAll(it.directoryInputs*.file)
+      libs.addAll(it.jarInputs*.file)
+    }
+
     compiler.compile(new SentoOptions.Builder(input, output)
         .incremental(incremental)
+        .libs(libs)
         .dryRun(false)
         .build()
     )
@@ -51,7 +67,13 @@ public class SentoTransform extends Transform {
 
   @Override
   public Set<QualifiedContent.Scope> getReferencedScopes() {
-    return Collections.emptySet()
+    return EnumSet.of(
+        QualifiedContent.Scope.PROJECT_LOCAL_DEPS,
+        QualifiedContent.Scope.SUB_PROJECTS,
+        QualifiedContent.Scope.SUB_PROJECTS_LOCAL_DEPS,
+        QualifiedContent.Scope.EXTERNAL_LIBRARIES,
+        QualifiedContent.Scope.PROVIDED_ONLY
+    )
   }
 
   @Override
