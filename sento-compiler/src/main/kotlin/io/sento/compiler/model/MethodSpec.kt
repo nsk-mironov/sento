@@ -1,4 +1,4 @@
-package io.sento.compiler.specs
+package io.sento.compiler.model
 
 import io.sento.compiler.common.AnnotationProxy
 import org.objectweb.asm.Type

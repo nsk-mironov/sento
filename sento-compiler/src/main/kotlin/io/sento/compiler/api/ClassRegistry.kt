@@ -1,6 +1,6 @@
 package io.sento.compiler.api
 
-import io.sento.compiler.specs.ClassSpec
+import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.Type
 import java.util.ArrayList
 

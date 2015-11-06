@@ -2,8 +2,8 @@ package io.sento.compiler.bindings
 
 import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.common.TypeFactory
-import io.sento.compiler.specs.ClassSpec
-import io.sento.compiler.specs.FieldSpec
+import io.sento.compiler.model.ClassSpec
+import io.sento.compiler.model.FieldSpec
 import org.objectweb.asm.MethodVisitor
 import java.util.NoSuchElementException
 

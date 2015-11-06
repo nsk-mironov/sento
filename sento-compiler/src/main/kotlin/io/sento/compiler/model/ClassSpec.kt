@@ -1,4 +1,4 @@
-package io.sento.compiler.specs
+package io.sento.compiler.model
 
 import org.apache.commons.io.FileUtils
 import org.objectweb.asm.ClassReader

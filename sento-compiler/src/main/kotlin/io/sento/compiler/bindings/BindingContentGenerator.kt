@@ -25,9 +25,9 @@ import io.sento.compiler.common.TypeFactory
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
-import io.sento.compiler.specs.ClassSpec
-import io.sento.compiler.specs.FieldSpec
-import io.sento.compiler.specs.MethodSpec
+import io.sento.compiler.model.ClassSpec
+import io.sento.compiler.model.FieldSpec
+import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter

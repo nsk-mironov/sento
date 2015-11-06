@@ -1,6 +1,6 @@
 package io.sento.compiler.visitors
 
-import io.sento.compiler.specs.ClassSpec
+import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor

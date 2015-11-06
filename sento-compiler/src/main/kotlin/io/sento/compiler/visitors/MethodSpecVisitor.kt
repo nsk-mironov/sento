@@ -1,6 +1,6 @@
 package io.sento.compiler.visitors
 
-import io.sento.compiler.specs.MethodSpec
+import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
