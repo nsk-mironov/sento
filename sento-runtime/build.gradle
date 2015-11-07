@@ -29,6 +29,16 @@ dependencies {
   compile project(":sento-annotations")
 }
 
+bintray {
+  user = System.getenv("BINTRAY_USERNAME")
+  key = System.getenv("BINTRAY_PASSWORD")
+
+  pkg {
+    repo = BINTRAY_REPO
+    name = BINTRAY_PACKAGE
+  }
+}
+
 publishing {
   publications {
     mavenAndroid(MavenPublication) {
@@ -42,6 +52,22 @@ publishing {
       artifact "$buildDir/outputs/aar/sento-runtime-release.aar"
     }
   }
+}
+
+bintray {
+  user = System.getenv("BINTRAY_USERNAME")
+  key = System.getenv("BINTRAY_PASSWORD")
+
+  pkg {
+    repo = BINTRAY_REPO
+    name = BINTRAY_PACKAGE
+
+    version {
+      name = POM_VERSION_NAME
+    }
+  }
+
+  publications = ['mavenAndroid']
 }
 
 task androidJavadocs(type: Javadoc) {
