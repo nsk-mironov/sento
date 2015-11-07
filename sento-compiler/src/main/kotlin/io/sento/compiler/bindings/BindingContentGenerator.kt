@@ -21,10 +21,10 @@ import io.sento.compiler.bindings.resources.BindIntegerBindingGenerator
 import io.sento.compiler.bindings.resources.BindStringBindingGenerator
 import io.sento.compiler.bindings.views.BindViewBindingGenerator
 import io.sento.compiler.bindings.views.OnClickBindingGenerator
-import io.sento.compiler.common.TypeFactory
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
+import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
@@ -41,23 +41,27 @@ import org.objectweb.asm.Opcodes.*
 import java.util.ArrayList
 import java.util.HashMap
 
-internal class BindingContentGenerator : ContentGenerator {
-  private val fieldGenerators = HashMap<Type, FieldBindingGenerator<out Annotation>>().apply {
-    put(Type.getType(Bind::class.java), BindViewBindingGenerator())
-    put(Type.getType(BindArray::class.java), BindArrayBindingGenerator())
-    put(Type.getType(BindBool::class.java), BindBoolBindingGenerator())
-    put(Type.getType(BindColor::class.java), BindColorBindingGenerator())
-    put(Type.getType(BindDimen::class.java), BindDimenBindingGenerator())
-    put(Type.getType(BindDrawable::class.java), BindDrawableBindingGenerator())
-    put(Type.getType(BindInteger::class.java), BindIntegerBindingGenerator())
-    put(Type.getType(BindString::class.java), BindStringBindingGenerator())
+internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGenerator {
+  public companion object {
+    public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
+
+    private val GENERATORS_FIELDS = HashMap<Type, FieldBindingGenerator<out Annotation>>().apply {
+      put(Type.getType(Bind::class.java), BindViewBindingGenerator())
+      put(Type.getType(BindArray::class.java), BindArrayBindingGenerator())
+      put(Type.getType(BindBool::class.java), BindBoolBindingGenerator())
+      put(Type.getType(BindColor::class.java), BindColorBindingGenerator())
+      put(Type.getType(BindDimen::class.java), BindDimenBindingGenerator())
+      put(Type.getType(BindDrawable::class.java), BindDrawableBindingGenerator())
+      put(Type.getType(BindInteger::class.java), BindIntegerBindingGenerator())
+      put(Type.getType(BindString::class.java), BindStringBindingGenerator())
+    }
+
+    private val GENERATORS_METHODS = HashMap<Type, MethodBindingGenerator<out Annotation>>().apply {
+      put(Type.getType(OnClick::class.java), OnClickBindingGenerator())
+    }
   }
 
-  private val methodGenerators = HashMap<Type, MethodBindingGenerator<out Annotation>>().apply {
-    put(Type.getType(OnClick::class.java), OnClickBindingGenerator())
-  }
-
-  override fun onGenerateContent(clazz: ClassSpec, environment: GenerationEnvironment): List<GeneratedContent> {
+  override fun onGenerateContent(environment: GenerationEnvironment): List<GeneratedContent> {
     if (!shouldGenerateBindingClass(clazz, environment)) {
       return emptyList()
     }
@@ -75,7 +79,9 @@ internal class BindingContentGenerator : ContentGenerator {
     writer.visitEnd()
 
     result.add(GeneratedContent(binding.originalType.toClassFilePath(), onGenerateTargetClass(clazz, environment)))
-    result.add(GeneratedContent(binding.generatedType.toClassFilePath(), writer.toByteArray()))
+    result.add(GeneratedContent(binding.generatedType.toClassFilePath(), writer.toByteArray(), HashMap<String, Any>().apply {
+      put(EXTRA_BINDING_SPEC, binding)
+    }))
 
     result.addAll(binders)
     result.addAll(unbinders)
@@ -117,13 +123,13 @@ internal class BindingContentGenerator : ContentGenerator {
 
   private fun shouldGenerateBindingForField(field: FieldSpec?): Boolean {
     return field != null && field.annotations.any {
-      fieldGenerators.containsKey(it.type)
+      GENERATORS_FIELDS.containsKey(it.type)
     }
   }
 
   private fun shouldGenerateBindingForMethod(method: MethodSpec?): Boolean {
     return method != null && method.annotations.any {
-      methodGenerators.containsKey(it.type)
+      GENERATORS_METHODS.containsKey(it.type)
     }
   }
 
@@ -167,7 +173,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.fields.forEach { field ->
       field.annotations.forEach { annotation ->
-        val generator = fieldGenerators[annotation.type]
+        val generator = GENERATORS_FIELDS[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {
@@ -181,7 +187,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.methods.forEach { method ->
       method.annotations.forEach { annotation ->
-        val generator = methodGenerators[annotation.type]
+        val generator = GENERATORS_METHODS[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {
@@ -219,7 +225,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.fields.forEach { field ->
       field.annotations.forEach { annotation ->
-        val generator = fieldGenerators[annotation.type]
+        val generator = GENERATORS_FIELDS[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {
@@ -233,7 +239,7 @@ internal class BindingContentGenerator : ContentGenerator {
 
     binding.clazz.methods.forEach { method ->
       method.annotations.forEach { annotation ->
-        val generator = methodGenerators[annotation.type]
+        val generator = GENERATORS_METHODS[annotation.type]
         val value = annotation.resolve<Annotation>()
 
         if (generator != null) {
@@ -253,22 +259,5 @@ internal class BindingContentGenerator : ContentGenerator {
     visitor.visitEnd()
 
     return result
-  }
-
-  private class BindingSpec(
-      public val clazz: ClassSpec,
-      public val generatedType: Type,
-      public val originalType: Type,
-      public val factory: TypeFactory
-  ) {
-    public companion object {
-      public fun from(clazz: ClassSpec): BindingSpec {
-        val originalType = clazz.type
-        val generatedType = Type.getObjectType("${originalType.internalName}\$\$SentoBinding")
-        val factory = TypeFactory(generatedType)
-
-        return BindingSpec(clazz, generatedType, originalType, factory)
-      }
-    }
   }
 }

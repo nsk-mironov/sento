@@ -4,6 +4,8 @@ import org.objectweb.asm.Type
 
 internal object Types {
   public val TYPE_OBJECT = Type.getType(Any::class.java)
+  public val TYPE_CLASS = Type.getType(Class::class.java)
+  public val TYPE_MAP = Type.getType(Map::class.java)
 
   public val TYPE_INT = Type.INT_TYPE
   public val TYPE_FLOAT = Type.FLOAT_TYPE
@@ -17,6 +19,7 @@ internal object Types {
 
   public val TYPE_BINDING = Type.getObjectType("io/sento/Binding")
   public val TYPE_FINDER = Type.getObjectType("io/sento/Finder")
+  public val TYPE_FACTORY = Type.getObjectType("io/sento/SentoFactory")
 
   public fun isSystemClass(type: Type): Boolean {
     return type.className != null && (type.className.startsWith("android.") || type.className.startsWith("java."))
