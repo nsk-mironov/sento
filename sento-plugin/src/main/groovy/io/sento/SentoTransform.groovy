@@ -47,22 +47,12 @@ public class SentoTransform extends Transform {
   }
 
   @Override
-  public String getName() {
-    return "sento"
-  }
-
-  @Override
   public Set<QualifiedContent.Scope> getScopes() {
     return EnumSet.of(QualifiedContent.Scope.PROJECT)
   }
 
   @Override
   public Set<QualifiedContent.ContentType> getInputTypes() {
-    return EnumSet.of(QualifiedContent.DefaultContentType.CLASSES)
-  }
-
-  @Override
-  public Set<QualifiedContent.ContentType> getOutputTypes() {
     return EnumSet.of(QualifiedContent.DefaultContentType.CLASSES)
   }
 
@@ -78,23 +68,8 @@ public class SentoTransform extends Transform {
   }
 
   @Override
-  public Collection<File> getSecondaryFileInputs() {
-    return Collections.emptySet()
-  }
-
-  @Override
-  public Collection<File> getSecondaryFileOutputs() {
-    return Collections.emptySet()
-  }
-
-  @Override
-  public Collection<File> getSecondaryDirectoryOutputs() {
-    return Collections.emptySet()
-  }
-
-  @Override
-  public Map<String, Object> getParameterInputs() {
-    return Collections.emptyMap()
+  public String getName() {
+    return "sento"
   }
 
   @Override
