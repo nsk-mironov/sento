@@ -137,7 +137,7 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
 
   private fun ClassWriter.visitHeader(binding: BindingSpec, environment: GenerationEnvironment) = apply {
     val name = binding.generatedType.internalName
-    val signature = "<T:L${binding.originalType.internalName};>L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_BINDING.internalName}<TT;>;"
+    val signature = "L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_BINDING.internalName}<L${Types.TYPE_OBJECT.internalName};>;"
     val superName = Types.TYPE_OBJECT.internalName
     val interfaces = arrayOf(Types.TYPE_BINDING.internalName)
     val source = binding.generatedType.toSourceFilePath()
@@ -164,7 +164,10 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
   }
 
   private fun ClassWriter.visitBindMethod(binding: BindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    val visitor = visitMethod(ACC_PUBLIC, "bind", "(L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V", "<S:L${Types.TYPE_OBJECT.internalName};>(TT;TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V", null)
+    val descriptor = "(L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V"
+    val signature = "<S:L${Types.TYPE_OBJECT.internalName};>(L${Types.TYPE_OBJECT.internalName};TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V"
+
+    val visitor = visitMethod(ACC_PUBLIC, "bind", descriptor, signature, null)
     val result = ArrayList<GeneratedContent>()
 
     val start = Label()
@@ -204,8 +207,8 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
 
-    visitor.visitLocalVariable("this", binding.generatedType.descriptor, "L${binding.generatedType.internalName}<TT;>;", start, end, 0)
-    visitor.visitLocalVariable("target", binding.originalType.descriptor, "TT;", start, end, 1)
+    visitor.visitLocalVariable("this", binding.generatedType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("target", Types.TYPE_OBJECT.descriptor, null, start, end, 1)
     visitor.visitLocalVariable("source", Types.TYPE_OBJECT.descriptor, "TS;", start, end, 2)
     visitor.visitLocalVariable("finder", Types.TYPE_FINDER.descriptor, "L${Types.TYPE_FINDER.internalName}<-TS;>;", start, end, 3)
 
@@ -216,7 +219,7 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
   }
 
   private fun ClassWriter.visitUnbindMethod(binding: BindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${Types.TYPE_OBJECT.internalName};)V", "(TT;)V", null)
+    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${Types.TYPE_OBJECT.internalName};)V", null, null)
     val result = ArrayList<GeneratedContent>()
 
     val start = Label()
@@ -255,8 +258,8 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
 
     visitor.visitInsn(RETURN)
     visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", binding.generatedType.descriptor, "L${binding.generatedType.internalName}<TT;>;", start, end, 0)
-    visitor.visitLocalVariable("target", binding.originalType.descriptor, "TT;", start, end, 1)
+    visitor.visitLocalVariable("this", binding.generatedType.descriptor, null, start, end, 0)
+    visitor.visitLocalVariable("target", Types.TYPE_OBJECT.descriptor, null, start, end, 1)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
 
