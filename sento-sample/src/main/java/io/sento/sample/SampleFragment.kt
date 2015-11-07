@@ -45,7 +45,7 @@ public class SampleFragment : Fragment() {
   private @BindDimen(R.dimen.font_normal) val fontNormal = 0.0f
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-    return inflater.inflate(R.layout.fragment_parent, container, false)
+    return inflater.inflate(R.layout.fragment_sample, container, false)
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
