@@ -22,13 +22,6 @@ allprojects {
   }
 }
 
-subprojects {
-  configurations {
-    provided
-    compile.extendsFrom provided
-  }
-}
-
 ext {
   projectCompileSdkVersion = 23
   projectBuildToolsVersion = "23.0.2"

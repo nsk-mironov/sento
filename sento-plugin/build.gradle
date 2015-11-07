@@ -9,7 +9,7 @@ apply plugin: "com.jfrog.bintray"
 apply plugin: "maven-publish"
 
 dependencies {
-  provided "com.android.tools.build:gradle:$androidToolsVersion"
+  compile "com.android.tools.build:gradle:$androidToolsVersion"
 
   compile project(":sento-annotations")
   compile project(":sento-compiler")
