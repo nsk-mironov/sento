@@ -58,7 +58,6 @@ internal class OnClickBindingGenerator : MethodBindingGenerator<OnClick> {
   private fun ClassVisitor.visitListenerHeader(listener: ListenerSpec, environment: GenerationEnvironment) {
     visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, Types.TYPE_OBJECT.internalName, arrayOf("${Types.TYPE_VIEW.internalName}\$OnClickListener"))
     visitSource(listener.type.toSourceFilePath(), null)
-    visitInnerClass("${Types.TYPE_VIEW.internalName}\$OnClickListener", Types.TYPE_VIEW.internalName, "OnClickListener", ACC_PUBLIC + ACC_STATIC + ACC_ABSTRACT + ACC_INTERFACE)
   }
 
   private fun ClassVisitor.visitListenerFields(listener: ListenerSpec, environment: GenerationEnvironment) {
