@@ -1,6 +1,9 @@
 # Sento
 Yet another view injection library.
 
+# What does "Sento" mean?
+Sento (戦闘, Sentō) is an ancient katana blade wielded by the blind swordsman Kenshi, and it belongs to his long-lost ancestors, the warrior monarchs of both Asia and Europe in Earthrealm known as the Warrior Kings. © [http://mortalkombat.wikia.com/](http://mortalkombat.wikia.com/wiki/Sento)
+
 # License
 
     Copyright 2015 Vladimir Mironov
