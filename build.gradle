@@ -1,5 +1,6 @@
 buildscript {
   repositories {
+    maven { url "http://dl.bintray.com/nsk-mironov/android" }
     mavenLocal()
     jcenter()
   }
@@ -8,12 +9,14 @@ buildscript {
 allprojects {
   buildscript {
     repositories {
+      maven { url "http://dl.bintray.com/nsk-mironov/android" }
       mavenLocal()
       jcenter()
     }
   }
 
   repositories {
+    maven { url "http://dl.bintray.com/nsk-mironov/android" }
     mavenLocal()
     jcenter()
   }
