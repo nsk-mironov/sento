@@ -17,8 +17,9 @@ internal object ClassRegistryFactory {
 
   public fun create(options: SentoOptions): ClassRegistry {
     val builder = ClassRegistry.Builder()
+    val references = options.libs + options.input
 
-    options.libs.forEach {
+    references.forEach {
       if (it.isDirectory) {
         FileUtils.iterateFiles(it, arrayOf(EXTENSION_CLASS), true).forEach {
           builder.reference(asClassRef(FileUtils.readFileToByteArray(it)))

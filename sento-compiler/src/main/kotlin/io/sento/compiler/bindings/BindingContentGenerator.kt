@@ -73,8 +73,13 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
     writer.visitHeader(binding, environment)
     writer.visitConstructor(binding, environment)
 
-    val binders = writer.visitBindMethod(binding, environment)
-    val unbinders = writer.visitUnbindMethod(binding, environment)
+    writer.visitBindMethod(binding, environment).apply {
+      result.addAll(this)
+    }
+
+    writer.visitUnbindMethod(binding, environment).apply {
+      result.addAll(this)
+    }
 
     writer.visitEnd()
 
@@ -82,9 +87,6 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
     result.add(GeneratedContent(binding.generatedType.toClassFilePath(), writer.toByteArray(), HashMap<String, Any>().apply {
       put(EXTRA_BINDING_SPEC, binding)
     }))
-
-    result.addAll(binders)
-    result.addAll(unbinders)
 
     return result
   }
