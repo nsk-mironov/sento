@@ -29,16 +29,18 @@ internal class OnClickBindingGenerator : MethodBindingGenerator<OnClick> {
     val method = context.method
     val optional = method.getAnnotation(Optional::class.java) != null
 
-    visitor.visitVarInsn(ALOAD, context.variable("finder"))
-    visitor.visitLdcInsn(annotation.value)
-    visitor.visitVarInsn(ALOAD, context.variable("source"))
-    visitor.visitInsn(if (optional) Opcodes.ICONST_1 else Opcodes.ICONST_0)
-    visitor.visitMethodInsn(INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "find", "(IL${Types.TYPE_OBJECT.internalName};Z)L${Types.TYPE_VIEW.internalName};", true)
-    visitor.visitTypeInsn(NEW, listener.type.internalName)
-    visitor.visitInsn(DUP)
-    visitor.visitVarInsn(ALOAD, context.variable("target"))
-    visitor.visitMethodInsn(INVOKESPECIAL, listener.type.internalName, "<init>", "(L${clazz.type.internalName};)V", false)
-    visitor.visitMethodInsn(INVOKEVIRTUAL, Types.TYPE_VIEW.internalName, "setOnClickListener", "(L${Types.TYPE_VIEW.internalName}\$OnClickListener;)V", false)
+    annotation.value.forEach {
+      visitor.visitVarInsn(ALOAD, context.variable("finder"))
+      visitor.visitLdcInsn(it)
+      visitor.visitVarInsn(ALOAD, context.variable("source"))
+      visitor.visitInsn(if (optional) Opcodes.ICONST_1 else Opcodes.ICONST_0)
+      visitor.visitMethodInsn(INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "find", "(IL${Types.TYPE_OBJECT.internalName};Z)L${Types.TYPE_VIEW.internalName};", true)
+      visitor.visitTypeInsn(NEW, listener.type.internalName)
+      visitor.visitInsn(DUP)
+      visitor.visitVarInsn(ALOAD, context.variable("target"))
+      visitor.visitMethodInsn(INVOKESPECIAL, listener.type.internalName, "<init>", "(L${clazz.type.internalName};)V", false)
+      visitor.visitMethodInsn(INVOKEVIRTUAL, Types.TYPE_VIEW.internalName, "setOnClickListener", "(L${Types.TYPE_VIEW.internalName}\$OnClickListener;)V", false)
+    }
 
     return result
   }

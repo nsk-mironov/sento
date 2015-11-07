@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @MethodBinding(
     target = "android.view.View",
-    listener = "android.view.View$OnClickListener",
-    setter = "setOnClickListener"
+    listener = "android.view.View$OnKeyListener",
+    setter = "setOnKeyListener"
 )
-public @interface OnClick {
+public @interface OnKey {
   public int[] value();
 }

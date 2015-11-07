@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @MethodBinding(
     target = "android.view.View",
-    listener = "android.view.View$OnClickListener",
-    setter = "setOnClickListener"
+    listener = "android.view.View$OnFocusChangeListener",
+    setter = "setOnFocusChangeListener"
 )
-public @interface OnClick {
+public @interface OnFocusChange {
   public int[] value();
 }
