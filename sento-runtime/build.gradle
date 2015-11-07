@@ -27,16 +27,6 @@ android {
     targetSdkVersion projectTargetSdkVersion
     minSdkVersion projectMinSdkVersion
   }
-
-  buildTypes {
-    release {
-      consumerProguardFiles "proguard-rules.txt"
-    }
-  }
-
-  packagingOptions {
-    exclude "*SentoFactory.class"
-  }
 }
 
 dependencies {
