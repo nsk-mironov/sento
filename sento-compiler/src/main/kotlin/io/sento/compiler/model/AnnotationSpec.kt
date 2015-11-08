@@ -20,6 +20,10 @@ internal data class AnnotationSpec(
     }
   }
 
+  public inline fun <reified V : Any> value(name: String): V? {
+    return values[name] as? V
+  }
+
   public inline fun <reified A : Annotation> resolve(): A {
     return AnnotationProxy.create(Class.forName(type.className).asSubclass(A::class.java), values)
   }

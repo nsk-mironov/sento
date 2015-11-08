@@ -21,6 +21,10 @@ internal object Types {
   public val TYPE_FINDER = Type.getObjectType("io/sento/Finder")
   public val TYPE_FACTORY = Type.getObjectType("io/sento/SentoFactory")
 
+  public inline fun <reified T : Any> get(): Type {
+    return Type.getType(T::class.java)
+  }
+
   public fun isSystemClass(type: Type): Boolean {
     return type.className != null && arrayOf("android.", "java.", "kotlin.", "dalvik.").any {
       type.className.startsWith(it)

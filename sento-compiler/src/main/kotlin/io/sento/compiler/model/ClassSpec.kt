@@ -1,6 +1,7 @@
 package io.sento.compiler.model
 
 import io.sento.compiler.Opener
+import io.sento.compiler.common.AnnotationProxy
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
 import java.util.ArrayList
@@ -45,6 +46,19 @@ internal data class ClassSpec(
     return methods.firstOrNull {
       it.name == name
     }
+  }
+
+  public inline fun <reified A : Annotation> getAnnotation(): A? {
+    return getAnnotation(A::class.java)
+  }
+
+  public fun <A : Annotation> getAnnotation(annotation: Class<A>): A? {
+    val type = Type.getType(annotation)
+    val spec = annotations.firstOrNull {
+      it.type == type
+    } ?: return null
+
+    return AnnotationProxy.create(annotation, spec.values)
   }
 
   public fun toClassReader(): ClassReader {

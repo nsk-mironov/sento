@@ -11,11 +11,15 @@ internal class ClassRegistry(
     public val annotations: Collection<ClassSpec>,
     public val classes: Collection<ClassSpec>
 ) {
-  private val lookupSpecs = classes.toMapBy {
+  private val lookupReferences = references.toMapBy {
     it.type
   }
 
-  private val lookupRefs = references.toMapBy {
+  private val lookupAnnotations = annotations.toMapBy {
+    it.type
+  }
+
+  private val lookupSpecs = classes.toMapBy {
     it.type
   }
 
@@ -54,12 +58,16 @@ internal class ClassRegistry(
     }
   }
 
-  public fun spec(type: Type): ClassSpec? {
-    return lookupSpecs[type]
+  public fun reference(type: Type): ClassReference? {
+    return lookupReferences[type]
   }
 
-  public fun reference(type: Type): ClassReference? {
-    return lookupRefs[type]
+  public fun annotation(type: Type): ClassSpec? {
+    return lookupAnnotations[type]
+  }
+
+  public fun spec(type: Type): ClassSpec? {
+    return lookupSpecs[type]
   }
 
   public fun isSubclassOf(type: Type, parent: Type): Boolean {
@@ -71,14 +79,14 @@ internal class ClassRegistry(
       return true
     }
 
-    if (lookupRefs[type] == null) {
+    if (lookupReferences[type] == null) {
       return false
     }
 
-    return isSubclassOf(lookupRefs[type]!!.parent, parent)
+    return isSubclassOf(lookupReferences[type]!!.parent, parent)
   }
 
   public fun isInterface(type: Type): Boolean {
-    return lookupRefs[type]?.isInterface ?: false
+    return lookupReferences[type]?.isInterface ?: false
   }
 }
