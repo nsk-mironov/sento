@@ -22,6 +22,8 @@ internal object Types {
   public val TYPE_FACTORY = Type.getObjectType("io/sento/SentoFactory")
 
   public fun isSystemClass(type: Type): Boolean {
-    return type.className != null && (type.className.startsWith("android.") || type.className.startsWith("java."))
+    return type.className != null && arrayOf("android.", "java.", "kotlin.").any {
+      type.className.startsWith(it)
+    }
   }
 }

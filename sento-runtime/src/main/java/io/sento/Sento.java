@@ -62,7 +62,7 @@ public final class Sento {
   }
 
   private static boolean isSystemClass(final Class<?> clazz) {
-    return clazz.getName().startsWith("android.") || clazz.getName().startsWith("java.");
+    return clazz.getName().startsWith("android.") || clazz.getName().startsWith("java.") || clazz.getName().startsWith("kotlin.");
   }
 
   private static String asResourceName(final int id, final Resources resources) {
