@@ -43,13 +43,32 @@ internal object ClassRegistryFactory {
       }
     }
 
+    for (reference in builder.references) {
+      if (reference.isAnnotation && !Types.isSystemClass(reference.type)) {
+        val reader = ClassReader(reference.opener.open())
+        val type = reference.type
+
+        reader.accept(object : ClassVisitor(Opcodes.ASM5) {
+          override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
+            if (Type.getType(desc) == Type.getType(MethodBinding::class.java)) {
+              return AnnotationSpecVisitor(Type.getType(desc)) {
+                println("annotation ${type.className}, values = ${AnnotationProxy.create<MethodBinding>(it.values)}")
+              }
+            }
+
+            return super.visitAnnotation(desc, visible)
+          }
+        }, 0)
+      }
+    }
+
     FileUtils.iterateFiles(options.input, arrayOf(EXTENSION_CLASS), true).forEach {
       val reader = ClassReader(FileUtils.readFileToByteArray(it))
 
       val type = Type.getObjectType(reader.className)
       val parent = Type.getObjectType(reader.superName)
 
-      reader.accept(ClassSpecVisitor(it, type, parent) {
+      reader.accept(ClassSpecVisitor(type, parent, FileOpener(it)) {
         builder.spec(it)
       }, 0)
     }
@@ -62,20 +81,6 @@ internal object ClassRegistryFactory {
 
     val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
     val type = Type.getObjectType(reader.className)
-
-    if (reader.access and Opcodes.ACC_ANNOTATION != 0) {
-      reader.accept(object : ClassVisitor(Opcodes.ASM5) {
-        override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
-          if (Type.getType(desc) == Type.getType(MethodBinding::class.java)) {
-            return AnnotationSpecVisitor(Type.getType(desc)) {
-              println("annotation ${type.className}, values = ${AnnotationProxy.create<MethodBinding>(it.values)}")
-            }
-          }
-
-          return super.visitAnnotation(desc, visible)
-        }
-      }, 0)
-    }
 
     builder.reference(ClassReference(type, parent, reader.access, opener))
   }

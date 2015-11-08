@@ -1,20 +1,19 @@
 package io.sento.compiler.model
 
-import org.apache.commons.io.FileUtils
+import io.sento.compiler.Opener
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
-import java.io.File
 import java.util.ArrayList
 
 internal data class ClassSpec(
-    public val file: File,
     public val type: Type,
     public val parent: Type,
     public val annotations: Collection<AnnotationSpec>,
     public val fields: Collection<FieldSpec>,
-    public val methods: Collection<MethodSpec>
+    public val methods: Collection<MethodSpec>,
+    public val opener: Opener
 ) {
-  public class Builder(val file: File, val type: Type, val parent: Type) {
+  public class Builder(val type: Type, val parent: Type, val opener: Opener) {
     private val annotations = ArrayList<AnnotationSpec>()
     private val fields = ArrayList<FieldSpec>()
     private val methods = ArrayList<MethodSpec>()
@@ -32,7 +31,7 @@ internal data class ClassSpec(
     }
 
     public fun build(): ClassSpec {
-      return ClassSpec(file, type, parent, annotations, fields, methods)
+      return ClassSpec(type, parent, annotations, fields, methods, opener)
     }
   }
 
@@ -49,6 +48,6 @@ internal data class ClassSpec(
   }
 
   public fun toClassReader(): ClassReader {
-    return ClassReader(FileUtils.readFileToByteArray(file))
+    return ClassReader(opener.open())
   }
 }

@@ -19,8 +19,8 @@ internal class ClassRegistry(
   }
 
   public class Builder() {
-    private val references = ArrayList<ClassReference>()
-    private val classes = ArrayList<ClassSpec>()
+    internal val references = ArrayList<ClassReference>()
+    internal val classes = ArrayList<ClassSpec>()
 
     public fun spec(clazz: ClassSpec): Builder = apply {
       classes.add(clazz)
