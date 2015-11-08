@@ -6,14 +6,14 @@ import io.sento.compiler.api.GenerationEnvironment
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
-import io.sento.compiler.model.BindingSpec
+import io.sento.compiler.model.SentoBindingSpec
 
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.*
 
-internal class BindingFactoryContentGenerator(private val bindings: List<BindingSpec>) : ContentGenerator {
+internal class SentoFactoryContentGenerator(private val bindings: List<SentoBindingSpec>) : ContentGenerator {
   override fun onGenerateContent(environment: GenerationEnvironment): List<GeneratedContent> {
     return listOf(onCreateSentoFactory(environment))
   }

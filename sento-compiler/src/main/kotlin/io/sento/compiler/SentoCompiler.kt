@@ -1,9 +1,9 @@
 package io.sento.compiler
 
 import io.sento.compiler.api.GenerationEnvironment
-import io.sento.compiler.bindings.BindingContentGenerator
-import io.sento.compiler.bindings.BindingFactoryContentGenerator
-import io.sento.compiler.model.BindingSpec
+import io.sento.compiler.bindings.SentoBindingContentGenerator
+import io.sento.compiler.bindings.SentoFactoryContentGenerator
+import io.sento.compiler.model.SentoBindingSpec
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.ArrayList
@@ -19,13 +19,13 @@ public class SentoCompiler() {
     val registry = ClassRegistryFactory.create(options)
     val environment = GenerationEnvironment(registry)
 
-    val bindings = ArrayList<BindingSpec>()
+    val bindings = ArrayList<SentoBindingSpec>()
 
     FileUtils.copyDirectory(options.input, options.output).apply {
       registry.classes.forEach {
-        BindingContentGenerator(it).onGenerateContent(environment).forEach {
-          if (it.containsExtra(BindingContentGenerator.EXTRA_BINDING_SPEC)) {
-            bindings.add(it.extra<BindingSpec>(BindingContentGenerator.EXTRA_BINDING_SPEC))
+        SentoBindingContentGenerator(it).onGenerateContent(environment).forEach {
+          if (it.containsExtra(SentoBindingContentGenerator.EXTRA_BINDING_SPEC)) {
+            bindings.add(it.extra<SentoBindingSpec>(SentoBindingContentGenerator.EXTRA_BINDING_SPEC))
           }
 
           FileUtils.deleteQuietly(File(options.output, it.path)).apply {
@@ -35,7 +35,7 @@ public class SentoCompiler() {
       }
     }
 
-    BindingFactoryContentGenerator(bindings).onGenerateContent(environment).forEach {
+    SentoFactoryContentGenerator(bindings).onGenerateContent(environment).forEach {
       FileUtils.deleteQuietly(File(options.output, it.path)).apply {
         FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)
       }

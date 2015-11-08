@@ -24,7 +24,7 @@ import io.sento.compiler.bindings.views.OnClickBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
-import io.sento.compiler.model.BindingSpec
+import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
@@ -41,7 +41,7 @@ import org.objectweb.asm.Opcodes.*
 import java.util.ArrayList
 import java.util.HashMap
 
-internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGenerator {
+internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : ContentGenerator {
   public companion object {
     public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
 
@@ -66,7 +66,7 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
       return emptyList()
     }
 
-    val binding = BindingSpec.from(clazz)
+    val binding = SentoBindingSpec.from(clazz)
     val result = ArrayList<GeneratedContent>()
     val writer = ClassWriter(0)
 
@@ -135,7 +135,7 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
     }
   }
 
-  private fun ClassWriter.visitHeader(binding: BindingSpec, environment: GenerationEnvironment) = apply {
+  private fun ClassWriter.visitHeader(binding: SentoBindingSpec, environment: GenerationEnvironment) = apply {
     val name = binding.generatedType.internalName
     val signature = "L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_BINDING.internalName}<L${Types.TYPE_OBJECT.internalName};>;"
     val superName = Types.TYPE_OBJECT.internalName
@@ -146,7 +146,7 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
     visitSource(source, null)
   }
 
-  private fun ClassWriter.visitConstructor(binding: BindingSpec, environment: GenerationEnvironment) {
+  private fun ClassWriter.visitConstructor(binding: SentoBindingSpec, environment: GenerationEnvironment) {
     val visitor = visitMethod(ACC_PUBLIC, "<init>", "()V", null, null)
 
     val start = Label()
@@ -163,7 +163,7 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
     visitor.visitEnd()
   }
 
-  private fun ClassWriter.visitBindMethod(binding: BindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
+  private fun ClassWriter.visitBindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     val descriptor = "(L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V"
     val signature = "<S:L${Types.TYPE_OBJECT.internalName};>(L${Types.TYPE_OBJECT.internalName};TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V"
 
@@ -218,7 +218,7 @@ internal class BindingContentGenerator(private val clazz: ClassSpec) : ContentGe
     return result
   }
 
-  private fun ClassWriter.visitUnbindMethod(binding: BindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
+  private fun ClassWriter.visitUnbindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${Types.TYPE_OBJECT.internalName};)V", null, null)
     val result = ArrayList<GeneratedContent>()
 
