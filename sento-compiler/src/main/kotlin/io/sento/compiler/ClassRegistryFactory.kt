@@ -32,10 +32,12 @@ internal object ClassRegistryFactory {
       }
 
       if (it.isFile && FilenameUtils.getExtension(it.absolutePath) == EXTENSION_JAR) {
-        ZipFile(it).apply {
-          for (entry in entries()) {
+        ZipFile(it).use {
+          for (entry in it.entries()) {
             if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
-              onProcessReferencedClass(builder, IOUtils.toByteArray(getInputStream(entry)))
+              onProcessReferencedClass(builder, it.getInputStream(entry).use {
+                IOUtils.toByteArray(it)
+              })
             }
           }
         }
