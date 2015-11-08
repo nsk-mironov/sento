@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @MethodBinding(
-    target = "android.view.View",
+    owner = "android.view.View",
     listener = "android.view.View$OnClickListener",
     setter = "setOnClickListener"
 )

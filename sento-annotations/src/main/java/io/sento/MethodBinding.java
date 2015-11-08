@@ -1,7 +1,7 @@
 package io.sento;
 
 public @interface MethodBinding {
-  public String target();
+  public String owner();
 
   public String listener();
 
