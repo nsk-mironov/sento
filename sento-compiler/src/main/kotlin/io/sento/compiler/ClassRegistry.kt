@@ -29,12 +29,24 @@ internal class ClassRegistry(
       references.add(clazz)
     }
 
+    public fun references(values: Collection<ClassReference>): Builder = apply {
+      references.addAll(values)
+    }
+
     public fun annotation(clazz: ClassSpec): Builder = apply {
       annotations.add(clazz)
     }
 
+    public fun annotations(values: Collection<ClassSpec>): Builder = apply {
+      annotations.addAll(values)
+    }
+
     public fun spec(clazz: ClassSpec): Builder = apply {
       classes.add(clazz)
+    }
+
+    public fun specs(values: Collection<ClassSpec>): Builder = apply {
+      classes.addAll(values)
     }
 
     public fun build(): ClassRegistry {

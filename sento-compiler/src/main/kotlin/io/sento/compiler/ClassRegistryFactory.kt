@@ -22,17 +22,9 @@ internal object ClassRegistryFactory {
       val annotations = createAnnotationSpecsRegistry(references)
       val specs = createClassSpecsRegistry(options)
 
-      references.forEach {
-        reference(it)
-      }
-
-      annotations.forEach {
-        annotation(it)
-      }
-
-      specs.forEach {
-        spec(it)
-      }
+      references(references)
+      annotations(annotations)
+      specs(specs)
 
       build()
     }
