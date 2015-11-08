@@ -11,12 +11,13 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 internal class ClassSpecVisitor(
+    private val access: Int,
     private val type: Type,
     private val parent: Type,
     private val opener: Opener,
     private val action: (ClassSpec) -> Unit
 ) : ClassVisitor(Opcodes.ASM5) {
-  private val builder = ClassSpec.Builder(type, parent, opener)
+  private val builder = ClassSpec.Builder(access, type, parent, opener)
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
     return AnnotationSpecVisitor(Type.getType(desc)) {
@@ -27,13 +28,13 @@ internal class ClassSpecVisitor(
   }
 
   override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor {
-    return MethodSpecVisitor(name, Type.getType(desc)) {
+    return MethodSpecVisitor(access, name, Type.getType(desc)) {
       builder.method(it)
     }
   }
 
   override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor {
-    return FieldSpecVisitor(name, Type.getType(desc)) {
+    return FieldSpecVisitor(access, name, Type.getType(desc)) {
       builder.field(it)
     }
   }

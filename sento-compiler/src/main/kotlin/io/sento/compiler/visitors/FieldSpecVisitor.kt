@@ -8,11 +8,12 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 internal class FieldSpecVisitor(
+    private val access: Int,
     private val name: String,
     private val type: Type,
     private val action: (FieldSpec) -> Unit
 ) : FieldVisitor(Opcodes.ASM5) {
-  private val builder = FieldSpec.Builder(name, type)
+  private val builder = FieldSpec.Builder(access, name, type)
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
     return AnnotationSpecVisitor(Type.getType(desc)) {

@@ -58,7 +58,7 @@ internal object ClassRegistryFactory {
     return ArrayList<ClassSpec>().apply {
       references.forEach {
         if (it.isAnnotation && !Types.isSystemClass(it.type)) {
-          ClassReader(it.opener.open()).accept(ClassSpecVisitor(it.type, it.parent, it.opener) {
+          ClassReader(it.opener.open()).accept(ClassSpecVisitor(it.access, it.type, it.parent, it.opener) {
             add(it)
           }, 0)
         }
@@ -74,7 +74,7 @@ internal object ClassRegistryFactory {
         val type = Type.getObjectType(reader.className)
         val parent = Type.getObjectType(reader.superName)
 
-        reader.accept(ClassSpecVisitor(type, parent, FileOpener(it)) {
+        reader.accept(ClassSpecVisitor(reader.access, type, parent, FileOpener(it)) {
           add(it)
         }, 0)
       }
@@ -87,6 +87,6 @@ internal object ClassRegistryFactory {
     val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
     val type = Type.getObjectType(reader.className)
 
-    return ClassReference(type, parent, reader.access, opener)
+    return ClassReference(reader.access, type, parent, opener)
   }
 }

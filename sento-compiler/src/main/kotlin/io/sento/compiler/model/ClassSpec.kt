@@ -7,6 +7,7 @@ import org.objectweb.asm.Type
 import java.util.ArrayList
 
 internal data class ClassSpec(
+    public val access: Int,
     public val type: Type,
     public val parent: Type,
     public val annotations: Collection<AnnotationSpec>,
@@ -14,7 +15,7 @@ internal data class ClassSpec(
     public val methods: Collection<MethodSpec>,
     public val opener: Opener
 ) {
-  public class Builder(val type: Type, val parent: Type, val opener: Opener) {
+  public class Builder(val access: Int, val type: Type, val parent: Type, val opener: Opener) {
     private val annotations = ArrayList<AnnotationSpec>()
     private val fields = ArrayList<FieldSpec>()
     private val methods = ArrayList<MethodSpec>()
@@ -32,7 +33,7 @@ internal data class ClassSpec(
     }
 
     public fun build(): ClassSpec {
-      return ClassSpec(type, parent, annotations, fields, methods, opener)
+      return ClassSpec(access, type, parent, annotations, fields, methods, opener)
     }
   }
 

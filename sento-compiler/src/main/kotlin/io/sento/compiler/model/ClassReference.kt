@@ -5,9 +5,9 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 internal data class ClassReference(
+    public val access: Int,
     public val type: Type,
     public val parent: Type,
-    public val access: Int,
     public val opener: Opener
 ) {
   public val isInterface: Boolean
