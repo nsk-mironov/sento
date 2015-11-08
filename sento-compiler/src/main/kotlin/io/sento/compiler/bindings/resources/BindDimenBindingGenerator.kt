@@ -2,7 +2,7 @@ package io.sento.compiler.bindings.resources
 
 import io.sento.BindDimen
 import io.sento.compiler.bindings.FieldBindingContext
-import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.SimpleFieldBindingGenerator
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes

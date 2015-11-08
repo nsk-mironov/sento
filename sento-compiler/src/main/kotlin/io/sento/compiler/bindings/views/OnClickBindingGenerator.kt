@@ -2,8 +2,8 @@ package io.sento.compiler.bindings.views
 
 import io.sento.OnClick
 import io.sento.Optional
-import io.sento.compiler.api.GeneratedContent
-import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.GeneratedContent
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.MethodBindingContext
 import io.sento.compiler.bindings.MethodBindingGenerator
 import io.sento.compiler.common.Types

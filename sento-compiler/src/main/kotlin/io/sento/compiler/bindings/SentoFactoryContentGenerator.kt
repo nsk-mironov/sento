@@ -1,8 +1,8 @@
 package io.sento.compiler.bindings
 
-import io.sento.compiler.api.ContentGenerator
-import io.sento.compiler.api.GeneratedContent
-import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.ContentGenerator
+import io.sento.compiler.GeneratedContent
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
@@ -25,7 +25,7 @@ internal class SentoFactoryContentGenerator(private val bindings: List<SentoBind
 
       visitConstructor(environment)
       visitStaticConstructor(environment)
-      
+
       visitCreateBindingMethod(environment)
       visitEnd()
 

@@ -1,4 +1,4 @@
-package io.sento.compiler.api
+package io.sento.compiler
 
 internal class GenerationEnvironment(val registry: ClassRegistry) {
   public fun info(message: String) {

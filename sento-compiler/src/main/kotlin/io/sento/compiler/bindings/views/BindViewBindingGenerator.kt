@@ -3,7 +3,7 @@ package io.sento.compiler.bindings.views
 import io.sento.Bind
 import io.sento.Optional
 import io.sento.compiler.bindings.FieldBindingContext
-import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.SimpleFieldBindingGenerator
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes

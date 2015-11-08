@@ -1,6 +1,6 @@
 package io.sento.compiler
 
-import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.SentoBindingContentGenerator
 import io.sento.compiler.bindings.SentoFactoryContentGenerator
 import io.sento.compiler.model.SentoBindingSpec

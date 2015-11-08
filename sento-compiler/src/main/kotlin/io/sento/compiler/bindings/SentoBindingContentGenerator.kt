@@ -9,9 +9,9 @@ import io.sento.BindDrawable
 import io.sento.BindInteger
 import io.sento.BindString
 import io.sento.OnClick
-import io.sento.compiler.api.ContentGenerator
-import io.sento.compiler.api.GeneratedContent
-import io.sento.compiler.api.GenerationEnvironment
+import io.sento.compiler.ContentGenerator
+import io.sento.compiler.GeneratedContent
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.resources.BindArrayBindingGenerator
 import io.sento.compiler.bindings.resources.BindBoolBindingGenerator
 import io.sento.compiler.bindings.resources.BindColorBindingGenerator

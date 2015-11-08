@@ -1,7 +1,6 @@
 package io.sento.compiler
 
 import io.sento.MethodBinding
-import io.sento.compiler.api.ClassRegistry
 import io.sento.compiler.common.AnnotationProxy
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.ClassRef

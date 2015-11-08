@@ -1,4 +1,4 @@
-package io.sento.compiler.api
+package io.sento.compiler
 
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.ClassRef
