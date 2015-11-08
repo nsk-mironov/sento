@@ -11,7 +11,7 @@ internal class GeneratedContent(
     return extras[name] as T ?: throw NoSuchElementException(name)
   }
 
-  public fun containsExtra(name: String): Boolean {
+  public fun has(name: String): Boolean {
     return extras.containsKey(name)
   }
 }

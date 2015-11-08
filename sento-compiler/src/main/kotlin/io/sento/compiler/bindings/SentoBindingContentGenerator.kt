@@ -172,27 +172,23 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
     visitor.visitCode()
     visitor.visitLabel(start)
 
-    binding.clazz.fields.forEach { field ->
-      field.annotations.forEach { annotation ->
-        val generator = GENERATORS_FIELDS[annotation.type]
-        val value = annotation.resolve<Annotation>()
-
-        if (generator != null) {
+    for (field in binding.clazz.fields) {
+      for (annotation in field.annotations) {
+        GENERATORS_FIELDS[annotation.type]?.let {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
+          val value = annotation.resolve<Annotation>()
           val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory, environment)
 
-          result.addAll(generator.bind(context, environment))
+          result.addAll(it.bind(context, environment))
         }
       }
     }
 
     for (method in binding.clazz.methods) {
       for (annotation in method.annotations) {
-        val spec = environment.registry.resolve(annotation.type).getAnnotation<MethodBinding>()
-
-        if (spec != null) {
+        environment.registry.resolve(annotation.type).getAnnotation<MethodBinding>()?.let {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-          val context = MethodBindingContext(method, binding.clazz, spec, annotation, visitor, variables, binding.factory, environment)
+          val context = MethodBindingContext(method, binding.clazz, it, annotation, visitor, variables, binding.factory, environment)
           val generator = MethodBindingGenerator()
 
           result.addAll(generator.bind(context, environment))
@@ -224,16 +220,14 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
     visitor.visitCode()
     visitor.visitLabel(start)
 
-    binding.clazz.fields.forEach { field ->
-      field.annotations.forEach { annotation ->
-        val generator = GENERATORS_FIELDS[annotation.type]
-        val value = annotation.resolve<Annotation>()
-
-        if (generator != null) {
+    for (field in binding.clazz.fields) {
+      for (annotation in field.annotations) {
+        GENERATORS_FIELDS[annotation.type]?.let {
+          val value = annotation.resolve<Annotation>()
           val variables = mapOf("this" to 0, "target" to 1)
           val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory, environment)
 
-          result.addAll(generator.unbind(context, environment))
+          result.addAll(it.unbind(context, environment))
         }
       }
     }

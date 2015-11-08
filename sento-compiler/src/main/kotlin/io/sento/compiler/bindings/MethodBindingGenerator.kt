@@ -17,7 +17,7 @@ import org.objectweb.asm.Type
 
 internal class MethodBindingGenerator {
   public fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    val listener = ListenerSpec.from(context)
+    val listener = createListenerSpec(context)
     val result = listOf(onCreateOnClickListener(listener, environment))
 
     val visitor = context.visitor
@@ -102,7 +102,20 @@ internal class MethodBindingGenerator {
     visitor.visitEnd()
   }
 
-  private class ListenerSpec(
+  private fun createListenerSpec(context: MethodBindingContext): ListenerSpec {
+    return ListenerSpec(
+        listenerType = Type.getType(context.binding.listener.replace('.', '/')),
+        listenerOwner = Type.getType(context.binding.owner.replace('.', '/')),
+        listenerSetter = context.binding.setter,
+
+        generatedType = context.factory.newAnonymousType(),
+        generatedTarget = context.clazz.type,
+
+        method = context.method
+    )
+  }
+
+  private data class ListenerSpec(
       public val listenerType: Type,
       public val listenerOwner: Type,
       public val listenerSetter: String,
@@ -111,20 +124,5 @@ internal class MethodBindingGenerator {
       public val generatedTarget: Type,
 
       public val method: MethodSpec
-  ) {
-    public companion object {
-      public fun from(context: MethodBindingContext): ListenerSpec {
-        return ListenerSpec(
-            listenerType = Type.getType(context.binding.listener.replace('.', '/')),
-            listenerOwner = Type.getType(context.binding.owner.replace('.', '/')),
-            listenerSetter = context.binding.setter,
-
-            generatedType = context.factory.newAnonymousType(),
-            generatedTarget = context.clazz.type,
-
-            method = context.method
-        )
-      }
-    }
-  }
+  )
 }
