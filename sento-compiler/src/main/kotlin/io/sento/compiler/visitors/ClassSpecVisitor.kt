@@ -1,6 +1,7 @@
 package io.sento.compiler.visitors
 
 import io.sento.compiler.Opener
+import io.sento.compiler.common.Types
 import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassVisitor
@@ -19,7 +20,9 @@ internal class ClassSpecVisitor(
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
     return AnnotationSpecVisitor(Type.getType(desc)) {
-      builder.annotation(it)
+      if (!Types.isSystemClass(it.type)) {
+        builder.annotation(it)
+      }
     }
   }
 
