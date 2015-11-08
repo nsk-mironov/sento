@@ -22,14 +22,13 @@ internal object ClassRegistryFactory {
 
   public fun create(options: SentoOptions): ClassRegistry {
     val builder = ClassRegistry.Builder()
-    val references = options.libs + options.input
 
-    references.forEach {
-      if (it.isFile && FilenameUtils.getExtension(it.absolutePath) == EXTENSION_JAR) {
-        ZipFile(it).use {
+    for (file in options.libs + options.input) {
+      if (file.isFile && FilenameUtils.getExtension(file.absolutePath) == EXTENSION_JAR) {
+        ZipFile(file).use {
           for (entry in it.entries()) {
             if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
-              onProcessReferencedClass(builder, it.getInputStream(entry).use {
+              onProcessReferencedClass(builder, JarOpener(file, entry.name), it.getInputStream(entry).use {
                 IOUtils.toByteArray(it)
               })
             }
@@ -37,9 +36,9 @@ internal object ClassRegistryFactory {
         }
       }
 
-      if (it.isDirectory) {
-        FileUtils.iterateFiles(it, arrayOf(EXTENSION_CLASS), true).forEach {
-          onProcessReferencedClass(builder, FileUtils.readFileToByteArray(it))
+      if (file.isDirectory) {
+        FileUtils.iterateFiles(file, arrayOf(EXTENSION_CLASS), true).forEach {
+          onProcessReferencedClass(builder, FileOpener(file), FileUtils.readFileToByteArray(it))
         }
       }
     }
@@ -58,7 +57,7 @@ internal object ClassRegistryFactory {
     return builder.build()
   }
 
-  private fun onProcessReferencedClass(builder: ClassRegistry.Builder, bytes: ByteArray) {
+  private fun onProcessReferencedClass(builder: ClassRegistry.Builder, opener: Opener, bytes: ByteArray) {
     val reader = ClassReader(bytes)
 
     val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
@@ -78,6 +77,6 @@ internal object ClassRegistryFactory {
       }, 0)
     }
 
-    builder.reference(ClassReference(type, parent, reader.access))
+    builder.reference(ClassReference(type, parent, reader.access, opener))
   }
 }
