@@ -7,8 +7,9 @@ import org.objectweb.asm.Type
 import java.util.ArrayList
 
 internal class ClassRegistry(
-    public val classes: Collection<ClassSpec>,
-    public val references: Collection<ClassReference>
+    public val references: Collection<ClassReference>,
+    public val annotations: Collection<ClassSpec>,
+    public val classes: Collection<ClassSpec>
 ) {
   private val lookupSpecs = classes.toMapBy {
     it.type
@@ -19,19 +20,25 @@ internal class ClassRegistry(
   }
 
   public class Builder() {
-    internal val references = ArrayList<ClassReference>()
-    internal val classes = ArrayList<ClassSpec>()
+    private val references = ArrayList<ClassReference>()
 
-    public fun spec(clazz: ClassSpec): Builder = apply {
-      classes.add(clazz)
-    }
+    private val annotations = ArrayList<ClassSpec>()
+    private val classes = ArrayList<ClassSpec>()
 
     public fun reference(clazz: ClassReference): Builder = apply {
       references.add(clazz)
     }
 
+    public fun annotation(clazz: ClassSpec): Builder = apply {
+      annotations.add(clazz)
+    }
+
+    public fun spec(clazz: ClassSpec): Builder = apply {
+      classes.add(clazz)
+    }
+
     public fun build(): ClassRegistry {
-      return ClassRegistry(classes, references)
+      return ClassRegistry(references, annotations, classes)
     }
   }
 
