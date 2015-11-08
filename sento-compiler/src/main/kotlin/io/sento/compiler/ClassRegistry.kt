@@ -5,28 +5,27 @@ import io.sento.compiler.model.ClassReference
 import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.Type
 import java.util.ArrayList
+import java.util.HashMap
 
 internal class ClassRegistry(
     public val references: Collection<ClassReference>,
-    public val annotations: Collection<ClassSpec>,
     public val classes: Collection<ClassSpec>
 ) {
-  private val lookupReferences = references.toMapBy {
-    it.type
-  }
+  private val refs = HashMap<Type, ClassReference>(references.size)
+  private val specs = HashMap<Type, ClassSpec>(classes.size)
 
-  private val lookupAnnotations = annotations.toMapBy {
-    it.type
-  }
+  init {
+    references.forEach {
+      refs.put(it.type, it)
+    }
 
-  private val lookupSpecs = classes.toMapBy {
-    it.type
+    classes.forEach {
+      specs.put(it.type, it)
+    }
   }
 
   public class Builder() {
     private val references = ArrayList<ClassReference>()
-
-    private val annotations = ArrayList<ClassSpec>()
     private val classes = ArrayList<ClassSpec>()
 
     public fun reference(clazz: ClassReference): Builder = apply {
@@ -35,14 +34,6 @@ internal class ClassRegistry(
 
     public fun references(values: Collection<ClassReference>): Builder = apply {
       references.addAll(values)
-    }
-
-    public fun annotation(clazz: ClassSpec): Builder = apply {
-      annotations.add(clazz)
-    }
-
-    public fun annotations(values: Collection<ClassSpec>): Builder = apply {
-      annotations.addAll(values)
     }
 
     public fun spec(clazz: ClassSpec): Builder = apply {
@@ -54,20 +45,18 @@ internal class ClassRegistry(
     }
 
     public fun build(): ClassRegistry {
-      return ClassRegistry(references, annotations, classes)
+      return ClassRegistry(references, classes)
     }
   }
 
-  public fun reference(type: Type): ClassReference? {
-    return lookupReferences[type]
+  public fun resolve(reference: ClassReference): ClassSpec {
+    return resolve(reference.type)
   }
 
-  public fun annotation(type: Type): ClassSpec? {
-    return lookupAnnotations[type]
-  }
-
-  public fun spec(type: Type): ClassSpec? {
-    return lookupSpecs[type]
+  public fun resolve(type: Type): ClassSpec {
+    return specs.getOrPut(type) {
+      refs.getOrImplicitDefault(type).resolve()
+    }
   }
 
   public fun isSubclassOf(type: Type, parent: Type): Boolean {
@@ -79,14 +68,14 @@ internal class ClassRegistry(
       return true
     }
 
-    if (lookupReferences[type] == null) {
+    if (refs[type] == null) {
       return false
     }
 
-    return isSubclassOf(lookupReferences[type]!!.parent, parent)
+    return isSubclassOf(refs[type]!!.parent, parent)
   }
 
   public fun isInterface(type: Type): Boolean {
-    return lookupReferences[type]?.isInterface ?: false
+    return refs[type]?.isInterface ?: false
   }
 }

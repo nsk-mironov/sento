@@ -125,9 +125,9 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
   private fun shouldGenerateBindingForMethod(method: MethodSpec?, environment: GenerationEnvironment): Boolean {
     return method != null && method.annotations.any {
-      environment.registry.annotation(it.type)?.annotations?.any {
+      environment.registry.resolve(it.type).annotations.any {
         it.type == Type.getType(MethodBinding::class.java)
-      } ?: false
+      }
     }
   }
 
@@ -188,7 +188,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
     for (method in binding.clazz.methods) {
       for (annotation in method.annotations) {
-        val spec = environment.registry.annotation(annotation.type)?.getAnnotation<MethodBinding>()
+        val spec = environment.registry.resolve(annotation.type).getAnnotation<MethodBinding>()
 
         if (spec != null) {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)

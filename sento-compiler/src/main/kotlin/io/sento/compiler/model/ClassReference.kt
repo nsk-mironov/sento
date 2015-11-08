@@ -1,8 +1,11 @@
 package io.sento.compiler.model
 
 import io.sento.compiler.Opener
+import io.sento.compiler.visitors.ClassSpecVisitor
+import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import java.util.concurrent.atomic.AtomicReference
 
 internal data class ClassReference(
     public val access: Int,
@@ -15,4 +18,15 @@ internal data class ClassReference(
 
   public val isAnnotation: Boolean
     get() = access and Opcodes.ACC_ANNOTATION != 0
+
+  public fun resolve(): ClassSpec {
+    val reader = ClassReader(opener.open())
+    val result = AtomicReference<ClassSpec>()
+
+    reader.accept(ClassSpecVisitor(access, type, parent, opener) {
+      result.set(it)
+    }, 0)
+
+    return result.get()
+  }
 }

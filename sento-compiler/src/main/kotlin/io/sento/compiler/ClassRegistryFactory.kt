@@ -17,17 +17,10 @@ internal object ClassRegistryFactory {
   private const val EXTENSION_JAR = "jar"
 
   public fun create(options: SentoOptions): ClassRegistry {
-    return with (ClassRegistry.Builder()) {
-      val references = createClassReferencesRegistry(options)
-      val annotations = createAnnotationSpecsRegistry(references)
-      val specs = createClassSpecsRegistry(options)
-
-      references(references)
-      annotations(annotations)
-      specs(specs)
-
-      build()
-    }
+    return ClassRegistry.Builder()
+        .references(createClassReferencesRegistry(options))
+        .specs(createClassSpecsRegistry(options))
+        .build()
   }
 
   private fun createClassReferencesRegistry(options: SentoOptions): Collection<ClassReference> {
@@ -49,18 +42,6 @@ internal object ClassRegistryFactory {
           FileUtils.iterateFiles(file, arrayOf(EXTENSION_CLASS), true).forEach {
             add(createClassReference(FileOpener(file), FileUtils.readFileToByteArray(it)))
           }
-        }
-      }
-    }
-  }
-
-  private fun createAnnotationSpecsRegistry(references: Collection<ClassReference>): Collection<ClassSpec> {
-    return ArrayList<ClassSpec>().apply {
-      references.forEach {
-        if (it.isAnnotation && !Types.isSystemClass(it.type)) {
-          ClassReader(it.opener.open()).accept(ClassSpecVisitor(it.access, it.type, it.parent, it.opener) {
-            add(it)
-          }, 0)
         }
       }
     }
