@@ -27,7 +27,7 @@ internal class OnClickBindingGenerator : MethodBindingGenerator<OnClick> {
     val clazz = context.clazz
 
     val method = context.method
-    val optional = method.getAnnotation(Optional::class.java) != null
+    val optional = method.getAnnotation<Optional>() != null
 
     annotation.value.forEach {
       visitor.visitVarInsn(ALOAD, context.variable("finder"))

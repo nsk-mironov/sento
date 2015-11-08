@@ -10,4 +10,7 @@ internal data class ClassRef(
 ) {
   public val isInterface: Boolean
     get() = access and Opcodes.ACC_INTERFACE != 0
+
+  public val isAnnotation: Boolean
+    get() = access and Opcodes.ACC_ANNOTATION != 0
 }

@@ -5,6 +5,10 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
 internal object AnnotationProxy {
+  public inline fun <reified A : Annotation> create(values: Map<String, Any?>): A {
+    return create(A::class.java, values)
+  }
+
   public fun <A : Annotation> create(clazz: Class<A>, values: Map<String, Any?>): A {
     return clazz.cast(Proxy.newProxyInstance(clazz.classLoader, arrayOf(clazz), object : AbstractInvocationHandler() {
       override fun handleInvocation(proxy: Any, method: Method, args: Array<out Any>): Any? {

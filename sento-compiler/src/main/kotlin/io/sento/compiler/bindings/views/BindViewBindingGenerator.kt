@@ -16,7 +16,7 @@ internal class BindViewBindingGenerator : SimpleFieldBindingGenerator<Bind>() {
     val field = context.field
     val clazz = context.clazz
 
-    val optional = field.getAnnotation(Optional::class.java) != null
+    val optional = field.getAnnotation<Optional>() != null
     val isInterface = environment.registry.isInterface(field.type)
     val isView = environment.registry.isSubclassOf(field.type, Types.TYPE_VIEW)
 

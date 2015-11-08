@@ -1,13 +1,19 @@
 package io.sento.compiler
 
+import io.sento.MethodBinding
 import io.sento.compiler.api.ClassRegistry
+import io.sento.compiler.common.AnnotationProxy
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.ClassRef
+import io.sento.compiler.visitors.AnnotationSpecVisitor
 import io.sento.compiler.visitors.ClassSpecVisitor
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
+import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import java.util.zip.ZipFile
 
@@ -22,7 +28,7 @@ internal object ClassRegistryFactory {
     references.forEach {
       if (it.isDirectory) {
         FileUtils.iterateFiles(it, arrayOf(EXTENSION_CLASS), true).forEach {
-          builder.reference(asClassRef(FileUtils.readFileToByteArray(it)))
+          onProcessReferencedClass(builder, FileUtils.readFileToByteArray(it))
         }
       }
 
@@ -30,7 +36,7 @@ internal object ClassRegistryFactory {
         ZipFile(it).apply {
           for (entry in entries()) {
             if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
-              builder.reference(asClassRef(IOUtils.toByteArray(getInputStream(entry))))
+              onProcessReferencedClass(builder, IOUtils.toByteArray(getInputStream(entry)))
             }
           }
         }
@@ -51,12 +57,26 @@ internal object ClassRegistryFactory {
     return builder.build()
   }
 
-  private fun asClassRef(bytes: ByteArray): ClassRef {
+  private fun onProcessReferencedClass(builder: ClassRegistry.Builder, bytes: ByteArray) {
     val reader = ClassReader(bytes)
 
     val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
     val type = Type.getObjectType(reader.className)
 
-    return ClassRef(type, parent, reader.access)
+    if (reader.access and Opcodes.ACC_ANNOTATION != 0) {
+      reader.accept(object : ClassVisitor(Opcodes.ASM5) {
+        override fun visitAnnotation(desc: String?, visible: Boolean): AnnotationVisitor? {
+          if (Type.getType(desc) == Type.getType(MethodBinding::class.java)) {
+            return AnnotationSpecVisitor(Type.getType(desc)) {
+              println("annotation ${type.className}, values = ${AnnotationProxy.create<MethodBinding>(it.values)}")
+            }
+          }
+
+          return super.visitAnnotation(desc, visible)
+        }
+      }, 0)
+    }
+
+    builder.reference(ClassRef(type, parent, reader.access))
   }
 }

@@ -21,6 +21,10 @@ internal data class FieldSpec(
     }
   }
 
+  public inline fun <reified A : Annotation> getAnnotation(): A? {
+    return getAnnotation(A::class.java)
+  }
+
   public fun <A : Annotation> getAnnotation(annotation: Class<A>): A? {
     val type = Type.getType(annotation)
     val spec = annotations.firstOrNull {
