@@ -9,7 +9,12 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import java.io.File
 
-internal class ClassSpecVisitor(val file: File, val type: Type, val parent: Type, val action: (ClassSpec) -> Unit) : ClassVisitor(Opcodes.ASM5) {
+internal class ClassSpecVisitor(
+    private val file: File,
+    private val type: Type,
+    private val parent: Type,
+    private val action: (ClassSpec) -> Unit
+) : ClassVisitor(Opcodes.ASM5) {
   private val builder = ClassSpec.Builder(file, type, parent)
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {

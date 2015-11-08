@@ -7,9 +7,9 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 internal class MethodSpecVisitor(
-    public val name: String,
-    public val type: Type,
-    public val action: (MethodSpec) -> Unit
+    private val name: String,
+    private val type: Type,
+    private val action: (MethodSpec) -> Unit
 ) : MethodVisitor(Opcodes.ASM5) {
   private val builder = MethodSpec.Builder(name, type)
 

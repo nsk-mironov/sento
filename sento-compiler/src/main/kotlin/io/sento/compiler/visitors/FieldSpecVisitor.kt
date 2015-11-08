@@ -7,9 +7,9 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 internal class FieldSpecVisitor(
-    public val name: String,
-    public val type: Type,
-    public val action: (FieldSpec) -> Unit
+    private val name: String,
+    private val type: Type,
+    private val action: (FieldSpec) -> Unit
 ) : FieldVisitor(Opcodes.ASM5) {
   private val builder = FieldSpec.Builder(name, type)
 
