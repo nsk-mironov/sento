@@ -21,7 +21,7 @@ public class SentoCompiler() {
     val bindings = ArrayList<SentoBindingSpec>()
 
     FileUtils.copyDirectory(options.input, options.output).apply {
-      registry.classes.forEach {
+      registry.inputs.forEach {
         SentoBindingContentGenerator(it).onGenerateContent(environment).forEach {
           if (it.containsExtra(SentoBindingContentGenerator.EXTRA_BINDING_SPEC)) {
             bindings.add(it.extra<SentoBindingSpec>(SentoBindingContentGenerator.EXTRA_BINDING_SPEC))

@@ -9,17 +9,17 @@ import java.util.HashMap
 
 internal class ClassRegistry(
     public val references: Collection<ClassReference>,
-    public val classes: Collection<ClassSpec>
+    public val inputs: Collection<ClassSpec>
 ) {
   private val refs = HashMap<Type, ClassReference>(references.size)
-  private val specs = HashMap<Type, ClassSpec>(classes.size)
+  private val specs = HashMap<Type, ClassSpec>(inputs.size)
 
   init {
     references.forEach {
       refs.put(it.type, it)
     }
 
-    classes.forEach {
+    inputs.forEach {
       specs.put(it.type, it)
     }
   }
