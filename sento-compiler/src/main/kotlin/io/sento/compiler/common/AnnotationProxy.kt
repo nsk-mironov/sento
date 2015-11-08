@@ -14,6 +14,10 @@ internal object AnnotationProxy {
       override fun handleInvocation(proxy: Any, method: Method, args: Array<out Any>): Any? {
         return values[method.name]
       }
+
+      override fun toString(): String {
+        return "${clazz.name} $values"
+      }
     }))
   }
 }

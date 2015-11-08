@@ -65,7 +65,7 @@ internal object ClassRegistryFactory {
 
     if (reader.access and Opcodes.ACC_ANNOTATION != 0) {
       reader.accept(object : ClassVisitor(Opcodes.ASM5) {
-        override fun visitAnnotation(desc: String?, visible: Boolean): AnnotationVisitor? {
+        override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
           if (Type.getType(desc) == Type.getType(MethodBinding::class.java)) {
             return AnnotationSpecVisitor(Type.getType(desc)) {
               println("annotation ${type.className}, values = ${AnnotationProxy.create<MethodBinding>(it.values)}")
