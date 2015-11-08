@@ -27,7 +27,6 @@ internal object ClassRegistryFactory {
       }
 
       annotations.forEach {
-        println("annotation $it")
         annotation(it)
       }
 
@@ -40,29 +39,27 @@ internal object ClassRegistryFactory {
   }
 
   private fun createClassReferencesRegistry(options: SentoOptions): Collection<ClassReference> {
-    val result = ArrayList<ClassReference>()
-
-    for (file in options.libs + options.input) {
-      if (file.isFile && FilenameUtils.getExtension(file.absolutePath) == EXTENSION_JAR) {
-        ZipFile(file).use {
-          for (entry in it.entries()) {
-            if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
-              result.add(createClassReference(JarOpener(file, entry.name), it.getInputStream(entry).use {
-                IOUtils.toByteArray(it)
-              }))
+    return ArrayList<ClassReference>().apply {
+      for (file in options.libs + options.input) {
+        if (file.isFile && FilenameUtils.getExtension(file.absolutePath) == EXTENSION_JAR) {
+          ZipFile(file).use {
+            for (entry in it.entries()) {
+              if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
+                add(createClassReference(JarOpener(file, entry.name), it.getInputStream(entry).use {
+                  IOUtils.toByteArray(it)
+                }))
+              }
             }
           }
         }
-      }
 
-      if (file.isDirectory) {
-        FileUtils.iterateFiles(file, arrayOf(EXTENSION_CLASS), true).forEach {
-          result.add(createClassReference(FileOpener(file), FileUtils.readFileToByteArray(it)))
+        if (file.isDirectory) {
+          FileUtils.iterateFiles(file, arrayOf(EXTENSION_CLASS), true).forEach {
+            add(createClassReference(FileOpener(file), FileUtils.readFileToByteArray(it)))
+          }
         }
       }
     }
-
-    return result
   }
 
   private fun createAnnotationSpecsRegistry(references: Collection<ClassReference>): Collection<ClassSpec> {
