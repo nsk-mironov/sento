@@ -3,7 +3,7 @@ package io.sento.compiler
 import io.sento.MethodBinding
 import io.sento.compiler.common.AnnotationProxy
 import io.sento.compiler.common.Types
-import io.sento.compiler.model.ClassRef
+import io.sento.compiler.model.ClassReference
 import io.sento.compiler.visitors.AnnotationSpecVisitor
 import io.sento.compiler.visitors.ClassSpecVisitor
 import org.apache.commons.io.FileUtils
@@ -25,12 +25,6 @@ internal object ClassRegistryFactory {
     val references = options.libs + options.input
 
     references.forEach {
-      if (it.isDirectory) {
-        FileUtils.iterateFiles(it, arrayOf(EXTENSION_CLASS), true).forEach {
-          onProcessReferencedClass(builder, FileUtils.readFileToByteArray(it))
-        }
-      }
-
       if (it.isFile && FilenameUtils.getExtension(it.absolutePath) == EXTENSION_JAR) {
         ZipFile(it).use {
           for (entry in it.entries()) {
@@ -40,6 +34,12 @@ internal object ClassRegistryFactory {
               })
             }
           }
+        }
+      }
+
+      if (it.isDirectory) {
+        FileUtils.iterateFiles(it, arrayOf(EXTENSION_CLASS), true).forEach {
+          onProcessReferencedClass(builder, FileUtils.readFileToByteArray(it))
         }
       }
     }
@@ -78,6 +78,6 @@ internal object ClassRegistryFactory {
       }, 0)
     }
 
-    builder.reference(ClassRef(type, parent, reader.access))
+    builder.reference(ClassReference(type, parent, reader.access))
   }
 }

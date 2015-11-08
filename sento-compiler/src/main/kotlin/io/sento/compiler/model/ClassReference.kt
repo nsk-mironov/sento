@@ -3,7 +3,7 @@ package io.sento.compiler.model
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-internal data class ClassRef(
+internal data class ClassReference(
     public val type: Type,
     public val parent: Type,
     public val access: Int
