@@ -17,18 +17,15 @@ public class SentoCompiler() {
 
     val registry = ClassRegistryFactory.create(options)
     val environment = GenerationEnvironment(registry)
-
     val bindings = ArrayList<SentoBindingSpec>()
 
-    FileUtils.copyDirectory(options.input, options.output).apply {
-      registry.inputs.forEach {
-        SentoBindingContentGenerator(it).onGenerateContent(environment).forEach {
+    FileUtils.copyDirectory(options.input, options.output)
+
+    registry.inputs.forEach {
+      SentoBindingContentGenerator(registry.resolve(it, false)).onGenerateContent(environment).forEach {
+        FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content).apply {
           if (it.has(SentoBindingContentGenerator.EXTRA_BINDING_SPEC)) {
             bindings.add(it.extra<SentoBindingSpec>(SentoBindingContentGenerator.EXTRA_BINDING_SPEC))
-          }
-
-          FileUtils.deleteQuietly(File(options.output, it.path)).apply {
-            FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)
           }
         }
       }

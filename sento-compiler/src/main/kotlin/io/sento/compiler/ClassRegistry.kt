@@ -9,10 +9,10 @@ import java.util.HashMap
 
 internal class ClassRegistry(
     public val references: Collection<ClassReference>,
-    public val inputs: Collection<ClassSpec>
+    public val inputs: Collection<ClassReference>
 ) {
   private val refs = HashMap<Type, ClassReference>(references.size)
-  private val specs = HashMap<Type, ClassSpec>(inputs.size)
+  private val specs = HashMap<Type, ClassSpec>()
 
   init {
     references.forEach {
@@ -20,42 +20,40 @@ internal class ClassRegistry(
     }
 
     inputs.forEach {
-      specs.put(it.type, it)
+      refs.put(it.type, it)
     }
   }
 
   public class Builder() {
     private val references = ArrayList<ClassReference>()
-    private val classes = ArrayList<ClassSpec>()
-
-    public fun reference(clazz: ClassReference): Builder = apply {
-      references.add(clazz)
-    }
+    private val inputs = ArrayList<ClassReference>()
 
     public fun references(values: Collection<ClassReference>): Builder = apply {
       references.addAll(values)
     }
 
-    public fun spec(clazz: ClassSpec): Builder = apply {
-      classes.add(clazz)
-    }
-
-    public fun specs(values: Collection<ClassSpec>): Builder = apply {
-      classes.addAll(values)
+    public fun inputs(values: Collection<ClassReference>): Builder = apply {
+      inputs.addAll(values)
     }
 
     public fun build(): ClassRegistry {
-      return ClassRegistry(references, classes)
+      return ClassRegistry(references, inputs)
     }
   }
 
-  public fun resolve(reference: ClassReference): ClassSpec {
-    return resolve(reference.type)
+  public fun resolve(reference: ClassReference, cacheable: Boolean = false): ClassSpec {
+    return resolve(reference.type, cacheable)
   }
 
-  public fun resolve(type: Type): ClassSpec {
-    return specs.getOrPut(type) {
-      refs.getOrImplicitDefault(type).resolve()
+  public fun resolve(type: Type, cacheable: Boolean = false): ClassSpec {
+    return if (cacheable) {
+      specs.getOrPut(type) {
+        refs.getOrImplicitDefault(type).resolve()
+      }
+    } else {
+      specs.getOrElse(type) {
+        refs.getOrImplicitDefault(type).resolve()
+      }
     }
   }
 

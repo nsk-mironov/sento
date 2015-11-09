@@ -2,13 +2,12 @@ package io.sento.compiler
 
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.ClassReference
-import io.sento.compiler.model.ClassSpec
-import io.sento.compiler.visitors.ClassSpecVisitor
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
+import java.io.File
 import java.util.ArrayList
 import java.util.zip.ZipFile
 
@@ -18,14 +17,14 @@ internal object ClassRegistryFactory {
 
   public fun create(options: SentoOptions): ClassRegistry {
     return ClassRegistry.Builder()
-        .references(createClassReferencesRegistry(options))
-        .specs(createClassSpecsRegistry(options))
+        .inputs(createClassReferences(listOf(options.input)))
+        .references(createClassReferences(options.libs))
         .build()
   }
 
-  private fun createClassReferencesRegistry(options: SentoOptions): Collection<ClassReference> {
+  private fun createClassReferences(files: Collection<File>): Collection<ClassReference> {
     return ArrayList<ClassReference>().apply {
-      for (file in options.libs + options.input) {
+      for (file in files) {
         if (file.isFile && FilenameUtils.getExtension(file.absolutePath) == EXTENSION_JAR) {
           ZipFile(file).use {
             for (entry in it.entries()) {
@@ -40,24 +39,9 @@ internal object ClassRegistryFactory {
 
         if (file.isDirectory) {
           FileUtils.iterateFiles(file, arrayOf(EXTENSION_CLASS), true).forEach {
-            add(createClassReference(FileOpener(file), FileUtils.readFileToByteArray(it)))
+            add(createClassReference(FileOpener(it), FileUtils.readFileToByteArray(it)))
           }
         }
-      }
-    }
-  }
-
-  private fun createClassSpecsRegistry(options: SentoOptions): Collection<ClassSpec> {
-    return ArrayList<ClassSpec>().apply {
-      FileUtils.iterateFiles(options.input, arrayOf(EXTENSION_CLASS), true).forEach {
-        val reader = ClassReader(FileUtils.readFileToByteArray(it))
-
-        val type = Type.getObjectType(reader.className)
-        val parent = Type.getObjectType(reader.superName)
-
-        reader.accept(ClassSpecVisitor(reader.access, type, parent, FileOpener(it)) {
-          add(it)
-        }, 0)
       }
     }
   }
