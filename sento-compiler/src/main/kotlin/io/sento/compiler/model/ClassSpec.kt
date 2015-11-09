@@ -61,8 +61,4 @@ internal data class ClassSpec(
 
     return AnnotationProxy.create(annotation, spec.values)
   }
-
-  public fun toClassReader(): ClassReader {
-    return ClassReader(opener.open())
-  }
 }

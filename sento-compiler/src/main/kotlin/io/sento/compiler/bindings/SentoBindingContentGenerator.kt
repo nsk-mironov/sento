@@ -86,9 +86,10 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
+    val reader = ClassReader(clazz.opener.open())
     val writer = ClassWriter(0)
 
-    clazz.toClassReader().accept(object : ClassVisitor(Opcodes.ASM5, writer) {
+    reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
       override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
         return super.visitField(if (shouldGenerateBindingForField(clazz.field(name), environment)) {
           access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
