@@ -1,15 +1,13 @@
-package io.sento.compiler.bindings.resources
+package io.sento.compiler.bindings.fields
 
-import io.sento.BindArray
 import io.sento.compiler.GenerationEnvironment
-import io.sento.compiler.bindings.FieldBindingContext
-import io.sento.compiler.bindings.SimpleFieldBindingGenerator
+import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-internal class BindArrayBindingGenerator : SimpleFieldBindingGenerator<BindArray>() {
-  override fun onBind(context: FieldBindingContext<BindArray>, environment: GenerationEnvironment) {
+internal class BindArrayBindingGenerator : SimpleFieldBindingGenerator() {
+  override fun onBind(context: FieldBindingContext, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -21,7 +19,7 @@ internal class BindArrayBindingGenerator : SimpleFieldBindingGenerator<BindArray
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
 
     visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true)
-    visitor.visitLdcInsn(annotation.value)
+    visitor.visitLdcInsn(Annotations.id(annotation))
 
     if (field.type.sort != Type.ARRAY) {
       return environment.fatal("@BindArray should be used only with arrays")

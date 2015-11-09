@@ -1,6 +1,6 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.common.AnnotationProxy
+import io.sento.compiler.common.Annotations
 import org.objectweb.asm.Type
 import java.util.ArrayList
 
@@ -10,7 +10,7 @@ internal data class FieldSpec(
     public val type: Type,
     public val annotations: Collection<AnnotationSpec>
 ) {
-  public class Builder(val access: Int, val name: String, val type: Type) {
+  internal class Builder(val access: Int, val name: String, val type: Type) {
     private val annotations = ArrayList<AnnotationSpec>()
 
     public fun annotation(annotation: AnnotationSpec): Builder = apply {
@@ -32,6 +32,6 @@ internal data class FieldSpec(
       it.type == type
     } ?: return null
 
-    return AnnotationProxy.create(annotation, spec.values)
+    return Annotations.create(annotation, spec.values)
   }
 }

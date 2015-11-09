@@ -1,21 +1,21 @@
-package io.sento.compiler
+package io.sento.compiler.common
 
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.util.zip.ZipFile
 
-public interface Opener {
+internal interface Opener {
   public fun open(): ByteArray
 }
 
-public class FileOpener(private val file: File) : Opener {
+internal class FileOpener(private val file: File) : Opener {
   override fun open(): ByteArray {
     return FileUtils.readFileToByteArray(file)
   }
 }
 
-public class JarOpener(private val file: File, private val entry: String) : Opener {
+internal class JarOpener(private val file: File, private val entry: String) : Opener {
   override fun open(): ByteArray {
     return ZipFile(file).use {
       it.getInputStream(it.getEntry(entry)).use {

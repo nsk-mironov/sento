@@ -1,16 +1,17 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.bindings.methods
 
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.TypeFactory
+import io.sento.compiler.model.AnnotationSpec
 import io.sento.compiler.model.ClassSpec
-import io.sento.compiler.model.FieldSpec
+import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.MethodVisitor
 import java.util.NoSuchElementException
 
-internal class FieldBindingContext<A : Annotation>(
-    public val field: FieldSpec,
+internal class MethodBindingContext(
+    public val method: MethodSpec,
     public val clazz: ClassSpec,
-    public val annotation: A,
+    public val annotation: AnnotationSpec,
     public val visitor: MethodVisitor,
     public val variables: Map<String, Int>,
     public val factory: TypeFactory,

@@ -1,13 +1,13 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.bindings.fields
 
-import io.sento.Bind
 import io.sento.Optional
 import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-internal class ViewBindingGenerator : SimpleFieldBindingGenerator<Bind>() {
-  override fun onBind(context: FieldBindingContext<Bind>, environment: GenerationEnvironment) {
+internal class BindViewBindingGenerator : SimpleFieldBindingGenerator() {
+  override fun onBind(context: FieldBindingContext, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -24,7 +24,7 @@ internal class ViewBindingGenerator : SimpleFieldBindingGenerator<Bind>() {
 
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("target"))
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
-    visitor.visitLdcInsn(annotation.value)
+    visitor.visitLdcInsn(Annotations.id(annotation))
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
     visitor.visitInsn(if (optional) Opcodes.ICONST_1 else Opcodes.ICONST_0)
 
@@ -33,7 +33,7 @@ internal class ViewBindingGenerator : SimpleFieldBindingGenerator<Bind>() {
     visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
   }
 
-  override fun onUnbind(context: FieldBindingContext<Bind>, environment: GenerationEnvironment) {
+  override fun onUnbind(context: FieldBindingContext, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val field = context.field
     val clazz = context.clazz

@@ -24,7 +24,7 @@ internal class ClassRegistry(
     }
   }
 
-  public class Builder() {
+  internal class Builder() {
     private val references = ArrayList<ClassReference>()
     private val inputs = ArrayList<ClassReference>()
 

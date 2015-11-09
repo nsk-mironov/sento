@@ -1,6 +1,5 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.common.AnnotationProxy
 import org.objectweb.asm.Type
 import java.util.LinkedHashMap
 
@@ -8,7 +7,7 @@ internal data class AnnotationSpec(
     public val type: Type,
     public val values: Map<String, Any?>
 ) {
-  public class Builder(val type: Type) {
+  internal class Builder(val type: Type) {
     private val values = LinkedHashMap<String, Any?>()
 
     public fun value(name: String, value: Any?): Builder = apply {
@@ -22,9 +21,5 @@ internal data class AnnotationSpec(
 
   public inline fun <reified V : Any> value(name: String): V? {
     return values[name] as? V
-  }
-
-  public inline fun <reified A : Annotation> resolve(): A {
-    return AnnotationProxy.create(Class.forName(type.className).asSubclass(A::class.java), values)
   }
 }

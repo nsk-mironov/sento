@@ -1,14 +1,12 @@
-package io.sento.compiler.bindings.resources
+package io.sento.compiler.bindings.fields
 
-import io.sento.BindString
-import io.sento.compiler.bindings.FieldBindingContext
 import io.sento.compiler.GenerationEnvironment
-import io.sento.compiler.bindings.SimpleFieldBindingGenerator
+import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-internal class BindStringBindingGenerator : SimpleFieldBindingGenerator<BindString>() {
-  override fun onBind(context: FieldBindingContext<BindString>, environment: GenerationEnvironment) {
+internal class BindDimenBindingGenerator : SimpleFieldBindingGenerator() {
+  override fun onBind(context: FieldBindingContext, environment: GenerationEnvironment) {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -20,21 +18,21 @@ internal class BindStringBindingGenerator : SimpleFieldBindingGenerator<BindStri
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
 
     visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true)
-    visitor.visitLdcInsn(annotation.value)
+    visitor.visitLdcInsn(Annotations.id(annotation))
 
     when (field.type) {
-      Types.TYPE_STRING -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getString", "(I)L${Types.TYPE_STRING.internalName};", false)
+      Types.TYPE_FLOAT -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDimension", "(I)F", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
-      Types.TYPE_CHAR_SEQUENCE -> {
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getText", "(I)L${Types.TYPE_CHAR_SEQUENCE.internalName};", false)
+      Types.TYPE_INT -> {
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getDimensionPixelSize", "(I)I", false)
         visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
       }
 
       else -> {
-        environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindString")
+        environment.fatal("Unsupported type \"${field.type.className}\" for @BindDimen")
       }
     }
   }

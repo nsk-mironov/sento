@@ -1,24 +1,13 @@
 package io.sento.compiler.bindings
 
-import io.sento.Bind
-import io.sento.BindArray
-import io.sento.BindBool
-import io.sento.BindColor
-import io.sento.BindDimen
-import io.sento.BindDrawable
-import io.sento.BindInteger
-import io.sento.BindString
 import io.sento.MethodBinding
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
-import io.sento.compiler.bindings.resources.BindArrayBindingGenerator
-import io.sento.compiler.bindings.resources.BindBoolBindingGenerator
-import io.sento.compiler.bindings.resources.BindColorBindingGenerator
-import io.sento.compiler.bindings.resources.BindDimenBindingGenerator
-import io.sento.compiler.bindings.resources.BindDrawableBindingGenerator
-import io.sento.compiler.bindings.resources.BindIntegerBindingGenerator
-import io.sento.compiler.bindings.resources.BindStringBindingGenerator
+import io.sento.compiler.bindings.fields.FieldBindingContext
+import io.sento.compiler.bindings.fields.FieldBindingGenerator
+import io.sento.compiler.bindings.methods.MethodBindingContext
+import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
@@ -39,20 +28,13 @@ import org.objectweb.asm.Opcodes.*
 import java.util.ArrayList
 import java.util.HashMap
 
-internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : ContentGenerator {
+internal class SentoBindingContentGenerator(
+    private val fields: Map<Type, FieldBindingGenerator>,
+    private val methods: Map<Type, MethodBindingGenerator>,
+    private val clazz: ClassSpec
+) : ContentGenerator {
   public companion object {
     public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
-
-    private val GENERATORS_FIELDS = HashMap<Type, FieldBindingGenerator<out Annotation>>().apply {
-      put(Type.getType(Bind::class.java), ViewBindingGenerator())
-      put(Type.getType(BindArray::class.java), BindArrayBindingGenerator())
-      put(Type.getType(BindBool::class.java), BindBoolBindingGenerator())
-      put(Type.getType(BindColor::class.java), BindColorBindingGenerator())
-      put(Type.getType(BindDimen::class.java), BindDimenBindingGenerator())
-      put(Type.getType(BindDrawable::class.java), BindDrawableBindingGenerator())
-      put(Type.getType(BindInteger::class.java), BindIntegerBindingGenerator())
-      put(Type.getType(BindString::class.java), BindStringBindingGenerator())
-    }
   }
 
   override fun onGenerateContent(environment: GenerationEnvironment): List<GeneratedContent> {
@@ -120,7 +102,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
   private fun shouldGenerateBindingForField(field: FieldSpec?, environment: GenerationEnvironment): Boolean {
     return field != null && field.annotations.any {
-      GENERATORS_FIELDS.containsKey(it.type)
+      fields.containsKey(it.type)
     }
   }
 
@@ -175,10 +157,9 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
     for (field in binding.clazz.fields) {
       for (annotation in field.annotations) {
-        GENERATORS_FIELDS[annotation.type]?.let {
+        fields[annotation.type]?.let {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-          val value = annotation.resolve<Annotation>()
-          val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory, environment)
+          val context = FieldBindingContext(field, binding.clazz, annotation, visitor, variables, binding.factory, environment)
 
           result.addAll(it.bind(context, environment))
         }
@@ -187,12 +168,11 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
     for (method in binding.clazz.methods) {
       for (annotation in method.annotations) {
-        environment.registry.resolve(annotation.type).getAnnotation<MethodBinding>()?.let {
+        methods[annotation.type]?.let {
           val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-          val context = MethodBindingContext(method, binding.clazz, it, annotation, visitor, variables, binding.factory, environment)
-          val generator = MethodBindingGenerator()
+          val context = MethodBindingContext(method, binding.clazz, annotation, visitor, variables, binding.factory, environment)
 
-          result.addAll(generator.bind(context, environment))
+          result.addAll(it.bind(context, environment))
         }
       }
     }
@@ -223,10 +203,9 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
     for (field in binding.clazz.fields) {
       for (annotation in field.annotations) {
-        GENERATORS_FIELDS[annotation.type]?.let {
-          val value = annotation.resolve<Annotation>()
+        fields[annotation.type]?.let {
           val variables = mapOf("this" to 0, "target" to 1)
-          val context = FieldBindingContext(field, binding.clazz, value, visitor, variables, binding.factory, environment)
+          val context = FieldBindingContext(field, binding.clazz, annotation, visitor, variables, binding.factory, environment)
 
           result.addAll(it.unbind(context, environment))
         }

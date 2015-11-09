@@ -1,5 +1,8 @@
 package io.sento.compiler
 
+import io.sento.compiler.common.FileOpener
+import io.sento.compiler.common.JarOpener
+import io.sento.compiler.common.Opener
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.ClassReference
 import org.apache.commons.io.FileUtils

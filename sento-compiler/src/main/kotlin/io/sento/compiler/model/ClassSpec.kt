@@ -1,8 +1,7 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.Opener
-import io.sento.compiler.common.AnnotationProxy
-import org.objectweb.asm.ClassReader
+import io.sento.compiler.common.Opener
+import io.sento.compiler.common.Annotations
 import org.objectweb.asm.Type
 import java.util.ArrayList
 
@@ -15,7 +14,7 @@ internal data class ClassSpec(
     public val methods: Collection<MethodSpec>,
     public val opener: Opener
 ) {
-  public class Builder(val access: Int, val type: Type, val parent: Type, val opener: Opener) {
+  internal class Builder(val access: Int, val type: Type, val parent: Type, val opener: Opener) {
     private val annotations = ArrayList<AnnotationSpec>()
     private val fields = ArrayList<FieldSpec>()
     private val methods = ArrayList<MethodSpec>()
@@ -59,6 +58,6 @@ internal data class ClassSpec(
       it.type == type
     } ?: return null
 
-    return AnnotationProxy.create(annotation, spec.values)
+    return Annotations.create(annotation, spec.values)
   }
 }

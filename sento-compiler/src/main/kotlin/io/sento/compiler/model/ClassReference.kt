@@ -1,6 +1,6 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.Opener
+import io.sento.compiler.common.Opener
 import io.sento.compiler.visitors.ClassSpecVisitor
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes

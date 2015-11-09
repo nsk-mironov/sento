@@ -1,10 +1,11 @@
 package io.sento.compiler.common
 
 import com.google.common.reflect.AbstractInvocationHandler
+import io.sento.compiler.model.AnnotationSpec
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
-internal object AnnotationProxy {
+internal object Annotations {
   public inline fun <reified A : Annotation> create(values: Map<String, Any?>): A {
     return create(A::class.java, values)
   }
@@ -19,5 +20,24 @@ internal object AnnotationProxy {
         return "${clazz.name} $values"
       }
     }))
+  }
+
+  public fun ids(annotation: AnnotationSpec): IntArray {
+    val ids = annotation.value<IntArray>("value")
+    val id = annotation.value<Int>("value")
+
+    if (id != null) {
+      return intArrayOf(id)
+    }
+
+    if (ids != null) {
+      return ids
+    }
+
+    return IntArray(0)
+  }
+
+  public fun id(annotation: AnnotationSpec): Int {
+    return annotation.value<Int>("value") ?: throw NoSuchFieldException("value")
   }
 }
