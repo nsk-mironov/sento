@@ -4,6 +4,7 @@ import io.sento.MethodBinding
 import io.sento.Optional
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
@@ -25,7 +26,7 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBinding) : 
     val method = context.method
     val optional = method.getAnnotation<Optional>() != null
 
-    annotation.value<IntArray>("value")?.forEach {
+    Annotations.ids(annotation).forEach {
       visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
       visitor.visitLdcInsn(it)
       visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))

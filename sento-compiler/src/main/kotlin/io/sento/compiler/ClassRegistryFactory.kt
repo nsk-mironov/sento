@@ -20,7 +20,7 @@ internal object ClassRegistryFactory {
 
   public fun create(options: SentoOptions): ClassRegistry {
     return ClassRegistry.Builder()
-        .inputs(createClassReferences(listOf(options.input)))
+        .inputs(createClassReferences(options.inputs))
         .references(createClassReferences(options.libs))
         .build()
   }

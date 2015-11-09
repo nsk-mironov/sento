@@ -24,23 +24,27 @@ public class SentoTransform extends Transform {
   public void transform(final Context context, final Collection<TransformInput> inputs, final Collection<TransformInput> references, final TransformOutputProvider provider, final boolean incremental) throws IOException, TransformException, InterruptedException {
     final def compiler = new SentoCompiler()
 
-    final def transformInput = Iterables.getOnlyElement(inputs)
-    final def directoryInput = Iterables.getOnlyElement(transformInput.directoryInputs)
-
-    final def output = provider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
-    final def input = directoryInput.file
+    final def input = Iterables.getOnlyElement(Iterables.getOnlyElement(inputs).directoryInputs)
+    final def output = provider.getContentLocation(input.name, input.contentTypes, input.scopes, Format.DIRECTORY)
 
     final def android = project.extensions.findByType(AppExtension)
     final def libs = new ArrayList<File>(android.bootClasspath)
+    final def classes = new ArrayList<File>()
+
+    inputs.each {
+      classes.addAll(it.directoryInputs*.file)
+      classes.addAll(it.jarInputs*.file)
+    }
 
     references.each {
       libs.addAll(it.directoryInputs*.file)
       libs.addAll(it.jarInputs*.file)
     }
 
-    compiler.compile(new SentoOptions.Builder(input, output)
-        .incremental(incremental)
+    compiler.compile(new SentoOptions.Builder(output)
+        .inputs(classes)
         .libs(libs)
+        .incremental(incremental)
         .dryRun(false)
         .build()
     )

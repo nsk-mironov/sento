@@ -9,10 +9,10 @@ import java.util.ArrayList
 
 public class SentoCompiler() {
   public fun compile(options: SentoOptions) {
-    println("input ${options.input}")
+    println("inputs ${options.inputs}")
+    println("libs ${options.libs}")
     println("output ${options.output}")
     println("incremental ${options.incremental}")
-    println("libs ${options.libs}")
     println("dry ${options.dryRun}")
 
     val registry = ClassRegistryFactory.create(options)
@@ -21,7 +21,9 @@ public class SentoCompiler() {
     val factory = SentoContentGeneratorFactory.from(environment)
     val bindings = ArrayList<SentoBindingSpec>()
 
-    FileUtils.copyDirectory(options.input, options.output)
+    options.inputs.forEach {
+      FileUtils.copyDirectory(it, options.output)
+    }
 
     registry.inputs.forEach {
       factory.createBinding(registry.resolve(it, false)).onGenerateContent(environment).forEach {
