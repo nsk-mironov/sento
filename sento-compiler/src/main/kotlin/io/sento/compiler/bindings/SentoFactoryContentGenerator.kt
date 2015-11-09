@@ -13,7 +13,7 @@ import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.*
 
-internal class SentoFactoryContentGenerator(private val bindings: List<SentoBindingSpec>) : ContentGenerator {
+internal class SentoFactoryContentGenerator(private val bindings: Collection<SentoBindingSpec>) : ContentGenerator {
   override fun onGenerateContent(environment: GenerationEnvironment): List<GeneratedContent> {
     return listOf(onCreateSentoFactory(environment))
   }
