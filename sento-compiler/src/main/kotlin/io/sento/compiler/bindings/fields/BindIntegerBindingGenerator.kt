@@ -1,12 +1,13 @@
 package io.sento.compiler.bindings.fields
 
+import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-internal class BindIntegerBindingGenerator : SimpleFieldBindingGenerator() {
-  override fun onBind(context: FieldBindingContext, environment: GenerationEnvironment) {
+internal class BindIntegerBindingGenerator : FieldBindingGenerator {
+  override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -22,5 +23,7 @@ internal class BindIntegerBindingGenerator : SimpleFieldBindingGenerator() {
 
     visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getInteger", "(I)I", false)
     visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
+
+    return emptyList()
   }
 }

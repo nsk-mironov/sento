@@ -1,12 +1,13 @@
 package io.sento.compiler.bindings.fields
 
+import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-internal class BindColorBindingGenerator : SimpleFieldBindingGenerator() {
-  override fun onBind(context: FieldBindingContext, environment: GenerationEnvironment) {
+internal class BindColorBindingGenerator : FieldBindingGenerator {
+  override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -35,5 +36,7 @@ internal class BindColorBindingGenerator : SimpleFieldBindingGenerator() {
         environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindColor")
       }
     }
+
+    return emptyList()
   }
 }

@@ -1,13 +1,14 @@
 package io.sento.compiler.bindings.fields
 
 import io.sento.Optional
+import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 
-internal class BindViewBindingGenerator : SimpleFieldBindingGenerator() {
-  override fun onBind(context: FieldBindingContext, environment: GenerationEnvironment) {
+internal class BindViewBindingGenerator : FieldBindingGenerator {
+  override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -31,9 +32,11 @@ internal class BindViewBindingGenerator : SimpleFieldBindingGenerator() {
     visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "find", "(IL${Types.TYPE_OBJECT.internalName};Z)L${Types.TYPE_VIEW.internalName};", true)
     visitor.visitTypeInsn(Opcodes.CHECKCAST, field.type.internalName)
     visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
+
+    return emptyList()
   }
 
-  override fun onUnbind(context: FieldBindingContext, environment: GenerationEnvironment) {
+  override fun unbind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = context.visitor
     val field = context.field
     val clazz = context.clazz
@@ -41,5 +44,7 @@ internal class BindViewBindingGenerator : SimpleFieldBindingGenerator() {
     visitor.visitVarInsn(Opcodes.ALOAD, context.variable("target"))
     visitor.visitInsn(Opcodes.ACONST_NULL)
     visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
+
+    return emptyList()
   }
 }

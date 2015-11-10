@@ -1,13 +1,14 @@
 package io.sento.compiler.bindings.fields
 
+import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-internal class BindArrayBindingGenerator : SimpleFieldBindingGenerator() {
-  override fun onBind(context: FieldBindingContext, environment: GenerationEnvironment) {
+internal class BindArrayBindingGenerator : FieldBindingGenerator {
+  override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val visitor = context.visitor
     val annotation = context.annotation
 
@@ -22,7 +23,7 @@ internal class BindArrayBindingGenerator : SimpleFieldBindingGenerator() {
     visitor.visitLdcInsn(Annotations.id(annotation))
 
     if (field.type.sort != Type.ARRAY) {
-      return environment.fatal("@BindArray should be used only with arrays")
+      environment.fatal("@BindArray should be used only with arrays")
     }
 
     when (field.type.elementType) {
@@ -45,5 +46,7 @@ internal class BindArrayBindingGenerator : SimpleFieldBindingGenerator() {
         environment.fatal("Unsupported filed type \"${field.type.className}\" for @BindArray")
       }
     }
+
+    return emptyList()
   }
 }
