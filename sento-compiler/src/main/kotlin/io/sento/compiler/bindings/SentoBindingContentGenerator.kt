@@ -1,6 +1,5 @@
 package io.sento.compiler.bindings
 
-import io.sento.MethodBinding
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
@@ -108,9 +107,7 @@ internal class SentoBindingContentGenerator(
 
   private fun shouldGenerateBindingForMethod(method: MethodSpec?, environment: GenerationEnvironment): Boolean {
     return method != null && method.annotations.any {
-      environment.registry.resolve(it.type).annotations.any {
-        it.type == Type.getType(MethodBinding::class.java)
-      }
+      methods.containsKey(it.type)
     }
   }
 
@@ -206,6 +203,17 @@ internal class SentoBindingContentGenerator(
         fields[annotation.type]?.let {
           val variables = mapOf("this" to 0, "target" to 1)
           val context = FieldBindingContext(field, binding.clazz, annotation, visitor, variables, binding.factory, environment)
+
+          result.addAll(it.unbind(context, environment))
+        }
+      }
+    }
+
+    for (method in binding.clazz.methods) {
+      for (annotation in method.annotations) {
+        methods[annotation.type]?.let {
+          val variables = mapOf("this" to 0, "target" to 1)
+          val context = MethodBindingContext(method, binding.clazz, annotation, visitor, variables, binding.factory, environment)
 
           result.addAll(it.unbind(context, environment))
         }
