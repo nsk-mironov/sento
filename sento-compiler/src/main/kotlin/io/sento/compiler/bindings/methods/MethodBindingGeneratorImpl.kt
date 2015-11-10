@@ -10,7 +10,6 @@ import io.sento.compiler.common.toSourceFilePath
 import io.sento.compiler.model.MethodBindingSpec
 import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
@@ -63,20 +62,13 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
   private fun ClassVisitor.visitListenerConstructor(listener: ListenerSpec, environment: GenerationEnvironment) {
     val visitor = visitMethod(Opcodes.ACC_PUBLIC, "<init>", "(L${listener.generatedTarget.internalName};)V", null, null)
 
-    val start = Label()
-    val end = Label()
-
     visitor.visitCode()
-    visitor.visitLabel(start)
     visitor.visitVarInsn(Opcodes.ALOAD, 0)
     visitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
     visitor.visitVarInsn(Opcodes.ALOAD, 0)
     visitor.visitVarInsn(Opcodes.ALOAD, 1)
     visitor.visitFieldInsn(Opcodes.PUTFIELD, listener.generatedType.internalName, "target", listener.generatedTarget.descriptor)
     visitor.visitInsn(Opcodes.RETURN)
-    visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", listener.generatedType.descriptor, null, start, end, 0)
-    visitor.visitLocalVariable("target", listener.generatedTarget.descriptor, null, start, end, 1)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
   }
@@ -84,19 +76,12 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
   private fun ClassVisitor.visitListenerCallback(listener: ListenerSpec, environment: GenerationEnvironment) {
     val visitor = visitMethod(Opcodes.ACC_PUBLIC, listener.generatedMethod.name, listener.generatedMethod.type.descriptor, listener.generatedMethod.signature, null)
 
-    val start = Label()
-    val end = Label()
-
     visitor.visitCode()
-    visitor.visitLabel(start)
     visitor.visitVarInsn(Opcodes.ALOAD, 0)
     visitor.visitFieldInsn(Opcodes.GETFIELD, listener.generatedType.internalName, "target", listener.generatedTarget.descriptor)
     visitor.visitVarInsn(Opcodes.ALOAD, 1)
     visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, listener.generatedTarget.internalName, listener.method.name, "(L${Types.TYPE_VIEW.internalName};)V", false)
     visitor.visitInsn(Opcodes.RETURN)
-    visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", listener.generatedType.descriptor, null, start, end, 0)
-    visitor.visitLocalVariable("view", Types.TYPE_VIEW.descriptor, null, start, end, 1)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
   }

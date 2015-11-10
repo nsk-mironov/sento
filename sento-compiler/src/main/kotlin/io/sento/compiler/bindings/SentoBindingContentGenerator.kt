@@ -17,7 +17,6 @@ import io.sento.compiler.model.MethodSpec
 import io.sento.compiler.patcher.AccessibilityPatcher
 import io.sento.compiler.patcher.ClassPatcher
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
@@ -121,16 +120,10 @@ internal class SentoBindingContentGenerator(
   private fun ClassWriter.visitConstructor(binding: SentoBindingSpec, environment: GenerationEnvironment) {
     val visitor = visitMethod(ACC_PUBLIC, "<init>", "()V", null, null)
 
-    val start = Label()
-    val end = Label()
-
     visitor.visitCode()
-    visitor.visitLabel(start)
     visitor.visitVarInsn(ALOAD, 0)
     visitor.visitMethodInsn(INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
     visitor.visitInsn(RETURN)
-    visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", binding.generatedType.descriptor, "L${binding.generatedType.internalName}<TT;>;", start, end, 0)
     visitor.visitMaxs(1, 1)
     visitor.visitEnd()
   }
@@ -142,11 +135,7 @@ internal class SentoBindingContentGenerator(
     val visitor = visitMethod(ACC_PUBLIC, "bind", descriptor, signature, null)
     val result = ArrayList<GeneratedContent>()
 
-    val start = Label()
-    val end = Label()
-
     visitor.visitCode()
-    visitor.visitLabel(start)
 
     for (field in binding.clazz.fields) {
       for (annotation in field.annotations) {
@@ -171,13 +160,6 @@ internal class SentoBindingContentGenerator(
     }
 
     visitor.visitInsn(RETURN)
-    visitor.visitLabel(end)
-
-    visitor.visitLocalVariable("this", binding.generatedType.descriptor, null, start, end, 0)
-    visitor.visitLocalVariable("target", Types.TYPE_OBJECT.descriptor, null, start, end, 1)
-    visitor.visitLocalVariable("source", Types.TYPE_OBJECT.descriptor, "TS;", start, end, 2)
-    visitor.visitLocalVariable("finder", Types.TYPE_FINDER.descriptor, "L${Types.TYPE_FINDER.internalName}<-TS;>;", start, end, 3)
-
     visitor.visitMaxs(5, 4)
     visitor.visitEnd()
 
@@ -188,11 +170,7 @@ internal class SentoBindingContentGenerator(
     val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${Types.TYPE_OBJECT.internalName};)V", null, null)
     val result = ArrayList<GeneratedContent>()
 
-    val start = Label()
-    val end = Label()
-
     visitor.visitCode()
-    visitor.visitLabel(start)
 
     for (field in binding.clazz.fields) {
       for (annotation in field.annotations) {
@@ -217,9 +195,6 @@ internal class SentoBindingContentGenerator(
     }
 
     visitor.visitInsn(RETURN)
-    visitor.visitLabel(end)
-    visitor.visitLocalVariable("this", binding.generatedType.descriptor, null, start, end, 0)
-    visitor.visitLocalVariable("target", Types.TYPE_OBJECT.descriptor, null, start, end, 1)
     visitor.visitMaxs(2, 2)
     visitor.visitEnd()
 
