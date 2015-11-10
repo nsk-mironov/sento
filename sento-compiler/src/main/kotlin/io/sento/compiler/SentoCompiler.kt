@@ -26,7 +26,7 @@ public class SentoCompiler() {
     }
 
     registry.inputs.forEach {
-      factory.createBinding(registry.resolve(it, false)).onGenerateContent(environment).forEach {
+      factory.createBinding(registry.resolve(it, false)).generate(environment).forEach {
         FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content).apply {
           if (it.has(SentoBindingContentGenerator.EXTRA_BINDING_SPEC)) {
             bindings.add(it.extra<SentoBindingSpec>(SentoBindingContentGenerator.EXTRA_BINDING_SPEC))
@@ -35,7 +35,7 @@ public class SentoCompiler() {
       }
     }
 
-    factory.createFactory(bindings).onGenerateContent(environment).forEach {
+    factory.createFactory(bindings).generate(environment).forEach {
       FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)
     }
   }

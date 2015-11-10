@@ -14,7 +14,7 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.*
 
 internal class SentoFactoryContentGenerator(private val bindings: Collection<SentoBindingSpec>) : ContentGenerator {
-  override fun onGenerateContent(environment: GenerationEnvironment): List<GeneratedContent> {
+  override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     return listOf(onCreateSentoFactory(environment))
   }
 

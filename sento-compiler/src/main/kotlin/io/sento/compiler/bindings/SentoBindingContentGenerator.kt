@@ -34,7 +34,7 @@ internal class SentoBindingContentGenerator(
     public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
   }
 
-  override fun onGenerateContent(environment: GenerationEnvironment): List<GeneratedContent> {
+  override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     if (!shouldGenerateBindingClass(clazz, environment)) {
       return emptyList()
     }
