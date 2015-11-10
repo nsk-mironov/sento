@@ -10,7 +10,6 @@ import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
 import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -43,14 +42,12 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBinding) : 
   }
 
   private fun onCreateOnClickListener(listener: ListenerSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(listener.generatedType.toClassFilePath(), with (ClassWriter(0)) {
+    return GeneratedContent(listener.generatedType.toClassFilePath(), environment.createClass {
       visitListenerHeader(listener, environment)
       visitListenerFields(listener, environment)
 
       visitListenerConstructor(listener, environment)
       visitListenerOnClick(listener, environment)
-
-      toByteArray()
     })
   }
 

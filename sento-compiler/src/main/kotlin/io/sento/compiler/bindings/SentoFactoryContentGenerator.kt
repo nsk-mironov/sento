@@ -19,7 +19,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun onCreateSentoFactory(environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(Types.TYPE_FACTORY.toClassFilePath(), ClassWriter(0).run {
+    return GeneratedContent(Types.TYPE_FACTORY.toClassFilePath(), environment.createClass {
       visitHeader(environment)
       visitFields(environment)
 
@@ -27,9 +27,6 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
       visitStaticConstructor(environment)
 
       visitCreateBindingMethod(environment)
-      visitEnd()
-
-      toByteArray()
     })
   }
 

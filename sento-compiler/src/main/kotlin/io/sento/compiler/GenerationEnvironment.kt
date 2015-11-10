@@ -1,5 +1,7 @@
 package io.sento.compiler
 
+import org.objectweb.asm.ClassWriter
+
 internal class GenerationEnvironment(public val registry: ClassRegistry) {
   public fun info(message: String) {
     println("[INFO] $message")
@@ -15,5 +17,12 @@ internal class GenerationEnvironment(public val registry: ClassRegistry) {
 
   public fun fatal(message: String) {
     throw RuntimeException(message)
+  }
+
+  public fun createClass(visitor: ClassWriter.() -> Unit): ByteArray {
+    return ClassWriter(0).apply {
+      visitor()
+      visitEnd()
+    }.toByteArray()
   }
 }

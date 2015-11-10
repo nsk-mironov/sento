@@ -41,23 +41,22 @@ internal class SentoBindingContentGenerator(
 
     val binding = SentoBindingSpec.from(clazz)
     val result = ArrayList<GeneratedContent>()
-    val writer = ClassWriter(0)
 
-    writer.visitHeader(binding, environment)
-    writer.visitConstructor(binding, environment)
+    val bytes = environment.createClass {
+      visitHeader(binding, environment)
+      visitConstructor(binding, environment)
 
-    writer.visitBindMethod(binding, environment).apply {
-      result.addAll(this)
+      visitBindMethod(binding, environment).apply {
+        result.addAll(this)
+      }
+
+      visitUnbindMethod(binding, environment).apply {
+        result.addAll(this)
+      }
     }
-
-    writer.visitUnbindMethod(binding, environment).apply {
-      result.addAll(this)
-    }
-
-    writer.visitEnd()
 
     result.add(GeneratedContent(binding.originalType.toClassFilePath(), onGenerateTargetClass(clazz, environment)))
-    result.add(GeneratedContent(binding.generatedType.toClassFilePath(), writer.toByteArray(), HashMap<String, Any>().apply {
+    result.add(GeneratedContent(binding.generatedType.toClassFilePath(), bytes, HashMap<String, Any>().apply {
       put(EXTRA_BINDING_SPEC, binding)
     }))
 
