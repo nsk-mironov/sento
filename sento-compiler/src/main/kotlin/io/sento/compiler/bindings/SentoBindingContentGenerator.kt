@@ -14,12 +14,10 @@ import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
+import io.sento.compiler.patcher.AccessibilityPatcher
+import io.sento.compiler.patcher.ClassPatcher
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Label
-import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
@@ -67,28 +65,7 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
-    val reader = ClassReader(clazz.opener.open())
-    val writer = ClassWriter(0)
-
-    reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
-      override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
-        return super.visitField(if (shouldGenerateBindingForField(clazz.field(name), environment)) {
-          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
-        } else {
-          access
-        }, name, desc, signature, value)
-      }
-
-      override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
-        return super.visitMethod(if (shouldGenerateBindingForMethod(clazz.method(name), environment)) {
-          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
-        } else {
-          access
-        }, name, desc, signature, exceptions)
-      }
-    }, ClassReader.SKIP_FRAMES)
-
-    return writer.toByteArray()
+    return createAccessibilityPatcher(environment).patch(clazz.opener.open())
   }
 
   private fun shouldGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
@@ -108,6 +85,26 @@ internal class SentoBindingContentGenerator(
   private fun shouldGenerateBindingForMethod(method: MethodSpec?, environment: GenerationEnvironment): Boolean {
     return method != null && method.annotations.any {
       methods.containsKey(it.type)
+    }
+  }
+
+  private fun createAccessibilityPatcher(environment: GenerationEnvironment): ClassPatcher {
+    return object : AccessibilityPatcher() {
+      override fun onPatchFieldFlags(access: Int, name: String, desc: String, signature: String?, value: Any?): Int {
+        return if (shouldGenerateBindingForField(clazz.field(name), environment)) {
+          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
+        } else {
+          access
+        }
+      }
+
+      override fun onPatchMethodFlags(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): Int {
+        return if (shouldGenerateBindingForMethod(clazz.method(name), environment)) {
+          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
+        } else {
+          access
+        }
+      }
     }
   }
 
