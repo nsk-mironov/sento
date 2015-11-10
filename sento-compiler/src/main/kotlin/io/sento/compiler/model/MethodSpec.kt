@@ -8,9 +8,10 @@ internal data class MethodSpec(
     public val access: Int,
     public val name: String,
     public val type: Type,
+    public val signature: String?,
     public val annotations: Collection<AnnotationSpec>
 ) {
-  internal class Builder(val access: Int, val name: String, val type: Type) {
+  internal class Builder(val access: Int, val name: String, val type: Type, val signature: String?) {
     private val annotations = ArrayList<AnnotationSpec>()
 
     public fun annotation(annotation: AnnotationSpec): Builder = apply {
@@ -18,7 +19,7 @@ internal data class MethodSpec(
     }
 
     public fun build(): MethodSpec {
-      return MethodSpec(access, name, type, annotations)
+      return MethodSpec(access, name, type, signature, annotations)
     }
   }
 

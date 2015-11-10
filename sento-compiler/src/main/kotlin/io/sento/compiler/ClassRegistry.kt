@@ -1,6 +1,7 @@
 package io.sento.compiler
 
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.isInterface
 import io.sento.compiler.model.ClassReference
 import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.Type
@@ -74,6 +75,6 @@ internal class ClassRegistry(
   }
 
   public fun isInterface(type: Type): Boolean {
-    return refs[type]?.isInterface ?: false
+    return refs[type]?.access?.isInterface ?: false
   }
 }

@@ -29,7 +29,7 @@ internal class ClassSpecVisitor(
   }
 
   override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor {
-    return MethodSpecVisitor(access, name, Type.getType(desc)) {
+    return MethodSpecVisitor(access, name, Type.getType(desc), signature) {
       builder.method(it)
     }
   }

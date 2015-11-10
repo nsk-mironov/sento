@@ -1,6 +1,5 @@
 package io.sento.compiler.bindings.methods
 
-import io.sento.MethodBinding
 import io.sento.Optional
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
@@ -8,16 +7,17 @@ import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.common.toSourceFilePath
+import io.sento.compiler.model.MethodBindingSpec
 import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-internal class MethodBindingGeneratorImpl(private val binding: MethodBinding) : MethodBindingGenerator {
+internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec) : MethodBindingGenerator {
   override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val listener = createListenerSpec(context)
-    val result = listOf(onCreateOnClickListener(listener, environment))
+    val result = listOf(onCreateBindingListener(listener, environment))
 
     val visitor = context.visitor
     val annotation = context.annotation
@@ -35,19 +35,19 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBinding) : 
       visitor.visitInsn(Opcodes.DUP)
       visitor.visitVarInsn(Opcodes.ALOAD, context.variable("target"))
       visitor.visitMethodInsn(Opcodes.INVOKESPECIAL, listener.generatedType.internalName, "<init>", "(L${listener.generatedTarget.internalName};)V", false)
-      visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, listener.listenerOwner.internalName, listener.listenerSetter, "(L${listener.listenerType.internalName};)V", false)
+      visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, listener.listenerOwner.internalName, listener.listenerSetter.name, "(L${listener.listenerType.internalName};)V", false)
     }
 
     return result
   }
 
-  private fun onCreateOnClickListener(listener: ListenerSpec, environment: GenerationEnvironment): GeneratedContent {
+  private fun onCreateBindingListener(listener: ListenerSpec, environment: GenerationEnvironment): GeneratedContent {
     return GeneratedContent(listener.generatedType.toClassFilePath(), environment.createClass {
       visitListenerHeader(listener, environment)
       visitListenerFields(listener, environment)
 
       visitListenerConstructor(listener, environment)
-      visitListenerOnClick(listener, environment)
+      visitListenerCallback(listener, environment)
     })
   }
 
@@ -81,8 +81,8 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBinding) : 
     visitor.visitEnd()
   }
 
-  private fun ClassVisitor.visitListenerOnClick(listener: ListenerSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(Opcodes.ACC_PUBLIC, "onClick", "(L${Types.TYPE_VIEW.internalName};)V", null, null)
+  private fun ClassVisitor.visitListenerCallback(listener: ListenerSpec, environment: GenerationEnvironment) {
+    val visitor = visitMethod(Opcodes.ACC_PUBLIC, listener.generatedMethod.name, listener.generatedMethod.type.descriptor, listener.generatedMethod.signature, null)
 
     val start = Label()
     val end = Label()
@@ -103,12 +103,13 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBinding) : 
 
   private fun createListenerSpec(context: MethodBindingContext): ListenerSpec {
     return ListenerSpec(
-        listenerType = Type.getType(binding.listener.replace('.', '/')),
-        listenerOwner = Type.getType(binding.owner.replace('.', '/')),
+        listenerType = binding.listener,
+        listenerOwner = binding.owner,
         listenerSetter = binding.setter,
 
         generatedType = context.factory.newAnonymousType(),
         generatedTarget = context.clazz.type,
+        generatedMethod = binding.callback,
 
         method = context.method
     )
@@ -117,10 +118,11 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBinding) : 
   private data class ListenerSpec(
       public val listenerType: Type,
       public val listenerOwner: Type,
-      public val listenerSetter: String,
+      public val listenerSetter: MethodSpec,
 
       public val generatedType: Type,
       public val generatedTarget: Type,
+      public val generatedMethod: MethodSpec,
 
       public val method: MethodSpec
   )

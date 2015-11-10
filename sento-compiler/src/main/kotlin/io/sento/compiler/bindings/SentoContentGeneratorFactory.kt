@@ -23,7 +23,9 @@ import io.sento.compiler.bindings.fields.BindViewBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingGeneratorImpl
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.model.ClassSpec
+import io.sento.compiler.model.MethodBindingSpec
 import io.sento.compiler.model.SentoBindingSpec
 import org.objectweb.asm.Type
 import java.util.HashMap
@@ -53,12 +55,12 @@ internal class SentoContentGeneratorFactory private constructor(
     private fun createMethodBindings(environment: GenerationEnvironment): Map<Type, MethodBindingGenerator> {
       return HashMap<Type, MethodBindingGenerator>().apply {
         environment.registry.references.forEach {
-          if (it.isAnnotation && !Types.isSystemClass(it.type)) {
+          if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {
             val spec = environment.registry.resolve(it)
             val binding = spec.getAnnotation<MethodBinding>()
 
             if (binding != null) {
-              put(it.type, MethodBindingGeneratorImpl(binding))
+              put(it.type, MethodBindingGeneratorImpl(MethodBindingSpec.create(spec, binding, environment.registry)))
             }
           }
         }

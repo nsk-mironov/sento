@@ -2,7 +2,7 @@ package io.sento.compiler.common
 
 import org.objectweb.asm.Type
 
-public fun Type.toSourceFilePath(): String {
+internal fun Type.toSourceFilePath(): String {
   return if (className.contains('.')) {
     "${className.substring(className.lastIndexOf('.') + 1)}.java"
   } else {
@@ -10,6 +10,6 @@ public fun Type.toSourceFilePath(): String {
   }
 }
 
-public fun Type.toClassFilePath(): String {
+internal fun Type.toClassFilePath(): String {
   return "$internalName.class"
 }
