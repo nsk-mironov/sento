@@ -55,6 +55,10 @@ internal object ClassRegistryFactory {
     val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
     val type = Type.getObjectType(reader.className)
 
-    return ClassReference(reader.access, type, parent, opener)
+    val interfaces = reader.interfaces.orEmpty().map {
+      Type.getObjectType(it)
+    }
+
+    return ClassReference(reader.access, type, parent, interfaces, opener)
   }
 }

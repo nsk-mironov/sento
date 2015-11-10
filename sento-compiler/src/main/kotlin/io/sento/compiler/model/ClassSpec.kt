@@ -15,9 +15,14 @@ internal data class ClassSpec(
     public val opener: Opener
 ) {
   internal class Builder(val access: Int, val type: Type, val parent: Type, val opener: Opener) {
+    private val interfaces = ArrayList<Type>()
     private val annotations = ArrayList<AnnotationSpec>()
     private val fields = ArrayList<FieldSpec>()
     private val methods = ArrayList<MethodSpec>()
+
+    public fun interfaces(values: Collection<Type>): Builder = apply {
+      interfaces.addAll(values)
+    }
 
     public fun annotation(annotation: AnnotationSpec): Builder = apply {
       annotations.add(annotation)

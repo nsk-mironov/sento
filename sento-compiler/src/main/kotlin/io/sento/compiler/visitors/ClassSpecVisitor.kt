@@ -14,10 +14,11 @@ internal class ClassSpecVisitor(
     private val access: Int,
     private val type: Type,
     private val parent: Type,
+    private val interfaces: Collection<Type>,
     private val opener: Opener,
     private val action: (ClassSpec) -> Unit
 ) : ClassVisitor(Opcodes.ASM5) {
-  private val builder = ClassSpec.Builder(access, type, parent, opener)
+  private val builder = ClassSpec.Builder(access, type, parent, opener).interfaces(interfaces)
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
     return AnnotationSpecVisitor(Type.getType(desc)) {

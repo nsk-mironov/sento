@@ -11,6 +11,7 @@ internal data class ClassReference(
     public val access: Int,
     public val type: Type,
     public val parent: Type,
+    public val interfaces: Collection<Type>,
     public val opener: Opener
 ) {
   public val isInterface: Boolean
@@ -23,7 +24,7 @@ internal data class ClassReference(
     val reader = ClassReader(opener.open())
     val result = AtomicReference<ClassSpec>()
 
-    reader.accept(ClassSpecVisitor(access, type, parent, opener) {
+    reader.accept(ClassSpecVisitor(access, type, parent, interfaces, opener) {
       result.set(it)
     }, 0)
 
