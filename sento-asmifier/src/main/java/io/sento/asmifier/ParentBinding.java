@@ -1,5 +1,6 @@
 package io.sento.asmifier;
 
+import android.view.View;
 import android.widget.ImageView;
 import io.sento.Binding;
 import io.sento.Finder;
@@ -14,11 +15,17 @@ public class ParentBinding implements Binding<Object> {
     ((Parent) target).enabled = finder.resources(source).getBoolean(456789);
     ((Parent) target).title = finder.resources(source).getString(456789);
 
-    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(((Parent) target)));
-    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(((Parent) target)));
-    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(((Parent) target)));
-    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(((Parent) target)));
-    finder.find(456789, source, false).setOnClickListener(new ParentBinding$$1(((Parent) target)));
+    final View view1 = finder.find(456789, source, false);
+
+    if (view1 != null) {
+      view1.setOnClickListener(new ParentBinding$$1(((Parent) target)));
+    }
+
+    final View view2 = finder.find(456789, source, false);
+
+    if (view2 != null) {
+      view2.setOnClickListener(new ParentBinding$$1(((Parent) target)));
+    }
   }
 
   @Override
