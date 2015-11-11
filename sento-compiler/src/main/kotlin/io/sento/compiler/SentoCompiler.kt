@@ -12,8 +12,6 @@ public class SentoCompiler() {
     println("inputs ${options.inputs}")
     println("libs ${options.libs}")
     println("output ${options.output}")
-    println("incremental ${options.incremental}")
-    println("dry ${options.dryRun}")
 
     val registry = ClassRegistryFactory.create(options)
     val environment = GenerationEnvironment(registry)

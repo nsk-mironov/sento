@@ -44,8 +44,6 @@ public class SentoTransform extends Transform {
     compiler.compile(new SentoOptions.Builder(output)
         .inputs(classes)
         .libs(libs)
-        .incremental(incremental)
-        .dryRun(false)
         .build()
     )
   }
