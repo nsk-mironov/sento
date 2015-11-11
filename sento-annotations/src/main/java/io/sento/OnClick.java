@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @MethodBinding(
-    owner = "android.view.View",
-    listener = "android.view.View$OnClickListener",
-    setter = "setOnClickListener"
+  owner = "android.view.View",
+  listener = "android.view.View$OnClickListener",
+  setter = "setOnClickListener"
 )
 public @interface OnClick {
   public int[] value();

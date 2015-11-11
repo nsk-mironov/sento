@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @MethodBinding(
-    owner = "android.view.View",
-    listener = "android.view.View$OnKeyListener",
-    setter = "setOnKeyListener"
+  owner = "android.view.View",
+  listener = "android.view.View$OnKeyListener",
+  setter = "setOnKeyListener"
 )
 public @interface OnKey {
   public int[] value();
