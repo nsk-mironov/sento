@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @MethodBinding(
-  owner = "android.view.View",
-  listener = "android.view.View$OnLongClickListener",
-  setter = "setOnLongClickListener"
+    owner = "android.view.View",
+    listener = "android.view.View$OnLongClickListener",
+    setter = "setOnLongClickListener"
 )
 public @interface OnLongClick {
   public int[] value();

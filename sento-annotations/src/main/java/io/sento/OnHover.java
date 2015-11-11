@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @MethodBinding(
-  owner = "android.view.View",
-  listener = "android.view.View$OnHoverListener",
-  setter = "setOnHoverListener"
+    owner = "android.view.View",
+    listener = "android.view.View$OnHoverListener",
+    setter = "setOnHoverListener"
 )
 public @interface OnHover {
   public int[] value();

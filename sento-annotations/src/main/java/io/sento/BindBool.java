@@ -7,6 +7,12 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
+@ResourceBindings(
+    @ResourceBinding(
+        type = "boolean",
+        getter = "getBoolean"
+    )
+)
 public @interface BindBool {
   public int value();
 }

@@ -6,13 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
-@Target(ElementType.FIELD)
-@ResourceBindings(
-    @ResourceBinding(
-        type = "int",
-        getter = "getInteger"
-    )
-)
-public @interface BindInteger {
-  public int value();
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface ResourceBinding {
+  public String type();
+
+  public String getter();
 }
