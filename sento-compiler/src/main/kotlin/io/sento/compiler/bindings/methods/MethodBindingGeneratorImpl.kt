@@ -26,6 +26,8 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
     val optional = method.getAnnotation<Optional>() != null
 
     Annotations.ids(annotation).forEach {
+      val view = adapter.newLocal(Types.TYPE_VIEW)
+
       adapter.loadArg(context.variable("finder"))
       adapter.push(it)
 
@@ -33,12 +35,22 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
       adapter.push(optional)
 
       adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.view.View find(int, Object, boolean)"))
-      adapter.newInstance(listener.generatedType)
-      adapter.dup()
+      adapter.storeLocal(view)
 
-      adapter.loadArg(context.variable("target"))
-      adapter.invokeConstructor(listener.generatedType, Method.getMethod("void <init> (${listener.generatedTarget.className})"))
-      adapter.invokeVirtual(listener.listenerOwner, Method(listener.listenerSetter.name, "(L${listener.listenerType.internalName};)V"))
+      adapter.newLabel().apply {
+        adapter.loadLocal(view)
+        adapter.ifNull(this)
+
+        adapter.loadLocal(view)
+        adapter.newInstance(listener.generatedType)
+        adapter.dup()
+
+        adapter.loadArg(context.variable("target"))
+        adapter.invokeConstructor(listener.generatedType, Method.getMethod("void <init> (${listener.generatedTarget.className})"))
+        adapter.invokeVirtual(listener.listenerOwner, Method(listener.listenerSetter.name, "(L${listener.listenerType.internalName};)V"))
+
+        adapter.mark(this)
+      }
     }
 
     return result
