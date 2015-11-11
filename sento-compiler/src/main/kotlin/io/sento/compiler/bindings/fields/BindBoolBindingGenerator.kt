@@ -4,25 +4,25 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
-import org.objectweb.asm.Opcodes
+import org.objectweb.asm.commons.Method
 
 internal class BindBoolBindingGenerator : FieldBindingGenerator {
   override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    val visitor = context.visitor
+    val adapter = context.adapter
     val annotation = context.annotation
 
     val field = context.field
     val clazz = context.clazz
 
-    visitor.visitVarInsn(Opcodes.ALOAD, context.variable("target"))
-    visitor.visitVarInsn(Opcodes.ALOAD, context.variable("finder"))
-    visitor.visitVarInsn(Opcodes.ALOAD, context.variable("source"))
+    adapter.loadArg(context.variable("target"))
+    adapter.loadArg(context.variable("finder"))
+    adapter.loadArg(context.variable("source"))
 
-    visitor.visitMethodInsn(Opcodes.INVOKEINTERFACE, Types.TYPE_FINDER.internalName, "resources", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_RESOURCES.internalName};", true)
-    visitor.visitLdcInsn(Annotations.id(annotation))
+    adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.content.res.Resources resources(Object))"))
+    adapter.push(Annotations.id(annotation))
 
-    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, Types.TYPE_RESOURCES.internalName, "getBoolean", "(I)Z", false)
-    visitor.visitFieldInsn(Opcodes.PUTFIELD, clazz.type.internalName, field.name, field.type.descriptor)
+    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method.getMethod("boolean getBoolean(int)"))
+    adapter.putField(clazz.type, field.name, field.type)
 
     return emptyList()
   }

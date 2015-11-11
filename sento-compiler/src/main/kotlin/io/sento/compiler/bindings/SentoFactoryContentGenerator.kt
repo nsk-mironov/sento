@@ -5,11 +5,9 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
-import io.sento.compiler.common.toSourceFilePath
 import io.sento.compiler.model.SentoBindingSpec
 
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
@@ -33,12 +31,12 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) {
-    visit(Opcodes.V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.TYPE_FACTORY.internalName, null, Types.TYPE_OBJECT.internalName, null)
+    visit(V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.TYPE_FACTORY.internalName, null, Types.TYPE_OBJECT.internalName, null)
   }
 
   private fun ClassWriter.visitFields(environment: GenerationEnvironment) {
     val descriptor = Types.TYPE_MAP.descriptor
-    val signature = "L${Types.TYPE_MAP.internalName}<L${Types.TYPE_CLASS.internalName};L${Types.TYPE_BINDING.internalName};>;"
+    val signature = "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;"
 
     visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", descriptor, signature, null).visitEnd()
   }

@@ -16,10 +16,11 @@ import io.sento.compiler.model.MethodSpec
 import io.sento.compiler.patcher.AccessibilityPatcher
 import io.sento.compiler.patcher.ClassPatcher
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 import org.objectweb.asm.Opcodes.*
+import org.objectweb.asm.commons.GeneratorAdapter
+import org.objectweb.asm.commons.Method
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -111,90 +112,81 @@ internal class SentoBindingContentGenerator(
     val superName = Types.TYPE_OBJECT.internalName
     val interfaces = arrayOf(Types.TYPE_BINDING.internalName)
 
-    visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
+    visit(V1_6, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
   }
 
   private fun ClassWriter.visitConstructor(binding: SentoBindingSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_PUBLIC, "<init>", "()V", null, null)
+    GeneratorAdapter(ACC_PUBLIC, Method.getMethod("void <init> ()"), null, null, this).apply {
+      loadThis()
+      invokeConstructor(Types.TYPE_OBJECT, Method.getMethod("void <init> ()"))
 
-    visitor.visitCode()
-    visitor.visitVarInsn(ALOAD, 0)
-    visitor.visitMethodInsn(INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
-    visitor.visitInsn(RETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
+      returnValue()
+      endMethod()
+    }
   }
 
   private fun ClassWriter.visitBindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    val descriptor = "(L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_FINDER.internalName};)V"
-    val signature = "<S:L${Types.TYPE_OBJECT.internalName};>(L${Types.TYPE_OBJECT.internalName};TS;L${Types.TYPE_FINDER.internalName}<-TS;>;)V"
+    return ArrayList<GeneratedContent>().apply {
+      val descriptor = Method.getMethod("void bind (Object, Object, io.sento.Finder)")
+      val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
-    val visitor = visitMethod(ACC_PUBLIC, "bind", descriptor, signature, null)
-    val result = ArrayList<GeneratedContent>()
+      GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).apply {
+        for (field in binding.clazz.fields) {
+          for (annotation in field.annotations) {
+            fields[annotation.type]?.let {
+              val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, environment)
 
-    visitor.visitCode()
-
-    for (field in binding.clazz.fields) {
-      for (annotation in field.annotations) {
-        fields[annotation.type]?.let {
-          val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-          val context = FieldBindingContext(field, binding.clazz, annotation, visitor, variables, binding.factory, environment)
-
-          result.addAll(it.bind(context, environment))
+              addAll(it.bind(context, environment))
+            }
+          }
         }
+
+        for (method in binding.clazz.methods) {
+          for (annotation in method.annotations) {
+            methods[annotation.type]?.let {
+              val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, environment)
+
+              addAll(it.bind(context, environment))
+            }
+          }
+        }
+
+        returnValue()
+        endMethod()
       }
     }
-
-    for (method in binding.clazz.methods) {
-      for (annotation in method.annotations) {
-        methods[annotation.type]?.let {
-          val variables = mapOf("this" to 0, "target" to 1, "source" to 2, "finder" to 3)
-          val context = MethodBindingContext(method, binding.clazz, annotation, visitor, variables, binding.factory, environment)
-
-          result.addAll(it.bind(context, environment))
-        }
-      }
-    }
-
-    visitor.visitInsn(RETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
-
-    return result
   }
 
   private fun ClassWriter.visitUnbindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    val visitor = visitMethod(ACC_PUBLIC, "unbind", "(L${Types.TYPE_OBJECT.internalName};)V", null, null)
-    val result = ArrayList<GeneratedContent>()
+    return ArrayList<GeneratedContent>().apply {
+      GeneratorAdapter(ACC_PUBLIC, Method.getMethod("void unbind (Object)"), null, null, this@visitUnbindMethod).apply {
+        for (field in binding.clazz.fields) {
+          for (annotation in field.annotations) {
+            fields[annotation.type]?.let {
+              val variables = mapOf("target" to 0)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, environment)
 
-    visitor.visitCode()
-
-    for (field in binding.clazz.fields) {
-      for (annotation in field.annotations) {
-        fields[annotation.type]?.let {
-          val variables = mapOf("this" to 0, "target" to 1)
-          val context = FieldBindingContext(field, binding.clazz, annotation, visitor, variables, binding.factory, environment)
-
-          result.addAll(it.unbind(context, environment))
+              addAll(it.unbind(context, environment))
+            }
+          }
         }
+
+        for (method in binding.clazz.methods) {
+          for (annotation in method.annotations) {
+            methods[annotation.type]?.let {
+              val variables = mapOf("target" to 0)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, environment)
+
+              addAll(it.unbind(context, environment))
+            }
+          }
+        }
+
+        returnValue()
+        endMethod()
       }
     }
-
-    for (method in binding.clazz.methods) {
-      for (annotation in method.annotations) {
-        methods[annotation.type]?.let {
-          val variables = mapOf("this" to 0, "target" to 1)
-          val context = MethodBindingContext(method, binding.clazz, annotation, visitor, variables, binding.factory, environment)
-
-          result.addAll(it.unbind(context, environment))
-        }
-      }
-    }
-
-    visitor.visitInsn(RETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
-
-    return result
   }
 }
