@@ -69,7 +69,7 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
     visitor.visitVarInsn(Opcodes.ALOAD, 1)
     visitor.visitFieldInsn(Opcodes.PUTFIELD, listener.generatedType.internalName, "target", listener.generatedTarget.descriptor)
     visitor.visitInsn(Opcodes.RETURN)
-    visitor.visitMaxs(2, 2)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
   }
 
@@ -82,7 +82,7 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
     visitor.visitVarInsn(Opcodes.ALOAD, 1)
     visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, listener.generatedTarget.internalName, listener.method.name, "(L${Types.TYPE_VIEW.internalName};)V", false)
     visitor.visitInsn(Opcodes.RETURN)
-    visitor.visitMaxs(2, 2)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
   }
 

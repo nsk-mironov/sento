@@ -124,7 +124,7 @@ internal class SentoBindingContentGenerator(
     visitor.visitVarInsn(ALOAD, 0)
     visitor.visitMethodInsn(INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
     visitor.visitInsn(RETURN)
-    visitor.visitMaxs(1, 1)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
   }
 
@@ -160,7 +160,7 @@ internal class SentoBindingContentGenerator(
     }
 
     visitor.visitInsn(RETURN)
-    visitor.visitMaxs(5, 4)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
 
     return result
@@ -195,7 +195,7 @@ internal class SentoBindingContentGenerator(
     }
 
     visitor.visitInsn(RETURN)
-    visitor.visitMaxs(2, 2)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
 
     return result

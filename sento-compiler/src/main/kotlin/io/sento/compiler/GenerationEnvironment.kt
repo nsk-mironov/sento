@@ -20,7 +20,7 @@ internal class GenerationEnvironment(public val registry: ClassRegistry) {
   }
 
   public fun createClass(visitor: ClassWriter.() -> Unit): ByteArray {
-    return ClassWriter(0).apply {
+    return ClassWriter(ClassWriter.COMPUTE_MAXS).apply {
       visitor()
       visitEnd()
     }.toByteArray()

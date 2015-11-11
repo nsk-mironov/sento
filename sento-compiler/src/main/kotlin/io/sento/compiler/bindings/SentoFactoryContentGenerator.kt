@@ -48,7 +48,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
     visitor.visitVarInsn(ALOAD, 0)
     visitor.visitMethodInsn(INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
     visitor.visitInsn(RETURN)
-    visitor.visitMaxs(1, 1)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
   }
 
@@ -64,7 +64,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
     visitor.visitMethodInsn(INVOKEINTERFACE, Types.TYPE_MAP.internalName, "get", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_OBJECT.internalName};", true)
     visitor.visitTypeInsn(CHECKCAST, Types.TYPE_BINDING.internalName)
     visitor.visitInsn(ARETURN)
-    visitor.visitMaxs(2, 1)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
   }
 
@@ -88,7 +88,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
     }
 
     visitor.visitInsn(RETURN)
-    visitor.visitMaxs(4, 0)
+    visitor.visitMaxs(0, 0)
     visitor.visitEnd()
   }
 }
