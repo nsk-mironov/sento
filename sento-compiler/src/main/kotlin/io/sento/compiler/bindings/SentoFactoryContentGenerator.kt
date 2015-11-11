@@ -11,6 +11,9 @@ import io.sento.compiler.model.SentoBindingSpec
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.*
+import org.objectweb.asm.Type
+import org.objectweb.asm.commons.GeneratorAdapter
+import org.objectweb.asm.commons.Method
 
 internal class SentoFactoryContentGenerator(private val bindings: Collection<SentoBindingSpec>) : ContentGenerator {
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
@@ -42,53 +45,53 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun ClassWriter.visitConstructor(environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_PRIVATE, "<init>", "()V", null, null)
-    
-    visitor.visitCode()
-    visitor.visitVarInsn(ALOAD, 0)
-    visitor.visitMethodInsn(INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
-    visitor.visitInsn(RETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
+    GeneratorAdapter(ACC_PRIVATE, Method.getMethod("void <init> ()"), null, null, this).apply {
+      loadThis()
+      invokeConstructor(Type.getType(Any::class.java), Method.getMethod("void <init> ()"))
+
+      returnValue()
+      endMethod()
+    }
   }
 
   private fun ClassWriter.visitCreateBindingMethod(environment: GenerationEnvironment) {
-    val descriptor = "(L${Types.TYPE_CLASS.internalName};)L${Types.TYPE_BINDING.internalName};"
-    val signature = "(L${Types.TYPE_CLASS.internalName}<*>;)L${Types.TYPE_BINDING.internalName}<L${Types.TYPE_OBJECT.internalName};>;"
+    val method = "io.sento.Binding createBinding(java.lang.Class)"
+    val signature = "(Ljava/lang/Class<*>;)Lio/sento/Binding<Ljava/lang/Object;>;"
 
-    val visitor = visitMethod(ACC_PUBLIC + ACC_STATIC, "createBinding", descriptor, signature, null)
+    GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, Method.getMethod(method), signature, null, this).apply {
+      getStatic(Types.TYPE_FACTORY, "BINDINGS", Types.TYPE_MAP)
+      loadArg(0)
 
-    visitor.visitCode()
-    visitor.visitFieldInsn(GETSTATIC, Types.TYPE_FACTORY.internalName, "BINDINGS", Types.TYPE_MAP.descriptor)
-    visitor.visitVarInsn(ALOAD, 0)
-    visitor.visitMethodInsn(INVOKEINTERFACE, Types.TYPE_MAP.internalName, "get", "(L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_OBJECT.internalName};", true)
-    visitor.visitTypeInsn(CHECKCAST, Types.TYPE_BINDING.internalName)
-    visitor.visitInsn(ARETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
+      invokeInterface(Types.TYPE_MAP, Method.getMethod("Object get(Object)"))
+      checkCast(Types.TYPE_BINDING)
+
+      returnValue()
+      endMethod()
+    }
   }
 
   private fun ClassWriter.visitStaticConstructor(environment: GenerationEnvironment) {
-    val visitor = visitMethod(ACC_STATIC, "<clinit>", "()V", null, null)
+    GeneratorAdapter(ACC_STATIC, Method.getMethod("void <clinit> ()"), null, null, this).apply {
+      newInstance(Types.TYPE_IDENTITY_MAP)
+      dup()
 
-    visitor.visitCode()
-    visitor.visitTypeInsn(NEW, "java/util/IdentityHashMap")
-    visitor.visitInsn(DUP)
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/util/IdentityHashMap", "<init>", "()V", false)
-    visitor.visitFieldInsn(PUTSTATIC, Types.TYPE_FACTORY.internalName, "BINDINGS", Types.TYPE_MAP.descriptor)
+      invokeConstructor(Types.TYPE_IDENTITY_MAP, Method.getMethod("void <init> ()"))
+      putStatic(Types.TYPE_FACTORY, "BINDINGS", Types.TYPE_MAP)
 
-    bindings.forEach {
-      visitor.visitFieldInsn(GETSTATIC, Types.TYPE_FACTORY.internalName, "BINDINGS", Types.TYPE_MAP.descriptor)
-      visitor.visitLdcInsn(it.originalType)
-      visitor.visitTypeInsn(NEW, it.generatedType.internalName)
-      visitor.visitInsn(DUP)
-      visitor.visitMethodInsn(INVOKESPECIAL, it.generatedType.internalName, "<init>", "()V", false)
-      visitor.visitMethodInsn(INVOKEINTERFACE, Types.TYPE_MAP.internalName, "put", "(L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_OBJECT.internalName};)L${Types.TYPE_OBJECT.internalName};", true)
-      visitor.visitInsn(POP)
+      bindings.forEach {
+        getStatic(Types.TYPE_FACTORY, "BINDINGS", Types.TYPE_MAP)
+        push(it.originalType)
+
+        newInstance(it.generatedType)
+        dup()
+
+        invokeConstructor(it.generatedType, Method.getMethod("void <init> ()"))
+        invokeInterface(Types.TYPE_MAP, Method.getMethod("Object put(Object, Object)"))
+        pop()
+      }
+
+      returnValue()
+      endMethod()
     }
-
-    visitor.visitInsn(RETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
   }
 }

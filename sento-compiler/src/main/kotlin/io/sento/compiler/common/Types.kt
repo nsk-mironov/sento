@@ -1,11 +1,14 @@
 package io.sento.compiler.common
 
 import org.objectweb.asm.Type
+import java.util.IdentityHashMap
 
 internal object Types {
   public val TYPE_OBJECT = Type.getType(Any::class.java)
   public val TYPE_CLASS = Type.getType(Class::class.java)
+
   public val TYPE_MAP = Type.getType(Map::class.java)
+  public val TYPE_IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
 
   public val TYPE_INT = Type.INT_TYPE
   public val TYPE_FLOAT = Type.FLOAT_TYPE
