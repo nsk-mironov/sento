@@ -9,7 +9,6 @@ import io.sento.compiler.bindings.methods.MethodBindingContext
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
-import io.sento.compiler.common.toSourceFilePath
 import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
@@ -111,10 +110,8 @@ internal class SentoBindingContentGenerator(
     val signature = "L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_BINDING.internalName}<L${Types.TYPE_OBJECT.internalName};>;"
     val superName = Types.TYPE_OBJECT.internalName
     val interfaces = arrayOf(Types.TYPE_BINDING.internalName)
-    val source = binding.generatedType.toSourceFilePath()
 
     visit(Opcodes.V1_6, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
-    visitSource(source, null)
   }
 
   private fun ClassWriter.visitConstructor(binding: SentoBindingSpec, environment: GenerationEnvironment) {

@@ -54,7 +54,6 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
 
   private fun ClassVisitor.visitListenerHeader(listener: ListenerSpec, environment: GenerationEnvironment) {
     visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, listener.generatedType.internalName, null, Types.TYPE_OBJECT.internalName, arrayOf(listener.listenerType.internalName))
-    visitSource(listener.generatedType.toSourceFilePath(), null)
   }
 
   private fun ClassVisitor.visitListenerFields(listener: ListenerSpec, environment: GenerationEnvironment) {

@@ -34,7 +34,6 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) {
     visit(Opcodes.V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.TYPE_FACTORY.internalName, null, Types.TYPE_OBJECT.internalName, null)
-    visitSource(Types.TYPE_FACTORY.toSourceFilePath(), null)
   }
 
   private fun ClassWriter.visitFields(environment: GenerationEnvironment) {
