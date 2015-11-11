@@ -12,6 +12,8 @@ import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import org.objectweb.asm.commons.GeneratorAdapter
+import org.objectweb.asm.commons.Method
 
 internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec) : MethodBindingGenerator {
   override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
@@ -60,30 +62,30 @@ internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec
   }
 
   private fun ClassVisitor.visitListenerConstructor(listener: ListenerSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(Opcodes.ACC_PUBLIC, "<init>", "(L${listener.generatedTarget.internalName};)V", null, null)
+    GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod("void <init> (${listener.generatedTarget.className})"), null, null, this).apply {
+      loadThis()
+      invokeConstructor(Types.TYPE_OBJECT, Method.getMethod("void <init> ()"))
 
-    visitor.visitCode()
-    visitor.visitVarInsn(Opcodes.ALOAD, 0)
-    visitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Types.TYPE_OBJECT.internalName, "<init>", "()V", false)
-    visitor.visitVarInsn(Opcodes.ALOAD, 0)
-    visitor.visitVarInsn(Opcodes.ALOAD, 1)
-    visitor.visitFieldInsn(Opcodes.PUTFIELD, listener.generatedType.internalName, "target", listener.generatedTarget.descriptor)
-    visitor.visitInsn(Opcodes.RETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
+      loadThis()
+      loadArg(0)
+      putField(listener.generatedType, "target", listener.generatedTarget)
+
+      returnValue()
+      endMethod()
+    }
   }
 
   private fun ClassVisitor.visitListenerCallback(listener: ListenerSpec, environment: GenerationEnvironment) {
-    val visitor = visitMethod(Opcodes.ACC_PUBLIC, listener.generatedMethod.name, listener.generatedMethod.type.descriptor, listener.generatedMethod.signature, null)
+    GeneratorAdapter(Opcodes.ACC_PUBLIC, Method(listener.generatedMethod.name, listener.generatedMethod.type.descriptor), listener.generatedMethod.signature, null, this).apply {
+      loadThis()
+      getField(listener.generatedType, "target", listener.generatedTarget)
 
-    visitor.visitCode()
-    visitor.visitVarInsn(Opcodes.ALOAD, 0)
-    visitor.visitFieldInsn(Opcodes.GETFIELD, listener.generatedType.internalName, "target", listener.generatedTarget.descriptor)
-    visitor.visitVarInsn(Opcodes.ALOAD, 1)
-    visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, listener.generatedTarget.internalName, listener.method.name, "(L${Types.TYPE_VIEW.internalName};)V", false)
-    visitor.visitInsn(Opcodes.RETURN)
-    visitor.visitMaxs(0, 0)
-    visitor.visitEnd()
+      loadArg(0)
+      invokeVirtual(listener.generatedTarget, Method(listener.method.name, "(L${Types.TYPE_VIEW.internalName};)V"))
+
+      returnValue()
+      endMethod()
+    }
   }
 
   private fun createListenerSpec(context: MethodBindingContext): ListenerSpec {
