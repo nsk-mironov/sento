@@ -42,11 +42,11 @@ internal class ClassRegistry(
     }
   }
 
-  public fun resolve(reference: ClassReference, cacheable: Boolean = false): ClassSpec {
+  public fun resolve(reference: ClassReference, cacheable: Boolean = true): ClassSpec {
     return resolve(reference.type, cacheable)
   }
 
-  public fun resolve(type: Type, cacheable: Boolean = false): ClassSpec {
+  public fun resolve(type: Type, cacheable: Boolean = true): ClassSpec {
     return if (cacheable) {
       specs.getOrPut(type) {
         refs.getOrImplicitDefault(type).resolve()
