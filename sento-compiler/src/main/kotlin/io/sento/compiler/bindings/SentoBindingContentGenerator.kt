@@ -38,7 +38,7 @@ internal class SentoBindingContentGenerator(
       return emptyList()
     }
 
-    val binding = SentoBindingSpec.from(clazz)
+    val binding = SentoBindingSpec.create(clazz)
     val result = ArrayList<GeneratedContent>()
 
     val bytes = environment.createClass {

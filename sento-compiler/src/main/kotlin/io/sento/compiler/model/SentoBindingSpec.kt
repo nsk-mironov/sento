@@ -10,7 +10,7 @@ internal class SentoBindingSpec(
     public val factory: TypeFactory
 ) {
   public companion object {
-    public fun from(clazz: ClassSpec): SentoBindingSpec {
+    public fun create(clazz: ClassSpec): SentoBindingSpec {
       val originalType = clazz.type
       val generatedType = Type.getObjectType("${originalType.internalName}\$\$SentoBinding")
       val factory = TypeFactory(generatedType)

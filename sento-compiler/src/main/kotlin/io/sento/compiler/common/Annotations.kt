@@ -4,41 +4,42 @@ import com.google.common.reflect.AbstractInvocationHandler
 import io.sento.compiler.model.AnnotationSpec
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
-import java.util.ArrayList
 
 internal object Annotations {
-  public inline fun <reified A : Annotation> create(spec: AnnotationSpec): A {
-    return create(A::class.java, spec)
-  }
-
   public fun <A : Annotation> create(clazz: Class<A>, spec: AnnotationSpec): A {
     return clazz.cast(Proxy.newProxyInstance(clazz.classLoader, arrayOf(clazz), object : AbstractInvocationHandler() {
       override fun handleInvocation(proxy: Any, method: Method, args: Array<out Any>): Any? {
-        val value = spec.values[method.name]
-
-        if (method.returnType.isArray) {
-          val array = value.castSafe<Array<*>>().orEmpty()
-          val list = ArrayList<Any?>()
-
-          array.forEach {
-            list.add(if (method.returnType.componentType.isAnnotation) {
-              create(method.returnType.componentType.asSubclass(Annotation::class.java), it.cast<AnnotationSpec>())
-            } else {
-              it
-            })
-          }
-
-          val returns = method.returnType.componentType.asSubclass(Any::class.java)
-          val result = java.lang.reflect.Array.newInstance(returns, list.size).cast<Array<Any?>>()
-
-          return list.toArray(result)
-        }
-
-        return value
+        return resolve(method.returnType, spec.values[method.name] ?: return null)
       }
 
       override fun toString(): String {
         return "${clazz.name} ${spec.values}"
+      }
+
+      private fun resolve(type: Class<*>, value: Any): Any {
+        return when {
+          type.isArray -> resolveArray(type.componentType, value)
+          type.isAnnotation -> resolveAnnotation(type, value)
+          else -> resolveValue(type, value)
+        }
+      }
+
+      private fun resolveArray(type: Class<*>, value: Any): Any {
+        val array = java.lang.reflect.Array.newInstance(type, 0).cast<Array<Any?>>()
+
+        val list = value.cast<Array<Any>>().orEmpty().map {
+          resolve(type, it)
+        }
+
+        return list.toArrayList().toArray(array)
+      }
+
+      private fun resolveAnnotation(type: Class<*>, value: Any): Any {
+        return create(type.asSubclass(Annotation::class.java), value.cast())
+      }
+
+      private fun resolveValue(type: Class<*>, value: Any): Any {
+        return value
       }
     }))
   }
@@ -64,9 +65,5 @@ internal object Annotations {
 
   private inline fun <reified T : Any> Any?.cast(): T {
     return this as T
-  }
-
-  private inline fun <reified T : Any> Any?.castSafe(): T? {
-    return this as? T
   }
 }

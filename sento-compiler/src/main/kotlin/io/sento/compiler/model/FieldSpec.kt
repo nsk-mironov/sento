@@ -27,11 +27,8 @@ internal data class FieldSpec(
   }
 
   public fun <A : Annotation> getAnnotation(annotation: Class<A>): A? {
-    val type = Type.getType(annotation)
-    val spec = annotations.firstOrNull {
-      it.type == type
-    } ?: return null
-
-    return Annotations.create(annotation, spec)
+    return Annotations.create(annotation, annotations.firstOrNull {
+      it.type == Type.getType(annotation)
+    } ?: return null)
   }
 }
