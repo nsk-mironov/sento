@@ -32,6 +32,6 @@ internal data class FieldSpec(
       it.type == type
     } ?: return null
 
-    return Annotations.create(annotation, spec.values)
+    return Annotations.create(annotation, spec)
   }
 }

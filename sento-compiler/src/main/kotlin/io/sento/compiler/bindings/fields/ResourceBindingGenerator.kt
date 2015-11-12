@@ -21,20 +21,14 @@ internal class ResourceBindingGenerator(
     adapter.loadArg(context.variable("finder"))
     adapter.loadArg(context.variable("source"))
 
-    adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.content.res.Resources resources(Object))"))
+    adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.content.res.Resources resources (Object))"))
     adapter.push(Annotations.id(annotation))
-
-    bindings.forEach {
-      environment.debug("Binding ${it.type}")
-    }
-
-    environment.debug("Field ${field.type}")
 
     val binding = bindings.first {
       environment.registry.isSubclassOf(field.type, it.type)
     }
 
-    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method.getMethod("${binding.type.className} ${binding.getter}(int)"))
+    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method(binding.getter.name, binding.getter.type.descriptor))
     adapter.putField(clazz.type, field.name, field.type)
 
     return emptyList()

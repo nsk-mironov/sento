@@ -15,9 +15,9 @@ internal class FieldSpecVisitor(
 ) : FieldVisitor(Opcodes.ASM5) {
   private val builder = FieldSpec.Builder(access, name, type)
 
-  override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
-    return AnnotationSpecVisitor(Type.getType(desc)) {
-      if (!Types.isSystemClass(it.type)) {
+  override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
+    return if (Types.isSystemClass(Type.getType(desc))) null else {
+      AnnotationSpecVisitor(Type.getType(desc)) {
         builder.annotation(it)
       }
     }

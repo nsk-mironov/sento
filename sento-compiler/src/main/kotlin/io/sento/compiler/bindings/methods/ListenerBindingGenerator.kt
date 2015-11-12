@@ -34,7 +34,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       adapter.loadArg(context.variable("source"))
       adapter.push(optional)
 
-      adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.view.View find(int, Object, boolean)"))
+      adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.view.View find (int, Object, boolean)"))
       adapter.storeLocal(view)
 
       adapter.newLabel().apply {

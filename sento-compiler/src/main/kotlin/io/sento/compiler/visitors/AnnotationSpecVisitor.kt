@@ -1,9 +1,11 @@
 package io.sento.compiler.visitors
 
+import io.sento.compiler.common.Types
 import io.sento.compiler.model.AnnotationSpec
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import java.util.ArrayList
 
 internal class AnnotationSpecVisitor(
     private val type: Type,
@@ -15,7 +17,47 @@ internal class AnnotationSpecVisitor(
     builder.value(name, value)
   }
 
+  override fun visitAnnotation(name: String, desc: String): AnnotationVisitor? {
+    return if (Types.isSystemClass(Type.getType(desc))) null else {
+      AnnotationSpecVisitor(Type.getType(desc)) {
+        builder.value(name, it)
+      }
+    }
+  }
+
+  override fun visitArray(name: String): AnnotationVisitor? {
+    return ArraySpecVisitor {
+      builder.value(name, it)
+    }
+  }
+
   override fun visitEnd() {
     action(builder.build())
+  }
+
+  private class ArraySpecVisitor(private val action: (Array<Any>) -> Unit) : AnnotationVisitor(Opcodes.ASM5) {
+    private val values = ArrayList<Any?>()
+
+    override fun visit(name: String?, value: Any?) {
+      values.add(value)
+    }
+
+    override fun visitAnnotation(name: String?, desc: String): AnnotationVisitor? {
+      return if (Types.isSystemClass(Type.getType(desc))) null else {
+        AnnotationSpecVisitor(Type.getType(desc)) {
+          values.add(it)
+        }
+      }
+    }
+
+    override fun visitArray(name: String): AnnotationVisitor? {
+      return ArraySpecVisitor() {
+        values.add(it)
+      }
+    }
+
+    override fun visitEnd() {
+      action(values.toArray())
+    }
   }
 }

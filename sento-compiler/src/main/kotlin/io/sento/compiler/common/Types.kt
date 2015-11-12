@@ -21,17 +21,8 @@ internal object Types {
   public val TYPE_MAP = Type.getType(Map::class.java)
   public val TYPE_IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
 
-  public val TYPE_INT_ARRAY = getClassType("int[]")
-  public val TYPE_STRING_ARRAY = getClassType("java.lang.String[]")
-  public val TYPE_CHAR_SEQUENCE_ARRAY = getClassType("java.lang.CharSequence[]")
-
-  public val TYPE_STRING = Type.getType(String::class.java)
-  public val TYPE_CHAR_SEQUENCE = Type.getType(CharSequence::class.java)
-
   public val TYPE_VIEW = Type.getObjectType("android/view/View")
-  public val TYPE_COLOR_STATE_LIST = Type.getObjectType("android/content/res/ColorStateList")
   public val TYPE_RESOURCES = Type.getObjectType("android/content/res/Resources")
-  public val TYPE_DRAWABLE = Type.getObjectType("android/graphics/drawable/Drawable")
 
   public val TYPE_BINDING = Type.getObjectType("io/sento/Binding")
   public val TYPE_FINDER = Type.getObjectType("io/sento/Finder")

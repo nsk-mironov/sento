@@ -20,21 +20,21 @@ internal class ClassSpecVisitor(
 ) : ClassVisitor(Opcodes.ASM5) {
   private val builder = ClassSpec.Builder(access, type, parent, opener).interfaces(interfaces)
 
-  override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor {
-    return AnnotationSpecVisitor(Type.getType(desc)) {
-      if (!Types.isSystemClass(it.type)) {
+  override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
+    return if (Types.isSystemClass(Type.getType(desc))) null else {
+      AnnotationSpecVisitor(Type.getType(desc)) {
         builder.annotation(it)
       }
     }
   }
 
-  override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor {
+  override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
     return MethodSpecVisitor(access, name, Type.getType(desc), signature) {
       builder.method(it)
     }
   }
 
-  override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor {
+  override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
     return FieldSpecVisitor(access, name, Type.getType(desc)) {
       builder.field(it)
     }
