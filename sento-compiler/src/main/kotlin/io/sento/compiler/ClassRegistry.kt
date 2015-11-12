@@ -5,8 +5,8 @@ import io.sento.compiler.common.isInterface
 import io.sento.compiler.model.ClassReference
 import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.Type
-import java.util.ArrayList
 import java.util.HashMap
+import java.util.LinkedHashSet
 
 internal class ClassRegistry(
     public val references: Collection<ClassReference>,
@@ -26,20 +26,25 @@ internal class ClassRegistry(
   }
 
   internal class Builder() {
-    private val references = ArrayList<ClassReference>()
-    private val inputs = ArrayList<ClassReference>()
+    private val references = LinkedHashSet<ClassReference>()
+    private val inputs = LinkedHashSet<ClassReference>()
 
     public fun references(values: Collection<ClassReference>): Builder = apply {
       references.addAll(values)
     }
 
     public fun inputs(values: Collection<ClassReference>): Builder = apply {
+      references.addAll(values)
       inputs.addAll(values)
     }
 
     public fun build(): ClassRegistry {
       return ClassRegistry(references, inputs)
     }
+  }
+
+  public fun contains(type: Type): Boolean {
+    return type in refs
   }
 
   public fun resolve(reference: ClassReference, cacheable: Boolean = true): ClassSpec {
