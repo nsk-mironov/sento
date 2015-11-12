@@ -12,20 +12,15 @@ import io.sento.MethodBinding
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.fields.FieldBindingGenerator
-import io.sento.compiler.bindings.fields.BindArrayBindingGenerator
-import io.sento.compiler.bindings.fields.BindBoolBindingGenerator
-import io.sento.compiler.bindings.fields.BindColorBindingGenerator
-import io.sento.compiler.bindings.fields.BindDimenBindingGenerator
-import io.sento.compiler.bindings.fields.BindDrawableBindingGenerator
-import io.sento.compiler.bindings.fields.BindIntegerBindingGenerator
-import io.sento.compiler.bindings.fields.BindStringBindingGenerator
-import io.sento.compiler.bindings.fields.BindViewBindingGenerator
+import io.sento.compiler.bindings.fields.ResourceBindingGenerator
+import io.sento.compiler.bindings.fields.ViewBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingGeneratorImpl
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.MethodBindingSpec
+import io.sento.compiler.model.ResourceBindingSpec
 import io.sento.compiler.model.SentoBindingSpec
 import org.objectweb.asm.Type
 import java.util.HashMap
@@ -41,14 +36,40 @@ internal class SentoContentGeneratorFactory private constructor(
 
     private fun createFieldBindings(environment: GenerationEnvironment): Map<Type, FieldBindingGenerator> {
       return HashMap<Type, FieldBindingGenerator>().apply {
-        put(Type.getType(Bind::class.java), BindViewBindingGenerator())
-        put(Type.getType(BindArray::class.java), BindArrayBindingGenerator())
-        put(Type.getType(BindBool::class.java), BindBoolBindingGenerator())
-        put(Type.getType(BindColor::class.java), BindColorBindingGenerator())
-        put(Type.getType(BindDimen::class.java), BindDimenBindingGenerator())
-        put(Type.getType(BindDrawable::class.java), BindDrawableBindingGenerator())
-        put(Type.getType(BindInteger::class.java), BindIntegerBindingGenerator())
-        put(Type.getType(BindString::class.java), BindStringBindingGenerator())
+        put(Type.getType(Bind::class.java), ViewBindingGenerator())
+
+        put(Type.getType(BindArray::class.java), ResourceBindingGenerator(listOf(
+            ResourceBindingSpec(Types.TYPE_INT_ARRAY, "getIntArray"),
+            ResourceBindingSpec(Types.TYPE_CHAR_SEQUENCE_ARRAY, "getTextArray"),
+            ResourceBindingSpec(Types.TYPE_STRING_ARRAY, "getStringArray")
+        )))
+
+        put(Type.getType(BindBool::class.java), ResourceBindingGenerator(listOf(
+            ResourceBindingSpec(Type.BOOLEAN_TYPE, "getBoolean")
+        )))
+
+        put(Type.getType(BindColor::class.java), ResourceBindingGenerator(listOf(
+            ResourceBindingSpec(Types.TYPE_COLOR_STATE_LIST, "getColorStateList"),
+            ResourceBindingSpec(Type.INT_TYPE, "getColor")
+        )))
+
+        put(Type.getType(BindDimen::class.java), ResourceBindingGenerator(listOf(
+            ResourceBindingSpec(Type.INT_TYPE, "getDimensionPixelSize"),
+            ResourceBindingSpec(Type.FLOAT_TYPE, "getDimension")
+        )))
+
+        put(Type.getType(BindDrawable::class.java), ResourceBindingGenerator(listOf(
+            ResourceBindingSpec(Types.TYPE_DRAWABLE, "getDrawable")
+        )))
+
+        put(Type.getType(BindInteger::class.java), ResourceBindingGenerator(listOf(
+            ResourceBindingSpec(Type.INT_TYPE, "getInteger")
+        )))
+
+        put(Type.getType(BindString::class.java), ResourceBindingGenerator(listOf(
+            ResourceBindingSpec(Types.TYPE_CHAR_SEQUENCE, "getText"),
+            ResourceBindingSpec(Types.TYPE_STRING, "getString")
+        )))
       }
     }
 

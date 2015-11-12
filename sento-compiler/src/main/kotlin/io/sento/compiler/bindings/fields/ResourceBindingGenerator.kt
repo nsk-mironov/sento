@@ -4,9 +4,12 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
+import io.sento.compiler.model.ResourceBindingSpec
 import org.objectweb.asm.commons.Method
 
-internal class BindBoolBindingGenerator : FieldBindingGenerator {
+internal class ResourceBindingGenerator(
+    private val bindings: Collection<ResourceBindingSpec>
+) : FieldBindingGenerator {
   override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val adapter = context.adapter
     val annotation = context.annotation
@@ -21,7 +24,17 @@ internal class BindBoolBindingGenerator : FieldBindingGenerator {
     adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.content.res.Resources resources(Object))"))
     adapter.push(Annotations.id(annotation))
 
-    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method.getMethod("boolean getBoolean(int)"))
+    bindings.forEach {
+      environment.debug("Binding ${it.type}")
+    }
+
+    environment.debug("Field ${field.type}")
+
+    val binding = bindings.first {
+      environment.registry.isSubclassOf(field.type, it.type)
+    }
+
+    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method.getMethod("${binding.type.className} ${binding.getter}(int)"))
     adapter.putField(clazz.type, field.name, field.type)
 
     return emptyList()

@@ -7,7 +7,7 @@ import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import org.objectweb.asm.commons.Method
 
-internal class BindViewBindingGenerator : FieldBindingGenerator {
+internal class ViewBindingGenerator : FieldBindingGenerator {
   override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val adapter = context.adapter
     val annotation = context.annotation

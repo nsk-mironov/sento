@@ -94,7 +94,7 @@ public class SampleFragment : Fragment() {
     Toast.makeText(activity, "onCancelClick", Toast.LENGTH_SHORT).show()
   }
 
-  private @OnTouch(R.id.button_cancel) fun onCancelTouch(view: View) {
+/*  private @OnTouch(R.id.button_cancel) fun onCancelTouch(view: View) {
     Toast.makeText(activity, "onCancelTouch", Toast.LENGTH_SHORT).show()
   }
 
@@ -112,5 +112,5 @@ public class SampleFragment : Fragment() {
 
   private @OnHover(R.id.button_cancel) fun onCancelHover(view: View) {
     Toast.makeText(activity, "onCancelFocusChange", Toast.LENGTH_SHORT).show()
-  }
+  }*/
 }

@@ -1,17 +1,30 @@
 package io.sento.compiler.common
 
 import org.objectweb.asm.Type
+import java.util.HashMap
 import java.util.IdentityHashMap
 
 internal object Types {
+  private val PRIMITIVES = HashMap<String, String>().apply {
+    put("byte", "B")
+    put("char", "C")
+    put("double", "D")
+    put("float", "F")
+    put("int", "I")
+    put("long", "J")
+    put("short", "S")
+    put("boolean", "Z")
+  }
+
   public val TYPE_OBJECT = Type.getType(Any::class.java)
-  public val TYPE_CLASS = Type.getType(Class::class.java)
 
   public val TYPE_MAP = Type.getType(Map::class.java)
   public val TYPE_IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
 
-  public val TYPE_INT = Type.INT_TYPE
-  public val TYPE_FLOAT = Type.FLOAT_TYPE
+  public val TYPE_INT_ARRAY = getClassType("int[]")
+  public val TYPE_STRING_ARRAY = getClassType("java.lang.String[]")
+  public val TYPE_CHAR_SEQUENCE_ARRAY = getClassType("java.lang.CharSequence[]")
+
   public val TYPE_STRING = Type.getType(String::class.java)
   public val TYPE_CHAR_SEQUENCE = Type.getType(CharSequence::class.java)
 
@@ -26,6 +39,18 @@ internal object Types {
 
   public inline fun <reified T : Any> get(): Type {
     return Type.getType(T::class.java)
+  }
+
+  public fun getClassType(name: String): Type {
+    val mapping = PRIMITIVES.withDefault {
+      "L$it;"
+    }
+
+    return if (name.endsWith("[]")) {
+      Type.getType("[${mapping.getOrImplicitDefault(name.substring(0, name.length - 2).replace('.', '/'))}")
+    } else {
+      Type.getType("${mapping.getOrImplicitDefault(name.replace('.', '/'))}")
+    }
   }
 
   public fun isSystemClass(type: Type): Boolean {
