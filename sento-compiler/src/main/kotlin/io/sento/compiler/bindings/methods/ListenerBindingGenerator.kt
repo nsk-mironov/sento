@@ -5,7 +5,6 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
@@ -57,7 +56,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   }
 
   private fun onCreateBindingListener(listener: ListenerSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(listener.type.toClassFilePath(), environment.createClass {
+    return GeneratedContent(Types.getClassFilePath(listener.type), environment.createClass {
       visitListenerHeader(listener, environment)
       visitListenerFields(listener, environment)
 

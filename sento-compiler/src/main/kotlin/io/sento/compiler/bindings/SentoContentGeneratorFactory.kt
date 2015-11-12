@@ -38,7 +38,7 @@ internal class SentoContentGeneratorFactory private constructor(
             val binding = spec.getAnnotation<ResourceBindings>()
 
             if (binding != null && !binding.value.isEmpty()) {
-              put(spec.type, ResourceBindingGenerator(ResourceBindingSpec.create(spec, binding, environment.registry)))
+              put(spec.type, ResourceBindingGenerator(ResourceBindingSpec.create(spec, binding, environment)))
             }
           }
         }
@@ -53,7 +53,7 @@ internal class SentoContentGeneratorFactory private constructor(
             val binding = spec.getAnnotation<ListenerBinding>()
 
             if (binding != null) {
-              put(it.type, ListenerBindingGenerator(ListenerBindingSpec.create(spec, binding, environment.registry)))
+              put(it.type, ListenerBindingGenerator(ListenerBindingSpec.create(spec, binding, environment)))
             }
           }
         }

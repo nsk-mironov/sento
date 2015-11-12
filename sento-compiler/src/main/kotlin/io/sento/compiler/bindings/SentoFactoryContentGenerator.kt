@@ -4,7 +4,6 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.model.SentoBindingSpec
 
 import org.objectweb.asm.ClassWriter
@@ -19,7 +18,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun onCreateSentoFactory(environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(Types.TYPE_FACTORY.toClassFilePath(), environment.createClass {
+    return GeneratedContent(Types.getClassFilePath(Types.TYPE_FACTORY), environment.createClass {
       visitHeader(environment)
       visitFields(environment)
 

@@ -13,7 +13,7 @@ internal object Annotations {
       }
 
       override fun toString(): String {
-        return "@${clazz.name} (${spec.values})"
+        return "@${clazz.name}(${spec.values})"
       }
 
       private fun resolve(type: Class<*>, value: Any): Any {

@@ -1,7 +1,7 @@
 package io.sento.compiler.model
 
 import io.sento.ListenerBinding
-import io.sento.compiler.ClassRegistry
+import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import org.objectweb.asm.Type
@@ -14,9 +14,10 @@ internal data class ListenerBindingSpec(
     public val callback: MethodSpec
 ) {
   public companion object {
-    public fun create(annotation: ClassSpec, binding: ListenerBinding, registry: ClassRegistry): ListenerBindingSpec {
+    public fun create(annotation: ClassSpec, binding: ListenerBinding, environment: GenerationEnvironment): ListenerBindingSpec {
       val owner = Types.getClassType(binding.owner)
       val listener = Types.getClassType(binding.listener)
+      val registry = environment.registry
 
       val setter = registry.resolve(owner).method(binding.setter)!!
       val callback = registry.resolve(listener).methods.first {

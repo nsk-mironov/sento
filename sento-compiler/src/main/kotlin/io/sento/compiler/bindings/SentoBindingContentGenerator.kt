@@ -8,7 +8,6 @@ import io.sento.compiler.bindings.fields.FieldBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingContext
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.toClassFilePath
 import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
@@ -54,8 +53,8 @@ internal class SentoBindingContentGenerator(
       }
     }
 
-    result.add(GeneratedContent(binding.originalType.toClassFilePath(), onGenerateTargetClass(clazz, environment)))
-    result.add(GeneratedContent(binding.generatedType.toClassFilePath(), bytes, HashMap<String, Any>().apply {
+    result.add(GeneratedContent(Types.getClassFilePath(binding.originalType), onGenerateTargetClass(clazz, environment)))
+    result.add(GeneratedContent(Types.getClassFilePath(binding.generatedType), bytes, HashMap<String, Any>().apply {
       put(EXTRA_BINDING_SPEC, binding)
     }))
 
@@ -97,7 +96,7 @@ internal class SentoBindingContentGenerator(
       }
 
       override fun onPatchMethodFlags(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): Int {
-        return if (shouldGenerateBindingForMethod(clazz.method(name), environment)) {
+        return if (shouldGenerateBindingForMethod(clazz.method(name, desc), environment)) {
           access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
         } else {
           access

@@ -4,6 +4,7 @@ import io.sento.compiler.common.Opener
 import io.sento.compiler.common.Annotations
 import org.objectweb.asm.Type
 import java.util.ArrayList
+import java.util.Arrays
 
 internal data class ClassSpec(
     public val access: Int,
@@ -50,6 +51,18 @@ internal data class ClassSpec(
   public fun method(name: String): MethodSpec? {
     return methods.firstOrNull {
       it.name == name
+    }
+  }
+
+  public fun method(name: String, descriptor: String): MethodSpec? {
+    return methods.firstOrNull {
+      it.name == name && it.type.descriptor == descriptor
+    }
+  }
+
+  public fun method(name: String, vararg args: Type): MethodSpec? {
+    return methods.firstOrNull {
+      it.name == name && Arrays.equals(it.type.argumentTypes, args)
     }
   }
 

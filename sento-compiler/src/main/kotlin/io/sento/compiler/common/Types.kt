@@ -2,9 +2,22 @@ package io.sento.compiler.common
 
 import org.objectweb.asm.Type
 import java.util.HashMap
+import java.util.HashSet
 import java.util.IdentityHashMap
 
 internal object Types {
+  private val PRIMITIVE_TYPES = HashSet<Type>().apply {
+    add(Type.BYTE_TYPE)
+    add(Type.CHAR_TYPE)
+    add(Type.DOUBLE_TYPE)
+    add(Type.FLOAT_TYPE)
+    add(Type.INT_TYPE)
+    add(Type.LONG_TYPE)
+    add(Type.SHORT_TYPE)
+    add(Type.BOOLEAN_TYPE)
+    add(Type.VOID_TYPE)
+  }
+
   private val PRIMITIVES = HashMap<String, String>().apply {
     put("byte", "B")
     put("char", "C")
@@ -14,6 +27,7 @@ internal object Types {
     put("long", "J")
     put("short", "S")
     put("boolean", "Z")
+    put("void", "V")
   }
 
   public val TYPE_OBJECT = Type.getType(Any::class.java)
@@ -44,9 +58,25 @@ internal object Types {
     }
   }
 
+  public fun getComponentType(type: Type): Type {
+    return if (type.sort == Type.ARRAY) {
+      getComponentType(type.elementType)
+    } else {
+      type
+    }
+  }
+
+  public fun getClassFilePath(type: Type): String {
+    return "${type.internalName}.class"
+  }
+
   public fun isSystemClass(type: Type): Boolean {
     return type.className != null && arrayOf("android.", "java.", "kotlin.", "dalvik.").any {
       type.className.startsWith(it)
     }
+  }
+
+  public fun isPrimitive(type: Type): Boolean {
+    return type in PRIMITIVE_TYPES
   }
 }
