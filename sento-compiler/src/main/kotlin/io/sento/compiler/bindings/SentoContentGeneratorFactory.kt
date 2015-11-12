@@ -8,18 +8,18 @@ import io.sento.BindDimen
 import io.sento.BindDrawable
 import io.sento.BindInteger
 import io.sento.BindString
-import io.sento.MethodBinding
+import io.sento.ListenerBinding
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.fields.FieldBindingGenerator
 import io.sento.compiler.bindings.fields.ResourceBindingGenerator
 import io.sento.compiler.bindings.fields.ViewBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
-import io.sento.compiler.bindings.methods.MethodBindingGeneratorImpl
+import io.sento.compiler.bindings.methods.ListenerBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.model.ClassSpec
-import io.sento.compiler.model.MethodBindingSpec
+import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ResourceBindingSpec
 import io.sento.compiler.model.SentoBindingSpec
 import org.objectweb.asm.Type
@@ -78,10 +78,10 @@ internal class SentoContentGeneratorFactory private constructor(
         environment.registry.references.forEach {
           if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {
             val spec = environment.registry.resolve(it)
-            val binding = spec.getAnnotation<MethodBinding>()
+            val binding = spec.getAnnotation<ListenerBinding>()
 
             if (binding != null) {
-              put(it.type, MethodBindingGeneratorImpl(MethodBindingSpec.create(spec, binding, environment.registry)))
+              put(it.type, ListenerBindingGenerator(ListenerBindingSpec.create(spec, binding, environment.registry)))
             }
           }
         }

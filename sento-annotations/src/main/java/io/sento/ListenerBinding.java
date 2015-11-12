@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface MethodBinding {
+public @interface ListenerBinding {
   public String owner();
 
   public String listener();

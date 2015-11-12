@@ -6,7 +6,7 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.toClassFilePath
-import io.sento.compiler.model.MethodBindingSpec
+import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes.*
@@ -14,7 +14,7 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
 import org.objectweb.asm.commons.Method
 
-internal class MethodBindingGeneratorImpl(private val binding: MethodBindingSpec) : MethodBindingGenerator {
+internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec) : MethodBindingGenerator {
   override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val listener = createListenerSpec(context)
     val result = listOf(onCreateBindingListener(listener, environment))

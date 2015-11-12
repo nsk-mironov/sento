@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
-@MethodBinding(
+@ListenerBinding(
     owner = "android.view.View",
     listener = "android.view.View$OnTouchListener",
     setter = "setOnTouchListener"

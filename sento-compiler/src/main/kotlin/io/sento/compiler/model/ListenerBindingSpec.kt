@@ -1,12 +1,12 @@
 package io.sento.compiler.model
 
-import io.sento.MethodBinding
+import io.sento.ListenerBinding
 import io.sento.compiler.ClassRegistry
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import org.objectweb.asm.Type
 
-internal data class MethodBindingSpec(
+internal data class ListenerBindingSpec(
     public val annotation: ClassSpec,
     public val owner: Type,
     public val listener: Type,
@@ -14,7 +14,7 @@ internal data class MethodBindingSpec(
     public val callback: MethodSpec
 ) {
   public companion object {
-    public fun create(annotation: ClassSpec, binding: MethodBinding, registry: ClassRegistry): MethodBindingSpec {
+    public fun create(annotation: ClassSpec, binding: ListenerBinding, registry: ClassRegistry): ListenerBindingSpec {
       val owner = Types.getClassType(binding.owner)
       val listener = Types.getClassType(binding.listener)
 
@@ -23,7 +23,7 @@ internal data class MethodBindingSpec(
         it.access.isAbstract
       }
 
-      return MethodBindingSpec(annotation, owner, listener, setter, callback)
+      return ListenerBindingSpec(annotation, owner, listener, setter, callback)
     }
   }
 }
