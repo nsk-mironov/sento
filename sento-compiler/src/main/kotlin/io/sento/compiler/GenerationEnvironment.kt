@@ -16,7 +16,7 @@ internal class GenerationEnvironment(public val registry: ClassRegistry) {
   }
 
   public fun fatal(message: String) {
-    throw RuntimeException(message)
+    throw SentoException(message)
   }
 
   public fun createClass(visitor: ClassWriter.() -> Unit): ByteArray {
