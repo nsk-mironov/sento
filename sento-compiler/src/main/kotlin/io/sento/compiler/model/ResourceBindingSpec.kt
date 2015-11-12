@@ -13,13 +13,25 @@ internal data class ResourceBindingSpec(
 ) {
   public companion object {
     public fun create(annotation: ClassSpec, binding: ResourceBinding, environment: GenerationEnvironment): ResourceBindingSpec {
-      environment.debug("Processing annotation @{0} with binding {1}", annotation.type.className, binding)
-
       val resources = environment.registry.resolve(Types.TYPE_RESOURCES)
 
       val type = Types.getClassType(binding.type)
       val component = Types.getComponentType(type)
+
       val method = resources.method(binding.getter, Type.INT_TYPE)
+      val value = annotation.method("value")
+
+      environment.debug("Processing annotation @{0} with binding {1}", annotation.type.className, binding)
+
+      if (value == null) {
+        environment.fatal("Unable to process @{0} annotation - it must have a method called value()",
+            annotation.type.className)
+      }
+
+      if (value!!.type.returnType != Type.INT_TYPE) {
+        environment.fatal("Unable to process @{0} annotation - value() method must return an int",
+            annotation.type.className)
+      }
 
       if (!Types.isPrimitive(component) && !environment.registry.contains(component)) {
         environment.fatal("Unable to process @{0} annotation - class \"{1}\" wasn''t found.",

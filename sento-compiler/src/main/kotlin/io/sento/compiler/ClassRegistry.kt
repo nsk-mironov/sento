@@ -12,7 +12,10 @@ internal class ClassRegistry(
     public val references: Collection<ClassReference>,
     public val inputs: Collection<ClassReference>
 ) {
-  private val refs = HashMap<Type, ClassReference>(references.size)
+  private val refs = HashMap<Type, ClassReference>(references.size).withDefault {
+    throw SentoException("Unable to find a class \"${it.className}\". Make sure it is present in application classpath.")
+  }
+
   private val specs = HashMap<Type, ClassSpec>()
 
   init {

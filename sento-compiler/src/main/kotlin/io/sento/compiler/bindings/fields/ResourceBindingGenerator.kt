@@ -17,6 +17,18 @@ internal class ResourceBindingGenerator(
     val field = context.field
     val clazz = context.clazz
 
+    val binding = bindings.firstOrNull {
+      environment.registry.isSubclassOf(field.type, it.type)
+    }
+
+    environment.debug("Generating @{0} binding for \"{1}#{2}\" field",
+        annotation.type.className, clazz.type.className, field.name)
+
+    if (binding == null) {
+      environment.fatal("Unable to generate @{0} binding for \"{1}#{2}\" field - its type is \"{3}\", but only the following types are supported {4}.",
+          annotation.type.className, clazz.type.className, field.name, field.type.className, bindings.map { it.type.className })
+    }
+
     adapter.loadArg(context.variable("target"))
     adapter.loadArg(context.variable("finder"))
     adapter.loadArg(context.variable("source"))
@@ -24,11 +36,7 @@ internal class ResourceBindingGenerator(
     adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.content.res.Resources resources (Object))"))
     adapter.push(Annotations.id(annotation))
 
-    val binding = bindings.first {
-      environment.registry.isSubclassOf(field.type, it.type)
-    }
-
-    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method(binding.getter.name, binding.getter.type.descriptor))
+    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method(binding!!.getter.name, binding.getter.type.descriptor))
     adapter.putField(clazz.type, field.name, field.type)
 
     return emptyList()
