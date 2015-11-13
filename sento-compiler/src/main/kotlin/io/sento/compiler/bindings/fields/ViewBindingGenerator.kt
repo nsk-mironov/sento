@@ -4,8 +4,8 @@ import io.sento.Optional
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
+import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import org.objectweb.asm.commons.Method
 
 internal class ViewBindingGenerator : FieldBindingGenerator {
   override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
@@ -29,7 +29,7 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
     adapter.loadArg(context.variable("source"))
     adapter.push(optional)
 
-    adapter.invokeInterface(Types.FINDER, Method.getMethod("android.view.View find (int, Object, boolean)"))
+    adapter.invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN))
     adapter.checkCast(field.type)
     adapter.putField(clazz.type, field.name, field.type)
 

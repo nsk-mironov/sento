@@ -3,9 +3,9 @@ package io.sento.compiler.bindings.fields
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
+import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.ResourceBindingSpec
-import org.objectweb.asm.commons.Method
 
 internal class ResourceBindingGenerator(
     private val bindings: Collection<ResourceBindingSpec>
@@ -33,10 +33,10 @@ internal class ResourceBindingGenerator(
     adapter.loadArg(context.variable("finder"))
     adapter.loadArg(context.variable("source"))
 
-    adapter.invokeInterface(Types.FINDER, Method.getMethod("android.content.res.Resources resources (Object))"))
+    adapter.invokeInterface(Types.FINDER, Methods.get("resources", Types.RESOURCES, Types.OBJECT))
     adapter.push(Annotations.id(annotation))
 
-    adapter.invokeVirtual(Types.RESOURCES, Method(binding!!.getter.name, binding.getter.type.descriptor))
+    adapter.invokeVirtual(Types.RESOURCES, Methods.get(binding!!.getter))
     adapter.putField(clazz.type, field.name, field.type)
 
     return emptyList()

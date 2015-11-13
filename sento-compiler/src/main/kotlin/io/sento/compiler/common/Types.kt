@@ -31,6 +31,8 @@ internal object Types {
   }
 
   public val OBJECT = Type.getType(Any::class.java)
+  public val CLASS = Type.getType(Class::class.java)
+
   public val BYTE = Type.BYTE_TYPE
   public val CHAR = Type.CHAR_TYPE
   public val DOUBLE = Type.DOUBLE_TYPE
@@ -67,9 +69,9 @@ internal object Types {
     }
   }
 
-  public fun getComponentType(type: Type): Type {
+  public fun getComponentTypeOrSelf(type: Type): Type {
     return if (type.sort == Type.ARRAY) {
-      getComponentType(type.elementType)
+      getComponentTypeOrSelf(type.elementType)
     } else {
       type
     }

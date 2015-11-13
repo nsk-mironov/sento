@@ -16,4 +16,8 @@ internal object Methods {
   public fun getConstructor(vararg argsType: Type): Method {
     return Method("<init>", Type.VOID_TYPE, argsType)
   }
+
+  public fun getStaticConstructor(): Method {
+    return Method("<clinit>", Type.VOID_TYPE, emptyArray())
+  }
 }

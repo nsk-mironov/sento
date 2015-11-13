@@ -16,7 +16,7 @@ internal data class ResourceBindingSpec(
       val resources = environment.registry.resolve(Types.RESOURCES)
 
       val type = Types.getClassType(binding.type)
-      val component = Types.getComponentType(type)
+      val component = Types.getComponentTypeOrSelf(type)
 
       val method = resources.method(binding.getter, Types.INT)
       val value = annotation.method("value")

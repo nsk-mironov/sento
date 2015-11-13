@@ -7,6 +7,7 @@ import io.sento.compiler.bindings.fields.FieldBindingContext
 import io.sento.compiler.bindings.fields.FieldBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingContext
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
+import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ClassSpec
@@ -19,7 +20,6 @@ import org.objectweb.asm.Type
 
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.commons.GeneratorAdapter
-import org.objectweb.asm.commons.Method
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -115,9 +115,9 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun ClassWriter.visitConstructor(binding: SentoBindingSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Method.getMethod("void <init> ()"), null, null, this).apply {
+    GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(), null, null, this).apply {
       loadThis()
-      invokeConstructor(Types.OBJECT, Method.getMethod("void <init> ()"))
+      invokeConstructor(Types.OBJECT, Methods.getConstructor())
 
       returnValue()
       endMethod()
@@ -126,7 +126,7 @@ internal class SentoBindingContentGenerator(
 
   private fun ClassWriter.visitBindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     return ArrayList<GeneratedContent>().apply {
-      val descriptor = Method.getMethod("void bind (Object, Object, io.sento.Finder)")
+      val descriptor = Methods.get("bind", Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
       val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
       GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).apply {
@@ -160,7 +160,7 @@ internal class SentoBindingContentGenerator(
 
   private fun ClassWriter.visitUnbindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     return ArrayList<GeneratedContent>().apply {
-      GeneratorAdapter(ACC_PUBLIC, Method.getMethod("void unbind (Object)"), null, null, this@visitUnbindMethod).apply {
+      GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).apply {
         for (field in binding.clazz.fields) {
           for (annotation in field.annotations) {
             fields[annotation.type]?.let {

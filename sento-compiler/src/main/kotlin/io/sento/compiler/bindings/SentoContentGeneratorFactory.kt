@@ -30,7 +30,7 @@ internal class SentoContentGeneratorFactory private constructor(
 
     private fun createFieldBindings(environment: GenerationEnvironment): Map<Type, FieldBindingGenerator> {
       return HashMap<Type, FieldBindingGenerator>().apply {
-        put(Type.getType(Bind::class.java), ViewBindingGenerator())
+        put(Types.get<Bind>(), ViewBindingGenerator())
 
         environment.registry.references.forEach {
           if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {
