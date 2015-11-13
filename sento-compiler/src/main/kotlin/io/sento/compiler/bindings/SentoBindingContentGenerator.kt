@@ -33,32 +33,29 @@ internal class SentoBindingContentGenerator(
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
-    if (!shouldGenerateBindingClass(clazz, environment)) {
-      return emptyList()
-    }
+    return ArrayList<GeneratedContent>().apply {
+      if (shouldGenerateBindingClass(clazz, environment)) {
+        val binding = SentoBindingSpec.create(clazz)
 
-    val binding = SentoBindingSpec.create(clazz)
-    val result = ArrayList<GeneratedContent>()
+        val bytes = environment.createClass {
+          visitHeader(binding, environment)
+          visitConstructor(binding, environment)
 
-    val bytes = environment.createClass {
-      visitHeader(binding, environment)
-      visitConstructor(binding, environment)
+          visitBindMethod(binding, environment).apply {
+            addAll(this)
+          }
 
-      visitBindMethod(binding, environment).apply {
-        result.addAll(this)
+          visitUnbindMethod(binding, environment).apply {
+            addAll(this)
+          }
+        }
+
+        add(GeneratedContent(Types.getClassFilePath(binding.originalType), onGenerateTargetClass(clazz, environment)))
+        add(GeneratedContent(Types.getClassFilePath(binding.generatedType), bytes, HashMap<String, Any>().apply {
+          put(EXTRA_BINDING_SPEC, binding)
+        }))
       }
-
-      visitUnbindMethod(binding, environment).apply {
-        result.addAll(this)
-      }
     }
-
-    result.add(GeneratedContent(Types.getClassFilePath(binding.originalType), onGenerateTargetClass(clazz, environment)))
-    result.add(GeneratedContent(Types.getClassFilePath(binding.generatedType), bytes, HashMap<String, Any>().apply {
-      put(EXTRA_BINDING_SPEC, binding)
-    }))
-
-    return result
   }
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
