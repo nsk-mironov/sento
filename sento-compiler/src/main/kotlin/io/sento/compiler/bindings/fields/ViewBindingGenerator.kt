@@ -3,11 +3,16 @@ package io.sento.compiler.bindings.fields
 import io.sento.Optional
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.SentoException
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.simpleName
+import org.slf4j.LoggerFactory
 
 internal class ViewBindingGenerator : FieldBindingGenerator {
+  private val logger = LoggerFactory.getLogger(ResourceBindingGenerator::class.java)
+
   override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val adapter = context.adapter
     val annotation = context.annotation
@@ -15,12 +20,16 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
     val field = context.field
     val clazz = context.clazz
 
+    logger.info("Generating @{} binding for '{}' field",
+        annotation.type.simpleName, field.name)
+
     val optional = field.getAnnotation<Optional>() != null
     val isInterface = environment.registry.isInterface(field.type)
     val isView = environment.registry.isSubclassOf(field.type, Types.VIEW)
 
     if (!isInterface && !isView) {
-      throw RuntimeException("${field.type.className} isn't a subclass of ${Types.VIEW.className}")
+      throw SentoException("Unable to generate @{0} binding for \"{1}#{2}\" field - it must be a subclass of \"{3}\" or an interface",
+          annotation.type.className, clazz.type.className, field.name, Types.VIEW.className)
     }
 
     adapter.loadArg(context.variable("target"))

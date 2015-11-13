@@ -6,14 +6,18 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
+import org.slf4j.LoggerFactory
 
 internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec) : MethodBindingGenerator {
+  private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
+
   override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     val listener = createListenerSpec(context)
     val result = listOf(onCreateBindingListener(listener, environment))
@@ -23,6 +27,9 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
 
     val method = context.method
     val optional = method.getAnnotation<Optional>() != null
+
+    logger.info("Generating @{} binding for '{}' method",
+        annotation.type.simpleName, method.name)
 
     Annotations.ids(annotation).forEach {
       val view = adapter.newLocal(Types.VIEW)

@@ -10,11 +10,14 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.ArrayList
 import java.util.zip.ZipFile
 
 internal object ClassRegistryFactory {
+  private val logger = LoggerFactory.getLogger(ClassRegistryFactory::class.java)
+
   private const val EXTENSION_CLASS = "class"
   private const val EXTENSION_JAR = "jar"
 
@@ -28,6 +31,8 @@ internal object ClassRegistryFactory {
   private fun createClassReferences(files: Collection<File>): Collection<ClassReference> {
     return ArrayList<ClassReference>().apply {
       for (file in files) {
+        logger.info("Generating class references for ${file.absolutePath}")
+
         if (file.isFile && FilenameUtils.getExtension(file.absolutePath) == EXTENSION_JAR) {
           ZipFile(file).use {
             for (entry in it.entries()) {

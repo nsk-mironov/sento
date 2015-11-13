@@ -12,11 +12,13 @@ import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.bindings.methods.ListenerBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
+import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ResourceBindingSpec
 import io.sento.compiler.model.SentoBindingSpec
 import org.objectweb.asm.Type
+import org.slf4j.LoggerFactory
 import java.util.HashMap
 
 internal class SentoContentGeneratorFactory private constructor(
@@ -24,6 +26,8 @@ internal class SentoContentGeneratorFactory private constructor(
     private val methods: Map<Type, MethodBindingGenerator>
 ) {
   public companion object {
+    private val logger = LoggerFactory.getLogger(SentoContentGeneratorFactory::class.java)
+
     public fun from(environment: GenerationEnvironment): SentoContentGeneratorFactory {
       return SentoContentGeneratorFactory(createFieldBindings(environment), createMethodBindings(environment))
     }
@@ -38,6 +42,9 @@ internal class SentoContentGeneratorFactory private constructor(
             val binding = spec.getAnnotation<ResourceBindings>()
 
             if (binding != null && !binding.value.isEmpty()) {
+              logger.info("New ResourceBindings found - @{}", spec.type.simpleName)
+              logger.info("Creating a ResourceBindingGenerator for @{}", spec.type.simpleName)
+
               put(spec.type, ResourceBindingGenerator(ResourceBindingSpec.create(spec, binding, environment)))
             }
           }
@@ -53,6 +60,9 @@ internal class SentoContentGeneratorFactory private constructor(
             val binding = spec.getAnnotation<ListenerBinding>()
 
             if (binding != null) {
+              logger.info("New ListenerBinding found - @{}", spec.type.simpleName)
+              logger.info("Creating a ListenerBindingGenerator for @{}", spec.type.simpleName)
+
               put(it.type, ListenerBindingGenerator(ListenerBindingSpec.create(spec, binding, environment)))
             }
           }

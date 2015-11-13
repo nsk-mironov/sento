@@ -1,8 +1,7 @@
 package io.sento.compiler
 
+import java.text.MessageFormat
+
 public class SentoException : RuntimeException {
-  public constructor() : super()
-  public constructor(message: String) : super(message)
-  public constructor(message: String, cause: Throwable) : super(message, cause)
-  public constructor(cause: Throwable) : super(cause)
+  public constructor(message: String, vararg args: Any?) : super(MessageFormat.format(message, *args))
 }

@@ -20,6 +20,7 @@ import org.objectweb.asm.Type
 
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.commons.GeneratorAdapter
+import org.slf4j.LoggerFactory
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -28,6 +29,8 @@ internal class SentoBindingContentGenerator(
     private val methods: Map<Type, MethodBindingGenerator>,
     private val clazz: ClassSpec
 ) : ContentGenerator {
+  private val logger = LoggerFactory.getLogger(SentoBindingContentGenerator::class.java)
+
   public companion object {
     public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
   }
@@ -36,6 +39,8 @@ internal class SentoBindingContentGenerator(
     return ArrayList<GeneratedContent>().apply {
       if (shouldGenerateBindingClass(clazz, environment)) {
         val binding = SentoBindingSpec.create(clazz)
+
+        logger.info("Generating SentoBinding for '{}' class:", clazz.type.className)
 
         val bytes = environment.createClass {
           visitHeader(binding, environment)
