@@ -30,17 +30,26 @@ internal object Types {
     put("void", "V")
   }
 
-  public val TYPE_OBJECT = Type.getType(Any::class.java)
+  public val OBJECT = Type.getType(Any::class.java)
+  public val BYTE = Type.BYTE_TYPE
+  public val CHAR = Type.CHAR_TYPE
+  public val DOUBLE = Type.DOUBLE_TYPE
+  public val FLOAT = Type.FLOAT_TYPE
+  public val INT = Type.INT_TYPE
+  public val LONG = Type.LONG_TYPE
+  public val SHORT = Type.SHORT_TYPE
+  public val BOOLEAN = Type.BOOLEAN_TYPE
+  public val VOID = Type.VOID_TYPE
 
-  public val TYPE_MAP = Type.getType(Map::class.java)
-  public val TYPE_IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
+  public val MAP = Type.getType(Map::class.java)
+  public val IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
 
-  public val TYPE_VIEW = Type.getObjectType("android/view/View")
-  public val TYPE_RESOURCES = Type.getObjectType("android/content/res/Resources")
+  public val VIEW = Type.getObjectType("android/view/View")
+  public val RESOURCES = Type.getObjectType("android/content/res/Resources")
 
-  public val TYPE_BINDING = Type.getObjectType("io/sento/Binding")
-  public val TYPE_FINDER = Type.getObjectType("io/sento/Finder")
-  public val TYPE_FACTORY = Type.getObjectType("io/sento/SentoFactory")
+  public val BINDING = Type.getObjectType("io/sento/Binding")
+  public val FINDER = Type.getObjectType("io/sento/Finder")
+  public val FACTORY = Type.getObjectType("io/sento/SentoFactory")
 
   public inline fun <reified T : Any> get(): Type {
     return Type.getType(T::class.java)

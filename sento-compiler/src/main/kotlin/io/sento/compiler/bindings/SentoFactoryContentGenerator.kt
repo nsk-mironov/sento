@@ -18,7 +18,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun onCreateSentoFactory(environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(Types.getClassFilePath(Types.TYPE_FACTORY), environment.createClass {
+    return GeneratedContent(Types.getClassFilePath(Types.FACTORY), environment.createClass {
       visitHeader(environment)
       visitFields(environment)
 
@@ -30,11 +30,11 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) {
-    visit(V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.TYPE_FACTORY.internalName, null, Types.TYPE_OBJECT.internalName, null)
+    visit(V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.FACTORY.internalName, null, Types.OBJECT.internalName, null)
   }
 
   private fun ClassWriter.visitFields(environment: GenerationEnvironment) {
-    val descriptor = Types.TYPE_MAP.descriptor
+    val descriptor = Types.MAP.descriptor
     val signature = "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;"
 
     visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", descriptor, signature, null).visitEnd()
@@ -43,7 +43,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   private fun ClassWriter.visitConstructor(environment: GenerationEnvironment) {
     GeneratorAdapter(ACC_PRIVATE, Method.getMethod("void <init> ()"), null, null, this).apply {
       loadThis()
-      invokeConstructor(Type.getType(Any::class.java), Method.getMethod("void <init> ()"))
+      invokeConstructor(Types.OBJECT, Method.getMethod("void <init> ()"))
 
       returnValue()
       endMethod()
@@ -55,11 +55,11 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
     val signature = "(Ljava/lang/Class<*>;)Lio/sento/Binding<Ljava/lang/Object;>;"
 
     GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, Method.getMethod(method), signature, null, this).apply {
-      getStatic(Types.TYPE_FACTORY, "BINDINGS", Types.TYPE_MAP)
+      getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
       loadArg(0)
 
-      invokeInterface(Types.TYPE_MAP, Method.getMethod("Object get(Object)"))
-      checkCast(Types.TYPE_BINDING)
+      invokeInterface(Types.MAP, Method.getMethod("Object get(Object)"))
+      checkCast(Types.BINDING)
 
       returnValue()
       endMethod()
@@ -68,21 +68,21 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
 
   private fun ClassWriter.visitStaticConstructor(environment: GenerationEnvironment) {
     GeneratorAdapter(ACC_STATIC, Method.getMethod("void <clinit> ()"), null, null, this).apply {
-      newInstance(Types.TYPE_IDENTITY_MAP)
+      newInstance(Types.IDENTITY_MAP)
       dup()
 
-      invokeConstructor(Types.TYPE_IDENTITY_MAP, Method.getMethod("void <init> ()"))
-      putStatic(Types.TYPE_FACTORY, "BINDINGS", Types.TYPE_MAP)
+      invokeConstructor(Types.IDENTITY_MAP, Method.getMethod("void <init> ()"))
+      putStatic(Types.FACTORY, "BINDINGS", Types.MAP)
 
       bindings.forEach {
-        getStatic(Types.TYPE_FACTORY, "BINDINGS", Types.TYPE_MAP)
+        getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
         push(it.originalType)
 
         newInstance(it.generatedType)
         dup()
 
         invokeConstructor(it.generatedType, Method.getMethod("void <init> ()"))
-        invokeInterface(Types.TYPE_MAP, Method.getMethod("Object put(Object, Object)"))
+        invokeInterface(Types.MAP, Method.getMethod("Object put(Object, Object)"))
         pop()
       }
 

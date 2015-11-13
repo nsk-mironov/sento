@@ -13,12 +13,12 @@ internal data class ResourceBindingSpec(
 ) {
   public companion object {
     public fun create(annotation: ClassSpec, binding: ResourceBinding, environment: GenerationEnvironment): ResourceBindingSpec {
-      val resources = environment.registry.resolve(Types.TYPE_RESOURCES)
+      val resources = environment.registry.resolve(Types.RESOURCES)
 
       val type = Types.getClassType(binding.type)
       val component = Types.getComponentType(type)
 
-      val method = resources.method(binding.getter, Type.INT_TYPE)
+      val method = resources.method(binding.getter, Types.INT)
       val value = annotation.method("value")
 
       environment.debug("Processing annotation @{0} with binding {1}", annotation.type.className, binding)
@@ -28,7 +28,7 @@ internal data class ResourceBindingSpec(
             annotation.type.className)
       }
 
-      if (value!!.type.returnType != Type.INT_TYPE) {
+      if (value!!.type.returnType != Types.INT) {
         environment.fatal("Unable to process @{0} annotation - value() method must return an int",
             annotation.type.className)
       }
@@ -40,12 +40,12 @@ internal data class ResourceBindingSpec(
 
       if (method == null) {
         environment.fatal("Unable to process @{0} annotation - method \"{1}#{2}(int)\" wasn''t found.",
-            annotation.type.className, Types.TYPE_RESOURCES.className, binding.getter)
+            annotation.type.className, Types.RESOURCES.className, binding.getter)
       }
 
       if (!environment.registry.isSubclassOf(method!!.type.returnType, type)) {
         environment.fatal("Unable to process @{0} annotation - method \"{1}#{2}(int)\" returns a \"{3}\" which is not assignable to \"{4}\"",
-            annotation.type.className, Types.TYPE_RESOURCES.className, binding.getter, method!!.type.returnType.className, type.className)
+            annotation.type.className, Types.RESOURCES.className, binding.getter, method!!.type.returnType.className, type.className)
       }
 
       return ResourceBindingSpec(annotation, type, method!!)

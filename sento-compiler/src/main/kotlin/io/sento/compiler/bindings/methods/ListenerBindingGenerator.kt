@@ -25,7 +25,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
     val optional = method.getAnnotation<Optional>() != null
 
     Annotations.ids(annotation).forEach {
-      val view = adapter.newLocal(Types.TYPE_VIEW)
+      val view = adapter.newLocal(Types.VIEW)
 
       adapter.loadArg(context.variable("finder"))
       adapter.push(it)
@@ -33,7 +33,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       adapter.loadArg(context.variable("source"))
       adapter.push(optional)
 
-      adapter.invokeInterface(Types.TYPE_FINDER, Methods.get("find", Types.TYPE_VIEW, Type.INT_TYPE, Types.TYPE_OBJECT, Type.BOOLEAN_TYPE))
+      adapter.invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN))
       adapter.storeLocal(view)
 
       adapter.newLabel().apply {
@@ -66,7 +66,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   }
 
   private fun ClassVisitor.visitListenerHeader(listener: ListenerSpec, environment: GenerationEnvironment) {
-    visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, Types.TYPE_OBJECT.internalName, arrayOf(binding.listener.internalName))
+    visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, Types.OBJECT.internalName, arrayOf(binding.listener.internalName))
   }
 
   private fun ClassVisitor.visitListenerFields(listener: ListenerSpec, environment: GenerationEnvironment) {
@@ -76,7 +76,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   private fun ClassVisitor.visitListenerConstructor(listener: ListenerSpec, environment: GenerationEnvironment) {
     GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target), null, null, this).apply {
       loadThis()
-      invokeConstructor(Types.TYPE_OBJECT, Methods.getConstructor())
+      invokeConstructor(Types.OBJECT, Methods.getConstructor())
 
       loadThis()
       loadArg(0)
@@ -93,7 +93,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       getField(listener.type, "target", listener.target)
 
       loadArg(0)
-      invokeVirtual(listener.target, Methods.get(listener.method.name, Type.VOID_TYPE, Types.TYPE_VIEW))
+      invokeVirtual(listener.target, Methods.get(listener.method.name, Types.VOID, Types.VIEW))
 
       returnValue()
       endMethod()

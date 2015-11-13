@@ -52,7 +52,7 @@ internal object ClassRegistryFactory {
   private fun createClassReference(opener: Opener, bytes: ByteArray): ClassReference {
     val reader = ClassReader(bytes)
 
-    val parent = Type.getObjectType(reader.superName ?: Types.TYPE_OBJECT.internalName)
+    val parent = Type.getObjectType(reader.superName ?: Types.OBJECT.internalName)
     val type = Type.getObjectType(reader.className)
 
     val interfaces = reader.interfaces.orEmpty().map {

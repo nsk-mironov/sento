@@ -33,10 +33,10 @@ internal class ResourceBindingGenerator(
     adapter.loadArg(context.variable("finder"))
     adapter.loadArg(context.variable("source"))
 
-    adapter.invokeInterface(Types.TYPE_FINDER, Method.getMethod("android.content.res.Resources resources (Object))"))
+    adapter.invokeInterface(Types.FINDER, Method.getMethod("android.content.res.Resources resources (Object))"))
     adapter.push(Annotations.id(annotation))
 
-    adapter.invokeVirtual(Types.TYPE_RESOURCES, Method(binding!!.getter.name, binding.getter.type.descriptor))
+    adapter.invokeVirtual(Types.RESOURCES, Method(binding!!.getter.name, binding.getter.type.descriptor))
     adapter.putField(clazz.type, field.name, field.type)
 
     return emptyList()

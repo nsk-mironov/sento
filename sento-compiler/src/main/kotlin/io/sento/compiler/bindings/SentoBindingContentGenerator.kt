@@ -107,9 +107,9 @@ internal class SentoBindingContentGenerator(
 
   private fun ClassWriter.visitHeader(binding: SentoBindingSpec, environment: GenerationEnvironment) = apply {
     val name = binding.generatedType.internalName
-    val signature = "L${Types.TYPE_OBJECT.internalName};L${Types.TYPE_BINDING.internalName}<L${Types.TYPE_OBJECT.internalName};>;"
-    val superName = Types.TYPE_OBJECT.internalName
-    val interfaces = arrayOf(Types.TYPE_BINDING.internalName)
+    val signature = "L${Types.OBJECT.internalName};L${Types.BINDING.internalName}<L${Types.OBJECT.internalName};>;"
+    val superName = Types.OBJECT.internalName
+    val interfaces = arrayOf(Types.BINDING.internalName)
 
     visit(V1_6, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
   }
@@ -117,7 +117,7 @@ internal class SentoBindingContentGenerator(
   private fun ClassWriter.visitConstructor(binding: SentoBindingSpec, environment: GenerationEnvironment) {
     GeneratorAdapter(ACC_PUBLIC, Method.getMethod("void <init> ()"), null, null, this).apply {
       loadThis()
-      invokeConstructor(Types.TYPE_OBJECT, Method.getMethod("void <init> ()"))
+      invokeConstructor(Types.OBJECT, Method.getMethod("void <init> ()"))
 
       returnValue()
       endMethod()

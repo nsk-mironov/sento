@@ -67,7 +67,7 @@ internal class ClassRegistry(
   }
 
   public fun isSubclassOf(type: Type, parent: Type): Boolean {
-    if (type == Types.TYPE_OBJECT && parent != Types.TYPE_OBJECT) {
+    if (type == Types.OBJECT && parent != Types.OBJECT) {
       return false
     }
 
