@@ -110,4 +110,8 @@ internal class ClassRegistry(
 
     return isSubclassOf(reference(type).parent, parent)
   }
+
+  public fun isCastableFromTo(type: Type, target: Type): Boolean {
+    return isSubclassOf(type, target) || isSubclassOf(target, type)
+  }
 }

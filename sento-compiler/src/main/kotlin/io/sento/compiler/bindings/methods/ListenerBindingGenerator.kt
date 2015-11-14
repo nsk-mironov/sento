@@ -3,6 +3,7 @@ package io.sento.compiler.bindings.methods
 import io.sento.Optional
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.SentoException
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
@@ -14,14 +15,13 @@ import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
 import org.slf4j.LoggerFactory
+import java.util.ArrayList
+import java.util.LinkedHashSet
 
 internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec) : MethodBindingGenerator {
   private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
 
   override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    val listener = createListenerSpec(context)
-    val result = listOf(onCreateBindingListener(listener, environment))
-
     val annotation = context.annotation
     val adapter = context.adapter
 
@@ -30,6 +30,9 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
 
     logger.info("Generating @{} binding for '{}' method",
         annotation.type.simpleName, method.name)
+
+    val listener = createListenerSpec(context, environment)
+    val result = listOf(onCreateBindingListener(listener, environment))
 
     Annotations.ids(annotation).forEach {
       val view = adapter.newLocal(Types.VIEW)
@@ -99,22 +102,74 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       loadThis()
       getField(listener.type, "target", listener.target)
 
-      loadArg(0)
-      invokeVirtual(listener.target, Methods.get(listener.method.name, Types.VOID, Types.VIEW))
+      listener.args.forEach {
+        loadArg(it.index).apply {
+          if (!Types.isPrimitive(it.type)) {
+            checkCast(it.type)
+          }
+        }
+      }
+
+      invokeVirtual(listener.target, Methods.get(listener.method.name, listener.method.type.returnType, *listener.args.map {
+        it.type
+      }.toTypedArray()))
 
       returnValue()
       endMethod()
     }
   }
 
-  private fun createListenerSpec(context: MethodBindingContext): ListenerSpec {
-    return ListenerSpec(context.factory.newAnonymousType(), context.clazz.type, binding.callback, context.method)
+  private fun createListenerSpec(context: MethodBindingContext, environment: GenerationEnvironment): ListenerSpec {
+    return ListenerSpec(
+        type = context.factory.newAnonymousType(),
+        target = context.clazz.type,
+        callback = binding.callback,
+        method = context.method,
+        args = remapMethodArgs(context, environment)
+    )
+  }
+
+  private fun remapMethodArgs(context: MethodBindingContext, environment: GenerationEnvironment): Collection<ArgumentSpec> {
+    val result = ArrayList<ArgumentSpec>()
+    val available = LinkedHashSet<Int>()
+
+    val from = binding.callback
+    val to = context.method
+
+    val argsFrom = from.type.argumentTypes.orEmpty()
+    val argsTo = to.type.argumentTypes.orEmpty()
+
+    for (index in 0..argsFrom.size - 1) {
+      available.add(index)
+    }
+
+    for (argument in argsTo) {
+      val index = available.firstOrNull {
+        available.contains(it) && environment.registry.isCastableFromTo(argsFrom[it], argument)
+      }
+
+      if (index == null) {
+        throw SentoException("Unable to generate @{0} binding for ''{1}#{2}'' method - argument ''{3}'' didn''t match any listener parameters.",
+            context.annotation.type.simpleName, context.clazz.type.className, context.method.name, argument.className)
+      }
+
+      result.add(ArgumentSpec(index, argument))
+      available.remove(index)
+    }
+
+    return result
   }
 
   private data class ListenerSpec(
       public val type: Type,
       public val target: Type,
       public val callback: MethodSpec,
-      public val method: MethodSpec
+      public val method: MethodSpec,
+      public val args: Collection<ArgumentSpec>
+  )
+
+  private data class ArgumentSpec(
+      public val index: Int,
+      public val type: Type
   )
 }

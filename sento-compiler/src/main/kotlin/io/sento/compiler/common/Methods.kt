@@ -20,4 +20,8 @@ internal object Methods {
   public fun getStaticConstructor(): Method {
     return Method("<clinit>", Type.VOID_TYPE, emptyArray())
   }
+
+  public fun asJavaDeclaration(spec: MethodSpec): String {
+    return "${spec.name}(${spec.type.argumentTypes.map { it.className }.joinToString(", ")})"
+  }
 }

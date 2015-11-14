@@ -1,1 +1,1 @@
-./gradlew :sento-sample:clean :sento-sample:assembleDebug --info
+./gradlew :sento-sample:clean :sento-sample:assembleDebug --stacktrace

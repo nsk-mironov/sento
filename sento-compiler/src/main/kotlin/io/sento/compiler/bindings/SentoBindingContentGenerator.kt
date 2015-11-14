@@ -136,7 +136,7 @@ internal class SentoBindingContentGenerator(
           for (annotation in field.annotations) {
             fields[annotation.type]?.let {
               val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, environment)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory)
 
               addAll(it.bind(context, environment))
             }
@@ -147,7 +147,7 @@ internal class SentoBindingContentGenerator(
           for (annotation in method.annotations) {
             methods[annotation.type]?.let {
               val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, environment)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory)
 
               addAll(it.bind(context, environment))
             }
@@ -167,7 +167,7 @@ internal class SentoBindingContentGenerator(
           for (annotation in field.annotations) {
             fields[annotation.type]?.let {
               val variables = mapOf("target" to 0)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, environment)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory)
 
               addAll(it.unbind(context, environment))
             }
@@ -178,7 +178,7 @@ internal class SentoBindingContentGenerator(
           for (annotation in method.annotations) {
             methods[annotation.type]?.let {
               val variables = mapOf("target" to 0)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, environment)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory)
 
               addAll(it.unbind(context, environment))
             }

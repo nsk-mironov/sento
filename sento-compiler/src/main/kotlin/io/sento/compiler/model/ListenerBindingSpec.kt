@@ -3,6 +3,7 @@ package io.sento.compiler.model
 import io.sento.ListenerBinding
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
+import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
@@ -88,7 +89,7 @@ internal data class ListenerBindingSpec(
 
       if (listenerCallbacks.size > 1) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have exactly one abstract method, but {2} were found {3}.",
-            annotation.type.simpleName, listenerType.className, listenerCallbacks.size, listenerCallbacks.map { it.asJavaDeclaration() })
+            annotation.type.simpleName, listenerType.className, listenerCallbacks.size, listenerCallbacks.map { Methods.asJavaDeclaration(it) })
       }
 
       val listenerSetters = ownerSpec.methods.filter {
@@ -102,7 +103,7 @@ internal data class ListenerBindingSpec(
 
       if (listenerSetters.size > 1) {
         throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must have exactly one single-arg method ''{2}'', but {3} were found {4}.",
-            annotation.type.simpleName, ownerType.className, binding.setter, listenerSetters.size, listenerSetters.map { it.asJavaDeclaration() })
+            annotation.type.simpleName, ownerType.className, binding.setter, listenerSetters.size, listenerSetters.map { Methods.asJavaDeclaration(it) })
       }
 
       if (!environment.registry.isSubclassOf(listenerSpec.type, listenerSetters[0].type.argumentTypes[0])) {
@@ -111,10 +112,6 @@ internal data class ListenerBindingSpec(
       }
 
       return ListenerBindingSpec(annotation, ownerType, listenerType, listenerSetters[0], listenerCallbacks[0])
-    }
-
-    private fun MethodSpec.asJavaDeclaration(): String {
-      return "$name(${type.argumentTypes.map { it.className }.joinToString(", ")})"
     }
   }
 }

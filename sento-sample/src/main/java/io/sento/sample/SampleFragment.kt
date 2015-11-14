@@ -7,6 +7,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -86,12 +87,21 @@ public class SampleFragment : Fragment() {
     Sento.unbind(this)
   }
 
-  private @OnClick(R.id.button_done) fun onDoneClick(view: View) {
+  private @OnClick(R.id.button_done) fun onDoneClick(view: Button) {
     Toast.makeText(activity, "onDoneClick", Toast.LENGTH_SHORT).show()
   }
 
-  private @OnClick(R.id.button_cancel) fun onCancelClick(view: View) {
+  private @OnClick(R.id.button_cancel) fun onCancelClick(view: Button) {
     Toast.makeText(activity, "onCancelClick", Toast.LENGTH_SHORT).show()
+  }
+
+  private @OnFocusChange(R.id.first_name_input, R.id.last_name_input) fun onFocusChange(focused: Boolean, input: TextView) {
+    if (focused) {
+      when (input.id) {
+        R.id.first_name_input -> Toast.makeText(activity, "focus changed to first name", Toast.LENGTH_SHORT).show()
+        R.id.last_name_input -> Toast.makeText(activity, "focus changed to last name", Toast.LENGTH_SHORT).show()
+      }
+    }
   }
 
 /*  private @OnTouch(R.id.button_cancel) fun onCancelTouch(view: View) {

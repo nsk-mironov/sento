@@ -13,11 +13,7 @@ import org.objectweb.asm.commons.GeneratorAdapter
 
 internal class SentoFactoryContentGenerator(private val bindings: Collection<SentoBindingSpec>) : ContentGenerator {
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
-    return listOf(onCreateSentoFactory(environment))
-  }
-
-  private fun onCreateSentoFactory(environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(Types.getClassFilePath(Types.FACTORY), environment.createClass {
+    return listOf(GeneratedContent(Types.getClassFilePath(Types.FACTORY), environment.createClass {
       visitHeader(environment)
       visitFields(environment)
 
@@ -25,7 +21,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
       visitStaticConstructor(environment)
 
       visitCreateBindingMethod(environment)
-    })
+    }))
   }
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) {
