@@ -1,7 +1,6 @@
 package io.sento.compiler
 
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.isInterface
 import io.sento.compiler.model.ClassReference
 import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.Type
@@ -50,6 +49,10 @@ internal class ClassRegistry(
     return type in refs
   }
 
+  public fun reference(type: Type): ClassReference {
+    return refs.getOrImplicitDefault(type)
+  }
+
   public fun resolve(reference: ClassReference, cacheable: Boolean = true): ClassSpec {
     return resolve(reference.type, cacheable)
   }
@@ -67,22 +70,44 @@ internal class ClassRegistry(
   }
 
   public fun isSubclassOf(type: Type, parent: Type): Boolean {
-    if (type == Types.OBJECT && parent != Types.OBJECT) {
-      return false
+    if (type.sort == Type.METHOD) {
+      throw SentoException("Invalid argument type = $type. Types with ''sort'' == Type.METHOD are not allowed.")
+    }
+
+    if (parent.sort == Type.METHOD) {
+      throw SentoException("Invalid argument parent = $parent. Types with ''sort'' == Type.METHOD are not allowed.")
     }
 
     if (type == parent) {
       return true
     }
 
-    if (refs[type] == null) {
+    if (Types.isPrimitive(type) || Types.isPrimitive(parent)) {
+      return type == parent
+    }
+
+    if (type == Types.OBJECT) {
+      return parent == Types.OBJECT
+    }
+
+    if (parent == Types.OBJECT) {
+      return true
+    }
+
+    if (type.sort == Type.ARRAY && parent.sort == Type.ARRAY) {
+      return isSubclassOf(type.elementType, parent.elementType)
+    }
+
+    if (type.sort == Type.ARRAY || parent.sort == Type.ARRAY) {
       return false
     }
 
-    return isSubclassOf(refs[type]!!.parent, parent)
-  }
+    reference(type).interfaces.forEach {
+      if (isSubclassOf(it, parent)) {
+        return true
+      }
+    }
 
-  public fun isInterface(type: Type): Boolean {
-    return refs[type]?.access?.isInterface ?: false
+    return isSubclassOf(reference(type).parent, parent)
   }
 }
