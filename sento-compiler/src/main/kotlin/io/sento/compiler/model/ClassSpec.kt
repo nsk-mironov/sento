@@ -10,6 +10,7 @@ internal data class ClassSpec(
     public val access: Int,
     public val type: Type,
     public val parent: Type,
+    public val interfaces: Collection<Type>,
     public val annotations: Collection<AnnotationSpec>,
     public val fields: Collection<FieldSpec>,
     public val methods: Collection<MethodSpec>,
@@ -38,31 +39,33 @@ internal data class ClassSpec(
     }
 
     public fun build(): ClassSpec {
-      return ClassSpec(access, type, parent, annotations, fields, methods, opener)
+      return ClassSpec(access, type, parent, interfaces, annotations, fields, methods, opener)
     }
   }
 
-  public fun field(name: String): FieldSpec? {
-    return fields.firstOrNull {
-      it.name == name
-    }
+  public fun getConstructor(descriptor: String): MethodSpec? {
+    return getDeclaredMethod("<init>", descriptor)
   }
 
-  public fun method(name: String): MethodSpec? {
-    return methods.firstOrNull {
-      it.name == name
-    }
+  public fun getConstructor(vararg args: Type): MethodSpec? {
+    return getDeclaredMethod("<init>", *args)
   }
 
-  public fun method(name: String, descriptor: String): MethodSpec? {
+  public fun getDeclaredMethod(name: String, descriptor: String): MethodSpec? {
     return methods.firstOrNull {
       it.name == name && it.type.descriptor == descriptor
     }
   }
 
-  public fun method(name: String, vararg args: Type): MethodSpec? {
+  public fun getDeclaredMethod(name: String, vararg args: Type): MethodSpec? {
     return methods.firstOrNull {
       it.name == name && Arrays.equals(it.type.argumentTypes, args)
+    }
+  }
+
+  public fun getDeclaredField(name: String): FieldSpec? {
+    return fields.firstOrNull {
+      it.name == name
     }
   }
 

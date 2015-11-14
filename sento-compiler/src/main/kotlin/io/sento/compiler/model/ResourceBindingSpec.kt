@@ -23,8 +23,8 @@ internal data class ResourceBindingSpec(
       val type = Types.getClassType(binding.type)
       val component = Types.getComponentTypeOrSelf(type)
 
-      val method = resources.method(binding.getter, Types.INT)
-      val value = annotation.method("value")
+      val method = resources.getDeclaredMethod(binding.getter, Types.INT)
+      val value = annotation.getDeclaredMethod("value")
 
       logger.info("Processing annotation @{} with binding {}",
           annotation.type.simpleName, binding)
@@ -40,7 +40,7 @@ internal data class ResourceBindingSpec(
       }
 
       if (!Types.isPrimitive(component) && !environment.registry.contains(component)) {
-        throw SentoException("Unable to process @{0} annotation - class ''{1}'' wasn''t found.",
+        throw SentoException("Unable to process @{0} annotation - type ''{1}'' wasn''t found.",
             annotation.type.className, component.className)
       }
 

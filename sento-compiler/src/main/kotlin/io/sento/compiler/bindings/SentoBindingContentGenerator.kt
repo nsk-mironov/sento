@@ -90,7 +90,7 @@ internal class SentoBindingContentGenerator(
   private fun createAccessibilityPatcher(environment: GenerationEnvironment): ClassPatcher {
     return object : AccessibilityPatcher() {
       override fun onPatchFieldFlags(access: Int, name: String, desc: String, signature: String?, value: Any?): Int {
-        return if (shouldGenerateBindingForField(clazz.field(name), environment)) {
+        return if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
           access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
         } else {
           access
@@ -98,7 +98,7 @@ internal class SentoBindingContentGenerator(
       }
 
       override fun onPatchMethodFlags(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): Int {
-        return if (shouldGenerateBindingForMethod(clazz.method(name, desc), environment)) {
+        return if (shouldGenerateBindingForMethod(clazz.getDeclaredMethod(name, desc), environment)) {
           access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
         } else {
           access
