@@ -100,7 +100,7 @@ public class SampleFragment : Fragment() {
   }
 
   private @OnFocusReceived(R.id.last_name_input) fun onLastNameReceivedFocus(input: TextView) {
-    Toast.makeText(activity, "focus changed to first name", Toast.LENGTH_SHORT).show()
+    Toast.makeText(activity, "focus changed to last name", Toast.LENGTH_SHORT).show()
   }
 
 /*  private @OnTouch(R.id.button_cancel) fun onCancelTouch(view: View) {
@@ -113,10 +113,6 @@ public class SampleFragment : Fragment() {
 
   private @OnLongClick(R.id.button_cancel) fun onCancelLongClick(view: View) {
     Toast.makeText(activity, "onCancelLongClick", Toast.LENGTH_SHORT).show()
-  }
-
-  private @OnFocusChange(R.id.button_cancel) fun onCancelFocusChange(view: View) {
-    Toast.makeText(activity, "onCancelFocusChange", Toast.LENGTH_SHORT).show()
   }
 
   private @OnHover(R.id.button_cancel) fun onCancelHover(view: View) {

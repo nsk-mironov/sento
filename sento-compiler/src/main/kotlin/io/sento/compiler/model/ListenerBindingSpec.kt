@@ -14,8 +14,8 @@ import org.objectweb.asm.Type
 
 internal data class ListenerBindingSpec(
     public val annotation: ClassSpec,
-    public val owner: Type,
-    public val listener: Type,
+    public val owner: ClassSpec,
+    public val listener: ClassSpec,
     public val setter: MethodSpec,
     public val callback: MethodSpec
 ) {
@@ -111,7 +111,7 @@ internal data class ListenerBindingSpec(
             annotation.type.simpleName, listenerSetters[0].name, listenerSpec.type.className, listenerSetters[0].type.argumentTypes[0].className)
       }
 
-      return ListenerBindingSpec(annotation, ownerType, listenerType, listenerSetters[0], listenerCallbacks[0])
+      return ListenerBindingSpec(annotation, ownerSpec, listenerSpec, listenerSetters[0], listenerCallbacks[0])
     }
   }
 }

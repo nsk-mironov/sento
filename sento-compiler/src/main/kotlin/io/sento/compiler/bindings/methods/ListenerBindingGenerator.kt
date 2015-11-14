@@ -7,6 +7,7 @@ import io.sento.compiler.SentoException
 import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.MethodSpec
@@ -56,7 +57,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
 
         adapter.loadArg(context.variable("target"))
         adapter.invokeConstructor(listener.type, Methods.getConstructor(listener.target))
-        adapter.invokeVirtual(binding.owner, Methods.get(binding.setter))
+        adapter.invokeVirtual(binding.owner.type, Methods.get(binding.setter))
 
         adapter.mark(this)
       }
@@ -76,7 +77,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   }
 
   private fun ClassVisitor.visitListenerHeader(listener: ListenerSpec, environment: GenerationEnvironment) {
-    visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, Types.OBJECT.internalName, arrayOf(binding.listener.internalName))
+    visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, binding.listenerParent.internalName, binding.listenerInterfaces.map { it.internalName }.toTypedArray())
   }
 
   private fun ClassVisitor.visitListenerFields(listener: ListenerSpec, environment: GenerationEnvironment) {
@@ -86,7 +87,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   private fun ClassVisitor.visitListenerConstructor(listener: ListenerSpec, environment: GenerationEnvironment) {
     GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target), null, null, this).apply {
       loadThis()
-      invokeConstructor(Types.OBJECT, Methods.getConstructor())
+      invokeConstructor(binding.listenerParent, Methods.getConstructor())
 
       loadThis()
       loadArg(0)
@@ -159,6 +160,12 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
 
     return result
   }
+
+  private val ListenerBindingSpec.listenerParent: Type
+    get() = if (listener.access.isInterface) Types.OBJECT else listener.type
+
+  private val ListenerBindingSpec.listenerInterfaces: Array<Type>
+    get() = if (listener.access.isInterface) arrayOf(listener.type) else emptyArray()
 
   private data class ListenerSpec(
       public val type: Type,
