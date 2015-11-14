@@ -60,7 +60,7 @@ internal class SentoContentGeneratorFactory private constructor(
             val binding = spec.getAnnotation<ListenerBinding>()
 
             if (binding != null) {
-              logger.info("New ListenerBinding found - @{}", spec.type.simpleName)
+              logger.info("New ListenerBinding found - @{} with binding {}", spec.type.simpleName, binding)
               logger.info("Creating a ListenerBindingGenerator for @{}", spec.type.simpleName)
 
               put(it.type, ListenerBindingGenerator(ListenerBindingSpec.create(spec, binding, environment)))
