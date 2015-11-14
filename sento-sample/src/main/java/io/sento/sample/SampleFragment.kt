@@ -95,13 +95,12 @@ public class SampleFragment : Fragment() {
     Toast.makeText(activity, "onCancelClick", Toast.LENGTH_SHORT).show()
   }
 
-  private @OnFocusChange(R.id.first_name_input, R.id.last_name_input) fun onFocusChange(focused: Boolean, input: TextView) {
-    if (focused) {
-      when (input.id) {
-        R.id.first_name_input -> Toast.makeText(activity, "focus changed to first name", Toast.LENGTH_SHORT).show()
-        R.id.last_name_input -> Toast.makeText(activity, "focus changed to last name", Toast.LENGTH_SHORT).show()
-      }
-    }
+  private @OnFocusReceived(R.id.first_name_input) fun onFirstNameReceivedFocus(input: TextView) {
+    Toast.makeText(activity, "focus changed to first name", Toast.LENGTH_SHORT).show()
+  }
+
+  private @OnFocusReceived(R.id.last_name_input) fun onLastNameReceivedFocus(input: TextView) {
+    Toast.makeText(activity, "focus changed to first name", Toast.LENGTH_SHORT).show()
   }
 
 /*  private @OnTouch(R.id.button_cancel) fun onCancelTouch(view: View) {

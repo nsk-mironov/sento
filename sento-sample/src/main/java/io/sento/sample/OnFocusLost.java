@@ -11,10 +11,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @ListenerBinding(
     owner = "android.view.View",
-    listener = "io.sento.sample.DebouncingOnClickListener",
-    setter = "setOnClickListener"
+    listener = "io.sento.sample.OnFocusLostListener",
+    setter = "setOnFocusChangeListener"
 )
-public @interface DebouncingOnClick {
+public @interface OnFocusLost {
   public int[] value();
 }
 
