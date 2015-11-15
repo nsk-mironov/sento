@@ -34,9 +34,9 @@ internal data class ResourceBindingSpec(
             annotation.type.className)
       }
 
-      if (value.type.returnType != Type.INT_TYPE) {
+      if (value.returns != Type.INT_TYPE) {
         throw SentoException("Unable to process @{0} annotation - value() method must return an int, but ''{1}'' was found",
-            annotation.type.className, value.type.returnType.className)
+            annotation.type.className, value.returns.className)
       }
 
       if (!Types.isPrimitive(component) && !environment.registry.contains(component)) {
@@ -49,9 +49,9 @@ internal data class ResourceBindingSpec(
             annotation.type.className, Types.RESOURCES.className, binding.getter)
       }
 
-      if (!environment.registry.isSubclassOf(method.type.returnType, type)) {
+      if (!environment.registry.isSubclassOf(method.returns, type)) {
         throw SentoException("Unable to process @{0} annotation - method ''{1}#{2}(int)'' returns a ''{3}'' which is not assignable to ''{4}''",
-            annotation.type.className, Types.RESOURCES.className, binding.getter, method.type.returnType.className, type.className)
+            annotation.type.className, Types.RESOURCES.className, binding.getter, method.returns.className, type.className)
       }
 
       return ResourceBindingSpec(annotation, type, method)

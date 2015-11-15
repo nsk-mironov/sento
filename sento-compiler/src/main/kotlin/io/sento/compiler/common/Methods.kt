@@ -22,6 +22,6 @@ internal object Methods {
   }
 
   public fun asJavaDeclaration(spec: MethodSpec): String {
-    return "${spec.name}(${spec.type.argumentTypes.map { it.className }.joinToString(", ")})"
+    return "${spec.name}(${spec.arguments.map { it.className }.joinToString(", ")})"
   }
 }

@@ -23,6 +23,14 @@ internal data class MethodSpec(
     }
   }
 
+  public val returns by lazy(LazyThreadSafetyMode.NONE) {
+    type.returnType
+  }
+
+  public val arguments by lazy(LazyThreadSafetyMode.NONE) {
+    type.argumentTypes.orEmpty()
+  }
+
   public inline fun <reified A : Annotation> getAnnotation(): A? {
     return getAnnotation(A::class.java)
   }

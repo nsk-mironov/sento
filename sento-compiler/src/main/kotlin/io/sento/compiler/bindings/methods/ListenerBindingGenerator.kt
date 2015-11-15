@@ -111,9 +111,11 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
         }
       }
 
-      invokeVirtual(listener.target, Methods.get(listener.method.name, listener.method.type.returnType, *listener.args.map {
-        it.type
-      }.toTypedArray()))
+      invokeVirtual(listener.target, Methods.get(listener.method)).apply {
+        if (listener.callback.returns == Types.BOOLEAN && listener.method.returns == Types.VOID) {
+          push(false)
+        }
+      }
 
       returnValue()
       endMethod()
@@ -121,13 +123,15 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   }
 
   private fun createListenerSpec(context: MethodBindingContext, environment: GenerationEnvironment): ListenerSpec {
-    return ListenerSpec(
-        type = context.factory.newAnonymousType(),
-        target = context.clazz.type,
-        callback = binding.callback,
-        method = context.method,
-        args = remapMethodArgs(context, environment)
-    )
+    val type = context.factory.newAnonymousType()
+    val args = remapMethodArgs(context, environment)
+
+    if (context.method.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
+      throw SentoException("Unable to generate @{0} binding for ''{1}#{2}'' method - it returns ''{3}'', but only {4} are supported.",
+          context.annotation.type.simpleName, context.clazz.type.className, context.method.name, context.method.returns.className, listOf(Types.VOID.className, Types.BOOLEAN.className))
+    }
+
+    return ListenerSpec(type, context.clazz.type, binding.callback, context.method, args)
   }
 
   private fun remapMethodArgs(context: MethodBindingContext, environment: GenerationEnvironment): Collection<ArgumentSpec> {
@@ -137,16 +141,13 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
     val from = binding.callback
     val to = context.method
 
-    val argsFrom = from.type.argumentTypes.orEmpty()
-    val argsTo = to.type.argumentTypes.orEmpty()
-
-    for (index in 0..argsFrom.size - 1) {
+    for (index in 0..from.arguments.size - 1) {
       available.add(index)
     }
 
-    for (argument in argsTo) {
+    for (argument in to.arguments) {
       val index = available.firstOrNull {
-        available.contains(it) && environment.registry.isCastableFromTo(argsFrom[it], argument)
+        available.contains(it) && environment.registry.isCastableFromTo(from.arguments[it], argument)
       }
 
       if (index == null) {

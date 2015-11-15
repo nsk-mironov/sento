@@ -1,4 +1,4 @@
-package io.sento.sample;
+package io.sento.sample.annotations;
 
 import io.sento.ListenerBinding;
 
@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @ListenerBinding(
     owner = "android.view.View",
-    listener = "io.sento.sample.OnFocusLostListener",
+    listener = "io.sento.sample.annotations.OnFocusLostListener",
     setter = "setOnFocusChangeListener"
 )
 public @interface OnFocusLost {

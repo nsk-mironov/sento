@@ -16,14 +16,11 @@ import io.sento.BindColor
 import io.sento.BindDimen
 import io.sento.BindString
 import io.sento.OnClick
-import io.sento.OnFocusChange
-import io.sento.OnHover
-import io.sento.OnKey
 import io.sento.OnLongClick
-import io.sento.OnTouch
 import io.sento.Sento
-
-public fun <T> notNull(): T = null as T
+import io.sento.sample.annotations.OnFocusReceived
+import io.sento.sample.extensions.asTrue
+import io.sento.sample.extensions.notNull
 
 public class SampleFragment : Fragment() {
   private @Bind(R.id.first_name_input) val first_name_input: EditText = notNull()
@@ -103,19 +100,7 @@ public class SampleFragment : Fragment() {
     Toast.makeText(activity, "focus changed to last name", Toast.LENGTH_SHORT).show()
   }
 
-/*  private @OnTouch(R.id.button_cancel) fun onCancelTouch(view: View) {
-    Toast.makeText(activity, "onCancelTouch", Toast.LENGTH_SHORT).show()
+  private @OnLongClick(R.id.button_done, R.id.button_cancel) fun onLongClick(view: View): Boolean {
+    return Toast.makeText(activity, "onLongClick", Toast.LENGTH_SHORT).show().asTrue()
   }
-
-  private @OnKey(R.id.button_cancel) fun onCancelKey(view: View) {
-    Toast.makeText(activity, "onCancelKey", Toast.LENGTH_SHORT).show()
-  }
-
-  private @OnLongClick(R.id.button_cancel) fun onCancelLongClick(view: View) {
-    Toast.makeText(activity, "onCancelLongClick", Toast.LENGTH_SHORT).show()
-  }
-
-  private @OnHover(R.id.button_cancel) fun onCancelHover(view: View) {
-    Toast.makeText(activity, "onCancelFocusChange", Toast.LENGTH_SHORT).show()
-  }*/
 }

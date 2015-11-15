@@ -1,4 +1,4 @@
-package io.sento.sample;
+package io.sento.sample.annotations;
 
 import android.view.View;
 

@@ -59,7 +59,7 @@ internal data class ClassSpec(
 
   public fun getDeclaredMethod(name: String, vararg args: Type): MethodSpec? {
     return methods.firstOrNull {
-      it.name == name && Arrays.equals(it.type.argumentTypes, args)
+      it.name == name && Arrays.equals(it.arguments, args)
     }
   }
 
