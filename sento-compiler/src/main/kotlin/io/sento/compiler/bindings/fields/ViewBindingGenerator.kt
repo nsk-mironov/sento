@@ -9,6 +9,7 @@ import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.simpleName
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
 
@@ -16,50 +17,43 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
   private val logger = LoggerFactory.getLogger(ResourceBindingGenerator::class.java)
 
   override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    val adapter = context.adapter
-    val annotation = context.annotation
-
-    val field = context.field
-    val clazz = context.clazz
-
     logger.info("Generating @{} binding for '{}' field",
-        annotation.type.simpleName, field.name)
+        context.annotation.type.simpleName, context.field.name)
 
-    if (field.type.sort == Type.ARRAY) {
+    if (context.field.type.sort == Type.ARRAY) {
       throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - arrays are not supported, but ''{3}'' was found.",
-          annotation.type.simpleName, clazz.type.className, field.name, field.type.className)
+          context.annotation.type.simpleName, context.clazz.type.className, context.field.name, context.field.type.className)
     }
 
-    val optional = field.getAnnotation<Optional>() != null
-    val isView = environment.registry.isSubclassOf(field.type, Types.VIEW)
-    val isInterface = environment.registry.reference(field.type).access.isInterface
+    val optional = context.field.getAnnotation<Optional>() != null
+    val isView = environment.registry.isSubclassOf(context.field.type, Types.VIEW)
+    val isInterface = environment.registry.reference(context.field.type).access.isInterface
 
     if (!isInterface && !isView) {
       throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - it must be a subclass of ''{3}'' or an interface, but ''{4}'' was found.",
-          annotation.type.simpleName, clazz.type.className, field.name, Types.VIEW.className, field.type.className)
+          context.annotation.type.simpleName, context.clazz.type.className, context.field.name, Types.VIEW.className, context.field.type.className)
     }
 
-    adapter.loadArg(context.variable("target"))
-    adapter.loadArg(context.variable("finder"))
-    adapter.push(Annotations.id(annotation))
-    adapter.loadArg(context.variable("source"))
-    adapter.push(optional)
+    context.adapter.apply {
+      loadArg(context.variable("target"))
+      loadArg(context.variable("finder"))
+      push(Annotations.id(context.annotation))
 
-    adapter.invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN))
-    adapter.checkCast(field.type)
-    adapter.putField(clazz.type, field.name, field.type)
+      loadArg(context.variable("source"))
+      push(optional)
+
+      invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN))
+      checkCast(context.field.type)
+      putField(context.clazz.type, context.field.name, context.field.type)
+    }
 
     return emptyList()
   }
 
   override fun unbind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    val adapter = context.adapter
-    val field = context.field
-    val clazz = context.clazz
-
-    adapter.loadArg(context.variable("target"))
-    adapter.push(null as String?)
-    adapter.putField(clazz.type, field.name, field.type)
+    context.adapter.loadArg(context.variable("target"))
+    context.adapter.visitInsn(Opcodes.ACONST_NULL)
+    context.adapter.putField(context.clazz.type, context.field.name, context.field.type)
 
     return emptyList()
   }

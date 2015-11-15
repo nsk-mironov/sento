@@ -29,10 +29,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun ClassWriter.visitFields(environment: GenerationEnvironment) {
-    val descriptor = Types.MAP.descriptor
-    val signature = "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;"
-
-    visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", descriptor, signature, null)
+    visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", Types.MAP.descriptor, "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;", null)
   }
 
   private fun ClassWriter.visitConstructor(environment: GenerationEnvironment) {
