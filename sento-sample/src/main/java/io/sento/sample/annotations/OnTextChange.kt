@@ -8,12 +8,12 @@ import io.sento.ListenerBinding
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @ListenerBinding(
     owner = "android.widget.TextView",
-    listener = "io.sento.sample.annotations.SimpleTextWatcher",
+    listener = "io.sento.sample.annotations.OnTextChangeWatcher",
     setter = "addTextChangedListener"
 )
 public annotation class OnTextChange(vararg val value: Int)
 
-public abstract class SimpleTextWatcher : TextWatcher {
+public abstract class OnTextChangeWatcher : TextWatcher {
   // FIXME: https://github.com/nsk-mironov/sento/issues/28
   override abstract fun onTextChanged(sequence: CharSequence?, start: Int, before: Int, count: Int)
 
