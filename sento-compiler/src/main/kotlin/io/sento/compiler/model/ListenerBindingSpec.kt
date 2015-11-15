@@ -20,6 +20,8 @@ internal data class ListenerBindingSpec(
     public val callback: MethodSpec
 ) {
   public companion object {
+    private val SUPPORTED_RETURN_TYPES = listOf(Types.VOID, Types.BOOLEAN)
+
     public fun create(annotation: ClassSpec, binding: ListenerBinding, environment: GenerationEnvironment): ListenerBindingSpec {
       val ownerType = Types.getClassType(binding.owner)
       val listenerType = Types.getClassType(binding.listener)
@@ -109,6 +111,13 @@ internal data class ListenerBindingSpec(
       if (!environment.registry.isSubclassOf(listenerSpec.type, listenerSetters[0].type.argumentTypes[0])) {
         throw SentoException("Unable to process @{0} annotation - listener setter ''{1}'' doesn''t accept ''{2}'' as an argument. Only subclasses of ''{3}'' are allowed.",
             annotation.type.simpleName, listenerSetters[0].name, listenerSpec.type.className, listenerSetters[0].type.argumentTypes[0].className)
+      }
+
+      environment.registry.resolve(listenerSetters[0].type.argumentTypes[0]).methods.forEach {
+        if (it.access.isAbstract && !SUPPORTED_RETURN_TYPES.contains(it.type.returnType)) {
+          throw SentoException("Unable to process @{0} annotation - listener method ''{1}'' returns ''{2}'', but only {3} are supported.",
+              annotation.type.simpleName, it.name, it.type.returnType.className, SUPPORTED_RETURN_TYPES.map { it.className })
+        }
       }
 
       return ListenerBindingSpec(annotation, ownerSpec, listenerSpec, listenerSetters[0], listenerCallbacks[0])
