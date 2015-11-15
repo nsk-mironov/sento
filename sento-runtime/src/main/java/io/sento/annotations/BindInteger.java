@@ -1,4 +1,4 @@
-package io.sento;
+package io.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,12 +7,12 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
-@ResourceBindings({
+@ResourceBindings(
     @ResourceBinding(
-        type = "android.graphics.drawable.Drawable",
-        getter = "getDrawable"
+        type = "int",
+        getter = "getInteger"
     )
-})
-public @interface BindDrawable {
+)
+public @interface BindInteger {
   public int value();
 }

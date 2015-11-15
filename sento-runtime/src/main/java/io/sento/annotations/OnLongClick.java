@@ -1,4 +1,4 @@
-package io.sento;
+package io.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @ListenerBinding(
     owner = "android.view.View",
-    listener = "android.view.View$OnClickListener",
-    setter = "setOnClickListener"
+    listener = "android.view.View$OnLongClickListener",
+    setter = "setOnLongClickListener"
 )
-public @interface OnClick {
+public @interface OnLongClick {
   public int[] value();
 }

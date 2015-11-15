@@ -1,4 +1,4 @@
-package io.sento;
+package io.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @ListenerBinding(
     owner = "android.view.View",
-    listener = "android.view.View$OnHoverListener",
-    setter = "setOnHoverListener"
+    listener = "android.view.View$OnTouchListener",
+    setter = "setOnTouchListener"
 )
-public @interface OnHover {
+public @interface OnTouch {
   public int[] value();
 }

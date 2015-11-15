@@ -1,4 +1,5 @@
-package io.sento;
+package io.sento.annotations;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -8,18 +9,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings({
     @ResourceBinding(
-        type = "java.lang.String[]",
-        getter = "getStringArray"
+        type = "float",
+        getter = "getDimension"
     ),
     @ResourceBinding(
-        type = "java.lang.CharSequence[]",
-        getter = "getTextArray"
-    ),
-    @ResourceBinding(
-        type = "int[]",
-        getter = "getIntArray"
+        type = "int",
+        getter = "getDimensionPixelSize"
     )
 })
-public @interface BindArray {
+public @interface BindDimen {
   public int value();
 }

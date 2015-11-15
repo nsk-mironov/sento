@@ -29,10 +29,6 @@ android {
   }
 }
 
-dependencies {
-  compile project(":sento-annotations")
-}
-
 bintray {
   user = System.getenv("BINTRAY_USERNAME")
   key = System.getenv("BINTRAY_PASSWORD")

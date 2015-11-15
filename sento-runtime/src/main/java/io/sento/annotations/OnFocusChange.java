@@ -1,4 +1,4 @@
-package io.sento;
+package io.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

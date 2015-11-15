@@ -1,4 +1,4 @@
-package io.sento;
+package io.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,14 +9,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings({
     @ResourceBinding(
-        type = "float",
-        getter = "getDimension"
-    ),
-    @ResourceBinding(
-        type = "int",
-        getter = "getDimensionPixelSize"
+        type = "android.graphics.drawable.Drawable",
+        getter = "getDrawable"
     )
 })
-public @interface BindDimen {
+public @interface BindDrawable {
   public int value();
 }
