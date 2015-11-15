@@ -10,9 +10,9 @@ import io.sento.ListenerBinding
     listener = "io.sento.sample.annotations.OnFocusReceivedListener",
     setter = "setOnFocusChangeListener"
 )
-annotation class OnFocusReceived(vararg val value: Int)
+public annotation class OnFocusReceived(vararg val value: Int)
 
-abstract class OnFocusReceivedListener : View.OnFocusChangeListener {
+public abstract class OnFocusReceivedListener : View.OnFocusChangeListener {
   override fun onFocusChange(view: View, focused: Boolean) {
     if (focused) {
       onFocusReceived(view)
