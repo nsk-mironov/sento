@@ -1,5 +1,4 @@
 include ':sento-annotations'
-include ':sento-asmifier'
 include ':sento-runtime'
 include ':sento-compiler'
 include ':sento-plugin'
