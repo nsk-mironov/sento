@@ -6,8 +6,8 @@ import io.sento.annotations.ListenerBinding
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @ListenerBinding(
-    owner = "android.view.View",
-    listener = "io.sento.sample.annotations.OnFocusReceivedListener",
+    owner = View::class,
+    listener = OnFocusReceivedListener::class,
     setter = "setOnFocusChangeListener"
 )
 public annotation class OnFocusReceived(vararg val value: Int)

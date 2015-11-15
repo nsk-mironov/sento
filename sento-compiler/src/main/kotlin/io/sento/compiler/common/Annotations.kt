@@ -1,9 +1,10 @@
 package io.sento.compiler.common
 
+import io.sento.annotations.AnnotationProxy
 import io.sento.compiler.model.AnnotationSpec
 
 internal object Annotations {
-  public fun <A : Annotation> create(clazz: Class<A>, spec: AnnotationSpec): A {
+  public fun <A> create(clazz: Class<A>, spec: AnnotationSpec): A {
     return AnnotationProxy.create(clazz, spec)
   }
 

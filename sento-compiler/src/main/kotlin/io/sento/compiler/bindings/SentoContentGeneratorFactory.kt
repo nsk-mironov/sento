@@ -41,7 +41,7 @@ internal class SentoContentGeneratorFactory private constructor(
             val spec = environment.registry.resolve(it)
             val binding = spec.getAnnotation<ResourceBindings>()
 
-            if (binding != null && !binding.value.isEmpty()) {
+            if (binding != null && !binding.value().isEmpty()) {
               logger.info("New ResourceBindings found - @{}", spec.type.simpleName)
               logger.info("Creating a ResourceBindingGenerator for @{}", spec.type.simpleName)
 

@@ -1,5 +1,5 @@
 package io.sento.annotations
 
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class ResourceBindings(vararg val value: ResourceBinding)
+internal @AnnotationDelegate interface ResourceBindings {
+  public fun value(): Array<ResourceBinding>
+}

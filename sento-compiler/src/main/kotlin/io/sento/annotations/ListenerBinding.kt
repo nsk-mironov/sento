@@ -1,5 +1,11 @@
 package io.sento.annotations
 
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class ListenerBinding(val owner: String, val listener: String, val setter: String)
+import org.objectweb.asm.Type
+
+internal @AnnotationDelegate interface ListenerBinding {
+  public fun owner(): Type
+
+  public fun listener(): Type
+
+  public fun setter(): String
+}

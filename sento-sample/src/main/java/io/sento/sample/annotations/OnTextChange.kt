@@ -2,13 +2,14 @@ package io.sento.sample.annotations
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.TextView
 import io.sento.annotations.ListenerBinding
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @ListenerBinding(
-    owner = "android.widget.TextView",
-    listener = "io.sento.sample.annotations.OnTextChangeWatcher",
+    owner = TextView::class,
+    listener = OnTextChangeWatcher::class,
     setter = "addTextChangedListener"
 )
 public annotation class OnTextChange(vararg val value: Int)

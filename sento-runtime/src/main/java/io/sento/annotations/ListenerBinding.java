@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface ListenerBinding {
-  public String owner();
+  public Class<?> owner();
 
-  public String listener();
+  public Class<?> listener();
 
   public String setter();
 }

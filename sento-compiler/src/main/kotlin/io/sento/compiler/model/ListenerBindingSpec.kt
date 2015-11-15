@@ -21,8 +21,8 @@ internal data class ListenerBindingSpec(
 ) {
   public companion object {
     public fun create(annotation: ClassSpec, binding: ListenerBinding, environment: GenerationEnvironment): ListenerBindingSpec {
-      val ownerType = Types.getClassType(binding.owner)
-      val listenerType = Types.getClassType(binding.listener)
+      val ownerType = binding.owner()
+      val listenerType = binding.listener()
 
       if (ownerType.sort == Type.ARRAY) {
         throw SentoException("Unable to process @{0} annotation - owner type mustn''t be an array, but ''{1}'' was found.",
@@ -93,17 +93,17 @@ internal data class ListenerBindingSpec(
       }
 
       val listenerSetters = ownerSpec.methods.filter {
-        it.name == binding.setter && it.arguments.size == 1
+        it.name == binding.setter() && it.arguments.size == 1
       }
 
       if (listenerSetters.size == 0) {
         throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must have exactly one single-arg method ''{2}'', but none was found.",
-            annotation.type.simpleName, ownerType.className, binding.setter)
+            annotation.type.simpleName, ownerType.className, binding.setter())
       }
 
       if (listenerSetters.size > 1) {
         throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must have exactly one single-arg method ''{2}'', but {3} were found {4}.",
-            annotation.type.simpleName, ownerType.className, binding.setter, listenerSetters.size, listenerSetters.map { Methods.asJavaDeclaration(it) })
+            annotation.type.simpleName, ownerType.className, binding.setter(), listenerSetters.size, listenerSetters.map { Methods.asJavaDeclaration(it) })
       }
 
       if (!environment.registry.isSubclassOf(listenerSpec.type, listenerSetters[0].arguments[0])) {

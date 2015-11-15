@@ -1,4 +1,4 @@
-package io.sento.compiler.common
+package io.sento.annotations
 
 import com.google.common.reflect.AbstractInvocationHandler
 import io.sento.compiler.model.AnnotationSpec
@@ -7,7 +7,7 @@ import java.lang.reflect.Proxy
 import java.util.HashMap
 
 internal object AnnotationProxy {
-  public fun <A : Annotation> create(clazz: Class<A>, spec: AnnotationSpec): A {
+  public fun <A> create(clazz: Class<A>, spec: AnnotationSpec): A {
     return clazz.cast(Proxy.newProxyInstance(clazz.classLoader, arrayOf(clazz), object : AbstractInvocationHandler() {
       private val cache = HashMap<String, Any?>()
 
@@ -31,8 +31,8 @@ internal object AnnotationProxy {
 
   private fun resolve(type: Class<*>, value: Any): Any {
     return when {
-      type.isArray -> resolveArray(type.componentType, value)
-      type.isAnnotation -> resolveAnnotation(type, value)
+      isArray(type) -> resolveArray(type.componentType, value)
+      isAnnotation(type) -> resolveAnnotation(type, value)
       else -> resolveValue(type, value)
     }
   }
@@ -48,11 +48,19 @@ internal object AnnotationProxy {
   }
 
   private fun resolveAnnotation(type: Class<*>, value: Any): Any {
-    return create(type.asSubclass(Annotation::class.java), value.cast())
+    return create(type, value.cast())
   }
 
   private fun resolveValue(type: Class<*>, value: Any): Any {
     return value
+  }
+
+  private fun isArray(type: Class<*>): Boolean {
+    return type.isArray
+  }
+
+  private fun isAnnotation(type: Class<*>): Boolean {
+    return type.isAnnotation || type.getAnnotation(AnnotationDelegate::class.java) != null
   }
 
   private inline fun <reified T : Any> Any?.cast(): T {

@@ -22,11 +22,11 @@ internal data class FieldSpec(
     }
   }
 
-  public inline fun <reified A : Annotation> getAnnotation(): A? {
+  public inline fun <reified A : Any> getAnnotation(): A? {
     return getAnnotation(A::class.java)
   }
 
-  public fun <A : Annotation> getAnnotation(annotation: Class<A>): A? {
+  public fun <A> getAnnotation(annotation: Class<A>): A? {
     return Annotations.create(annotation, annotations.firstOrNull {
       it.type == Type.getType(annotation)
     } ?: return null)

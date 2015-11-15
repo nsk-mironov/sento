@@ -20,10 +20,10 @@ internal data class ResourceBindingSpec(
     public fun create(annotation: ClassSpec, binding: ResourceBinding, environment: GenerationEnvironment): ResourceBindingSpec {
       val resources = environment.registry.resolve(Types.RESOURCES)
 
-      val type = Types.getClassType(binding.type)
+      val type = Types.getClassType(binding.type())
       val component = Types.getComponentTypeOrSelf(type)
 
-      val method = resources.getDeclaredMethod(binding.getter, Types.INT)
+      val method = resources.getDeclaredMethod(binding.getter(), Types.INT)
       val value = annotation.getDeclaredMethod("value")
 
       logger.info("Processing annotation @{} with binding {}",
@@ -46,19 +46,19 @@ internal data class ResourceBindingSpec(
 
       if (method == null) {
         throw SentoException("Unable to process @{0} annotation - method ''{1}#{2}(int)'' wasn''t found.",
-            annotation.type.className, Types.RESOURCES.className, binding.getter)
+            annotation.type.className, Types.RESOURCES.className, binding.getter())
       }
 
       if (!environment.registry.isSubclassOf(method.returns, type)) {
         throw SentoException("Unable to process @{0} annotation - method ''{1}#{2}(int)'' returns a ''{3}'' which is not assignable to ''{4}''",
-            annotation.type.className, Types.RESOURCES.className, binding.getter, method.returns.className, type.className)
+            annotation.type.className, Types.RESOURCES.className, binding.getter(), method.returns.className, type.className)
       }
 
       return ResourceBindingSpec(annotation, type, method)
     }
 
     public fun create(annotation: ClassSpec, binding: ResourceBindings, environment: GenerationEnvironment): Collection<ResourceBindingSpec> {
-      return binding.value.map {
+      return binding.value().map {
         create(annotation, it, environment)
       }
     }
