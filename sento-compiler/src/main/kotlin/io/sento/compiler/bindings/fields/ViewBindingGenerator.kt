@@ -1,6 +1,6 @@
 package io.sento.compiler.bindings.fields
 
-import io.sento.Optional
+import io.sento.annotations.Optional
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException

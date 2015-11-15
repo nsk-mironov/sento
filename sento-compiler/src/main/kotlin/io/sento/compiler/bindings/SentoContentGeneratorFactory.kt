@@ -1,8 +1,8 @@
 package io.sento.compiler.bindings
 
-import io.sento.Bind
-import io.sento.ListenerBinding
-import io.sento.ResourceBindings
+import io.sento.annotations.Bind
+import io.sento.annotations.ListenerBinding
+import io.sento.annotations.ResourceBindings
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.bindings.fields.FieldBindingGenerator

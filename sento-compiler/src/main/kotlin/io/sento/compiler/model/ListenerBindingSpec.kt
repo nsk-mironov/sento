@@ -1,6 +1,6 @@
 package io.sento.compiler.model
 
-import io.sento.ListenerBinding
+import io.sento.annotations.ListenerBinding
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
 import io.sento.compiler.common.Methods

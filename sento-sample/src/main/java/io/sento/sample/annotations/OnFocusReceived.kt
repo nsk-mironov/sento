@@ -1,7 +1,7 @@
 package io.sento.sample.annotations
 
 import android.view.View
-import io.sento.ListenerBinding
+import io.sento.annotations.ListenerBinding
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)

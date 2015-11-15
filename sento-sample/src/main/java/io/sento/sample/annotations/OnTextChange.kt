@@ -2,7 +2,7 @@ package io.sento.sample.annotations
 
 import android.text.Editable
 import android.text.TextWatcher
-import io.sento.ListenerBinding
+import io.sento.annotations.ListenerBinding
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
