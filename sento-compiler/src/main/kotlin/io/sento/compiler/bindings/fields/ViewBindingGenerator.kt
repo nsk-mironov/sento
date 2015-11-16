@@ -25,9 +25,9 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
           context.annotation.type.simpleName, context.clazz.type.className, context.field.name, context.field.type.className)
     }
 
-    val optional = context.field.getAnnotation<Optional>() != null
     val isView = environment.registry.isSubclassOf(context.field.type, Types.VIEW)
     val isInterface = environment.registry.reference(context.field.type).access.isInterface
+    val optional = context.field.getAnnotation<Optional>() != null
 
     if (!isInterface && !isView) {
       throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - it must be a subclass of ''{3}'' or an interface, but ''{4}'' was found.",

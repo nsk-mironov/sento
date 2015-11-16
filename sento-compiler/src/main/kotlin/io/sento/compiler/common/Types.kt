@@ -1,7 +1,6 @@
 package io.sento.compiler.common
 
 import org.objectweb.asm.Type
-import java.util.HashMap
 import java.util.HashSet
 import java.util.IdentityHashMap
 
@@ -16,18 +15,6 @@ internal object Types {
     add(Type.SHORT_TYPE)
     add(Type.BOOLEAN_TYPE)
     add(Type.VOID_TYPE)
-  }
-
-  private val PRIMITIVES = HashMap<String, String>().apply {
-    put("byte", "B")
-    put("char", "C")
-    put("double", "D")
-    put("float", "F")
-    put("int", "I")
-    put("long", "J")
-    put("short", "S")
-    put("boolean", "Z")
-    put("void", "V")
   }
 
   public val OBJECT = Type.getType(Any::class.java)
