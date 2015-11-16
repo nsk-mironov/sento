@@ -1,7 +1,7 @@
 package io.sento.compiler.model
 
-import io.sento.annotations.ResourceBinding
-import io.sento.annotations.ResourceBindings
+import io.sento.compiler.annotations.ResourceBinding
+import io.sento.compiler.annotations.ResourceBindings
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
 import io.sento.compiler.common.Types

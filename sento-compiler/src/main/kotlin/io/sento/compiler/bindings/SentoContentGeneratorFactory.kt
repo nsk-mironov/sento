@@ -1,15 +1,15 @@
 package io.sento.compiler.bindings
 
-import io.sento.annotations.Bind
-import io.sento.annotations.ListenerBinding
-import io.sento.annotations.ResourceBindings
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.annotations.Bind
+import io.sento.compiler.annotations.ListenerBinding
+import io.sento.compiler.annotations.ResourceBindings
 import io.sento.compiler.bindings.fields.FieldBindingGenerator
 import io.sento.compiler.bindings.fields.ResourceBindingGenerator
 import io.sento.compiler.bindings.fields.ViewBindingGenerator
-import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.bindings.methods.ListenerBindingGenerator
+import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName
@@ -34,7 +34,7 @@ internal class SentoContentGeneratorFactory private constructor(
 
     private fun createFieldBindings(environment: GenerationEnvironment): Map<Type, FieldBindingGenerator> {
       return HashMap<Type, FieldBindingGenerator>().apply {
-        put(Types.get<Bind>(), ViewBindingGenerator())
+        put(Types.getAnnotationType(Bind::class.java), ViewBindingGenerator())
 
         environment.registry.references.forEach {
           if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {

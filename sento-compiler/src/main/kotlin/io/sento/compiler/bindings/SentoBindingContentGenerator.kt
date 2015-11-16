@@ -9,16 +9,15 @@ import io.sento.compiler.bindings.methods.MethodBindingContext
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
+import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.patcher.AccessibilityPatcher
 import io.sento.compiler.patcher.ClassPatcher
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Type
-
 import org.objectweb.asm.Opcodes.*
+import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
 import org.slf4j.LoggerFactory
 import java.util.ArrayList

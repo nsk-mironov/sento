@@ -1,5 +1,6 @@
 package io.sento.compiler.common
 
+import io.sento.compiler.annotations.AnnotationDelegate
 import org.objectweb.asm.Type
 import java.util.HashSet
 import java.util.IdentityHashMap
@@ -54,6 +55,12 @@ internal object Types {
     } else {
       type
     }
+  }
+
+  public fun getAnnotationType(clazz: Class<*>): Type {
+    return clazz.getAnnotation(AnnotationDelegate::class.java)?.run {
+      Type.getObjectType(value.replace('.', '/'))
+    } ?: Type.getType(clazz)
   }
 
   public fun getClassFilePath(type: Type): String {

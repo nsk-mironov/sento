@@ -1,4 +1,4 @@
-package io.sento.annotations
+package io.sento.compiler.annotations
 
 import com.google.common.reflect.AbstractInvocationHandler
 import io.sento.compiler.model.AnnotationSpec

@@ -1,6 +1,7 @@
 package io.sento.compiler.model
 
-import io.sento.annotations.AnnotationProxy
+import io.sento.compiler.annotations.AnnotationProxy
+import io.sento.compiler.common.Types
 import org.objectweb.asm.Type
 import java.util.ArrayList
 
@@ -28,7 +29,7 @@ internal data class FieldSpec(
 
   public fun <A> getAnnotation(annotation: Class<A>): A? {
     return AnnotationProxy.create(annotation, annotations.firstOrNull {
-      it.type == Type.getType(annotation)
+      it.type == Types.getAnnotationType(annotation)
     } ?: return null)
   }
 }

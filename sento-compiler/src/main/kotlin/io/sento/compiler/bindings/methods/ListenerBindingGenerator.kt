@@ -1,7 +1,7 @@
 package io.sento.compiler.bindings.methods
 
-import io.sento.annotations.Optional
-import io.sento.annotations.WithIds
+import io.sento.compiler.annotations.Optional
+import io.sento.compiler.annotations.WithIds
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
