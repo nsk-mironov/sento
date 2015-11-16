@@ -1,10 +1,10 @@
 package io.sento.compiler.bindings.methods
 
 import io.sento.annotations.Optional
+import io.sento.annotations.WithIds
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
-import io.sento.compiler.common.Annotations
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isInterface
@@ -23,19 +23,16 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
 
   override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    val annotation = context.annotation
-    val adapter = context.adapter
-
-    val method = context.method
-    val optional = method.getAnnotation<Optional>() != null
-
     logger.info("Generating @{} binding for '{}' method",
-        annotation.type.simpleName, method.name)
+        context.annotation.type.simpleName, context.method.name)
 
     val listener = createListenerSpec(context, environment)
     val result = listOf(onCreateBindingListener(listener, environment))
 
-    Annotations.ids(annotation).forEach {
+    val optional = context.method.getAnnotation<Optional>() != null
+    val adapter = context.adapter
+
+    WithIds.resolve(context.annotation).value().forEach {
       val view = adapter.newLocal(Types.VIEW)
 
       adapter.loadArg(context.variable("finder"))
