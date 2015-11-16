@@ -1,13 +1,13 @@
 package io.sento
 
 import com.android.build.gradle.AppExtension
-import com.android.build.transform.api.Context
-import com.android.build.transform.api.Format
-import com.android.build.transform.api.QualifiedContent
-import com.android.build.transform.api.Transform
-import com.android.build.transform.api.TransformException
-import com.android.build.transform.api.TransformInput
-import com.android.build.transform.api.TransformOutputProvider
+import com.android.build.api.transform.Context
+import com.android.build.api.transform.Format
+import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Transform
+import com.android.build.api.transform.TransformException
+import com.android.build.api.transform.TransformInput
+import com.android.build.api.transform.TransformOutputProvider
 import com.google.common.collect.Iterables
 import io.sento.compiler.SentoCompiler
 import io.sento.compiler.SentoOptions

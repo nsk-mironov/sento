@@ -15,6 +15,7 @@ dependencies {
   compile gradleApi()
 
   compile "com.android.tools.build:gradle:$androidToolsVersion"
+  compile "com.android.tools.build:transform-api:$androidToolsVersion"
 }
 
 publishing {
