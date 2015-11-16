@@ -9,12 +9,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings({
     @ResourceBinding(
-        type = "float",
-        getter = "getDimension"
+        type = float.class,
+        getter = "getDimension",
+        array = false
     ),
     @ResourceBinding(
-        type = "int",
-        getter = "getDimensionPixelSize"
+        type = int.class,
+        getter = "getDimensionPixelSize",
+        array = false
     )
 })
 public @interface BindDimen {

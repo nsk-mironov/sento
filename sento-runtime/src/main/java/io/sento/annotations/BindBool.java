@@ -9,8 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings(
     @ResourceBinding(
-        type = "boolean",
-        getter = "getBoolean"
+        type = boolean.class,
+        getter = "getBoolean",
+        array = false
     )
 )
 public @interface BindBool {

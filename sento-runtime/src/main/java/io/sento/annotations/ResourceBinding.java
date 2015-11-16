@@ -8,7 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface ResourceBinding {
-  public String type();
+  public Class<?> type();
+
+  public boolean array();
 
   public String getter();
 }

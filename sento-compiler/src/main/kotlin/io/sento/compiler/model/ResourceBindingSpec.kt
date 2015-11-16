@@ -20,7 +20,7 @@ internal data class ResourceBindingSpec(
     public fun create(annotation: ClassSpec, binding: ResourceBinding, environment: GenerationEnvironment): ResourceBindingSpec {
       val resources = environment.registry.resolve(Types.RESOURCES)
 
-      val type = Types.getClassType(binding.type())
+      val type = if (binding.array()) Types.getArrayType(binding.type()) else binding.type()
       val component = Types.getComponentTypeOrSelf(type)
 
       val method = resources.getDeclaredMethod(binding.getter(), Types.INT)

@@ -9,16 +9,19 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings({
     @ResourceBinding(
-        type = "java.lang.String[]",
-        getter = "getStringArray"
+        type = String.class,
+        getter = "getStringArray",
+        array = true
     ),
     @ResourceBinding(
-        type = "java.lang.CharSequence[]",
-        getter = "getTextArray"
+        type = CharSequence.class,
+        getter = "getTextArray",
+        array = true
     ),
     @ResourceBinding(
-        type = "int[]",
-        getter = "getIntArray"
+        type = int.class,
+        getter = "getIntArray",
+        array = true
     )
 })
 public @interface BindArray {

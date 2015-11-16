@@ -57,16 +57,8 @@ internal object Types {
     return Type.getType(T::class.java)
   }
 
-  public fun getClassType(name: String): Type {
-    val mapping = PRIMITIVES.withDefault {
-      "L$it;"
-    }
-
-    return if (name.endsWith("[]")) {
-      Type.getType("[${mapping.getOrImplicitDefault(name.substring(0, name.length - 2).replace('.', '/'))}")
-    } else {
-      Type.getType("${mapping.getOrImplicitDefault(name.replace('.', '/'))}")
-    }
+  public fun getArrayType(type: Type): Type {
+    return Type.getType("[${type.descriptor}")
   }
 
   public fun getComponentTypeOrSelf(type: Type): Type {

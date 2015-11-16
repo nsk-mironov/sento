@@ -9,12 +9,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings({
     @ResourceBinding(
-        type = "java.lang.String",
-        getter = "getString"
+        type = String.class,
+        getter = "getString",
+        array = false
     ),
     @ResourceBinding(
-        type = "java.lang.CharSequence",
-        getter = "getText"
+        type = CharSequence.class,
+        getter = "getText",
+        array = false
     )
 })
 public @interface BindString {

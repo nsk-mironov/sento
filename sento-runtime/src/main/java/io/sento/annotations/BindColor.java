@@ -1,5 +1,7 @@
 package io.sento.annotations;
 
+import android.content.res.ColorStateList;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -9,12 +11,14 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings({
     @ResourceBinding(
-        type = "int",
-        getter = "getColor"
+        type = int.class,
+        getter = "getColor",
+        array = false
     ),
     @ResourceBinding(
-        type = "android.content.res.ColorStateList",
-        getter = "getColorStateList"
+        type = ColorStateList.class,
+        getter = "getColorStateList",
+        array = false
     )
 })
 public @interface BindColor {

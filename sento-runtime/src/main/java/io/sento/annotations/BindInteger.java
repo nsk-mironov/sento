@@ -9,8 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings(
     @ResourceBinding(
-        type = "int",
-        getter = "getInteger"
+        type = int.class,
+        getter = "getInteger",
+        array = false
     )
 )
 public @interface BindInteger {

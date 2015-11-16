@@ -1,5 +1,7 @@
 package io.sento.annotations;
 
+import android.graphics.drawable.Drawable;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -9,8 +11,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @ResourceBindings({
     @ResourceBinding(
-        type = "android.graphics.drawable.Drawable",
-        getter = "getDrawable"
+        type = Drawable.class,
+        getter = "getDrawable",
+        array = false
     )
 })
 public @interface BindDrawable {
