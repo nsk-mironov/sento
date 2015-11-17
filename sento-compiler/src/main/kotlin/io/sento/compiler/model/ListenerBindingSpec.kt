@@ -1,8 +1,8 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.annotations.ListenerBinding
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
+import io.sento.compiler.annotations.ListenerBinding
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
@@ -21,6 +21,8 @@ internal data class ListenerBindingSpec(
 ) {
   public companion object {
     public fun create(annotation: ClassSpec, binding: ListenerBinding, environment: GenerationEnvironment): ListenerBindingSpec {
+      val registry = environment.registry
+
       val ownerType = binding.owner()
       val listenerType = binding.listener()
 
@@ -73,7 +75,7 @@ internal data class ListenerBindingSpec(
       }
 
       val listenerConstructor = listenerSpec.getConstructor()
-      val listenerCallbacks = listenerSpec.methods.filter {
+      val listenerCallbacks = registry.listPublicMethods(listenerSpec).filter {
         it.access.isAbstract
       }
 

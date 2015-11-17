@@ -15,9 +15,6 @@ import io.sento.annotations.ListenerBinding
 public annotation class OnTextChange(vararg val value: Int)
 
 public abstract class OnTextChangeWatcher : TextWatcher {
-  // FIXME: https://github.com/nsk-mironov/sento/issues/28
-  override abstract fun onTextChanged(sequence: CharSequence?, start: Int, before: Int, count: Int)
-
   override fun afterTextChanged(editable: Editable?) {
     // nothing to do
   }

@@ -1,9 +1,12 @@
 package io.sento.compiler
 
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.isPublic
 import io.sento.compiler.model.ClassReference
 import io.sento.compiler.model.ClassSpec
+import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.Type
+import java.util.ArrayList
 import java.util.HashMap
 import java.util.LinkedHashSet
 
@@ -113,5 +116,27 @@ internal class ClassRegistry(
 
   public fun isCastableFromTo(type: Type, target: Type): Boolean {
     return isSubclassOf(type, target) || isSubclassOf(target, type)
+  }
+
+  public fun listPublicMethods(clazz: ClassSpec): Collection<MethodSpec> {
+    val result = ArrayList<MethodSpec>()
+
+    clazz.interfaces.forEach {
+      result.addAll(listPublicMethods(resolve(it)).filter {
+        clazz.getDeclaredMethod(it.name, it.type.descriptor) == null
+      })
+    }
+
+    if (clazz.type != Types.OBJECT) {
+      result.addAll(listPublicMethods(resolve(clazz.parent)).filter {
+        clazz.getDeclaredMethod(it.name, it.type.descriptor) == null
+      })
+    }
+
+    result.addAll(clazz.methods.filter {
+      it.access.isPublic
+    })
+
+    return result
   }
 }
