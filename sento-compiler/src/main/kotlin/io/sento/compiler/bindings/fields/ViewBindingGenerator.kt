@@ -42,8 +42,12 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
       loadArg(context.variable("source"))
       push(optional)
 
-      invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN))
-      checkCast(context.field.type)
+      invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN)).apply {
+        if (context.field.type != Types.VIEW) {
+          checkCast(context.field.type)
+        }
+      }
+
       putField(context.clazz.type, context.field.name, context.field.type)
     }
 
