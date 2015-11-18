@@ -1,10 +1,10 @@
 package io.sento.compiler.bindings.methods
 
-import io.sento.compiler.annotations.Optional
-import io.sento.compiler.annotations.WithIds
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
+import io.sento.compiler.annotations.Optional
+import io.sento.compiler.annotations.WithIds
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isInterface
@@ -12,7 +12,11 @@ import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.MethodSpec
 import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.Opcodes.*
+import org.objectweb.asm.Opcodes.ACC_FINAL
+import org.objectweb.asm.Opcodes.ACC_PRIVATE
+import org.objectweb.asm.Opcodes.ACC_PUBLIC
+import org.objectweb.asm.Opcodes.ACC_SUPER
+import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
 import org.slf4j.LoggerFactory
@@ -45,8 +49,10 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       adapter.storeLocal(view)
 
       adapter.newLabel().apply {
-        adapter.loadLocal(view)
-        adapter.ifNull(this)
+        if (optional) {
+          adapter.loadLocal(view)
+          adapter.ifNull(this)
+        }
 
         adapter.loadLocal(view)
         adapter.newInstance(listener.type)
