@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.view.View;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class Sento {
   private static final Map<Class<?>, Binding<Object>> BINDINGS = new IdentityHashMap<>();

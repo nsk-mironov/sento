@@ -16,7 +16,12 @@ import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.patcher.AccessibilityPatcher
 import io.sento.compiler.patcher.ClassPatcher
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Opcodes.*
+import org.objectweb.asm.Opcodes.ACC_FINAL
+import org.objectweb.asm.Opcodes.ACC_PRIVATE
+import org.objectweb.asm.Opcodes.ACC_PROTECTED
+import org.objectweb.asm.Opcodes.ACC_PUBLIC
+import org.objectweb.asm.Opcodes.ACC_SUPER
+import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
 import org.slf4j.LoggerFactory
@@ -37,10 +42,9 @@ internal class SentoBindingContentGenerator(
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     return ArrayList<GeneratedContent>().apply {
       if (shouldGenerateBindingClass(clazz, environment)) {
-        val binding = SentoBindingSpec.create(clazz)
-
         logger.info("Generating SentoBinding for '{}' class:", clazz.type.className)
 
+        val binding = SentoBindingSpec.create(clazz)
         val bytes = environment.createClass {
           visitHeader(binding, environment)
           visitConstructor(binding, environment)
