@@ -31,7 +31,7 @@ internal object ClassRegistryFactory {
   private fun createClassReferences(files: Collection<File>): Collection<ClassReference> {
     return ArrayList<ClassReference>().apply {
       for (file in files) {
-        logger.info("Generating class references for ${file.absolutePath}")
+        logger.info("Generating class references for {}", file.absolutePath)
 
         if (file.isFile && FilenameUtils.getExtension(file.absolutePath) == EXTENSION_JAR) {
           ZipFile(file).use {
