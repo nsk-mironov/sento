@@ -13,4 +13,6 @@ public @interface ListenerBinding {
   public Class<?> listener();
 
   public String setter();
+
+  public String callback();
 }

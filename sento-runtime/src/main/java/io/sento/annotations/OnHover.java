@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 @ListenerBinding(
     owner = View.class,
     listener = View.OnHoverListener.class,
-    setter = "setOnHoverListener"
+    setter = "setOnHoverListener",
+    callback = "onHover"
 )
 public @interface OnHover {
   public int[] value();

@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 @ListenerBinding(
     owner = View.class,
     listener = View.OnTouchListener.class,
-    setter = "setOnTouchListener"
+    setter = "setOnTouchListener",
+    callback = "onTouch"
 )
 public @interface OnTouch {
   public int[] value();

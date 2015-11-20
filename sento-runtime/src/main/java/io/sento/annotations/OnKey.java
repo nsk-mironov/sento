@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 @ListenerBinding(
     owner = View.class,
     listener = View.OnKeyListener.class,
-    setter = "setOnKeyListener"
+    setter = "setOnKeyListener",
+    callback = "onKey"
 )
 public @interface OnKey {
   public int[] value();

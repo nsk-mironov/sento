@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 @ListenerBinding(
     owner = View.class,
     listener = View.OnLongClickListener.class,
-    setter = "setOnLongClickListener"
+    setter = "setOnLongClickListener",
+    callback = "onLongClick"
 )
 public @interface OnLongClick {
   public int[] value();

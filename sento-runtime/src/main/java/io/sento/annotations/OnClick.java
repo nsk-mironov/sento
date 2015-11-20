@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 @ListenerBinding(
     owner = View.class,
     listener = View.OnClickListener.class,
-    setter = "setOnClickListener"
+    setter = "setOnClickListener",
+    callback = "onClick"
 )
 public @interface OnClick {
   public int[] value();

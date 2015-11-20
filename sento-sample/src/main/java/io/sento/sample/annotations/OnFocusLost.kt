@@ -8,7 +8,8 @@ import io.sento.annotations.ListenerBinding
 @ListenerBinding(
     owner = View::class,
     listener = OnFocusLostListener::class,
-    setter = "setOnFocusChangeListener"
+    setter = "setOnFocusChangeListener",
+    callback = "onFocusLost"
 )
 public annotation class OnFocusLost(vararg val value: Int)
 

@@ -9,4 +9,6 @@ internal interface ListenerBinding {
   public fun listener(): Type
 
   public fun setter(): String
+
+  public fun callback(): String
 }

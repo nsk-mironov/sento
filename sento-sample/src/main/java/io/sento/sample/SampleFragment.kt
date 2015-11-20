@@ -19,7 +19,7 @@ import io.sento.annotations.BindString
 import io.sento.annotations.OnClick
 import io.sento.annotations.OnLongClick
 import io.sento.sample.annotations.OnFocusReceived
-import io.sento.sample.annotations.OnTextChange
+import io.sento.sample.annotations.OnTextChanged
 import io.sento.sample.extensions.asTrue
 import io.sento.sample.extensions.notNull
 
@@ -101,7 +101,7 @@ public class SampleFragment : Fragment() {
     Toast.makeText(activity, "focus changed to last name", Toast.LENGTH_SHORT).show()
   }
 
-  private @OnTextChange(R.id.first_name_input) fun onFirstNameChanged(text: CharSequence) {
+  private @OnTextChanged(R.id.first_name_input) fun onFirstNameChanged(text: CharSequence) {
     Toast.makeText(activity, "first name changed: $text", Toast.LENGTH_SHORT).show()
   }
 

@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 @ListenerBinding(
     owner = View.class,
     listener = View.OnFocusChangeListener.class,
-    setter = "setOnFocusChangeListener"
+    setter = "setOnFocusChangeListener",
+    callback = "onFocusChange"
 )
 public @interface OnFocusChange {
   public int[] value();
