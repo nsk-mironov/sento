@@ -7,6 +7,7 @@ import io.sento.compiler.annotations.Optional
 import io.sento.compiler.annotations.WithIds
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
@@ -73,9 +74,20 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
     return GeneratedContent(Types.getClassFilePath(listener.type), environment.createClass {
       visitListenerHeader(listener, environment)
       visitListenerFields(listener, environment)
-
       visitListenerConstructor(listener, environment)
-      visitListenerCallback(listener, environment)
+
+      val registry = environment.registry
+      val callbacks = registry.listPublicMethods(binding.listener).filter {
+        it.access.isAbstract
+      }
+
+      callbacks.forEach {
+        if (it.name == listener.callback.name && it.type == listener.callback.type) {
+          visitListenerCallback(listener, environment)
+        } else {
+          visitListenerStub(listener, it, environment)
+        }
+      }
     })
   }
 
@@ -118,6 +130,17 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
         if (listener.callback.returns == Types.BOOLEAN && listener.method.returns == Types.VOID) {
           push(false)
         }
+      }
+
+      returnValue()
+      endMethod()
+    }
+  }
+
+  private fun ClassVisitor.visitListenerStub(listener: ListenerSpec, method: MethodSpec, environment: GenerationEnvironment) {
+    GeneratorAdapter(ACC_PUBLIC, Methods.get(method), method.signature, null, this).apply {
+      if (method.returns == Types.BOOLEAN) {
+        push(false)
       }
 
       returnValue()

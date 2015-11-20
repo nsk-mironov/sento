@@ -21,8 +21,6 @@ internal data class ListenerBindingSpec(
 ) {
   public companion object {
     public fun create(annotation: ClassSpec, binding: ListenerBinding, environment: GenerationEnvironment): ListenerBindingSpec {
-      val registry = environment.registry
-
       val ownerType = binding.owner()
       val listenerType = binding.listener()
 
@@ -75,8 +73,12 @@ internal data class ListenerBindingSpec(
       }
 
       val listenerConstructor = listenerSpec.getConstructor()
-      val listenerCallbacks = registry.listPublicMethods(listenerSpec).filter {
-        it.access.isAbstract
+      val listenerCallbacks = listenerSpec.methods.filter {
+        it.name == binding.callback()
+      }
+
+      val listenerSetters = ownerSpec.methods.filter {
+        it.name == binding.setter() && it.arguments.size == 1
       }
 
       if (!listenerSpec.access.isInterface && (listenerConstructor == null || listenerConstructor.access.isPrivate)) {
@@ -85,17 +87,13 @@ internal data class ListenerBindingSpec(
       }
 
       if (listenerCallbacks.size == 0) {
-        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have exactly one abstract method, but none was found.",
-            annotation.type.simpleName, listenerType.className)
+        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have exactly one abstract method named ''{2}'', but none was found.",
+            annotation.type.simpleName, listenerType.className, binding.callback())
       }
 
       if (listenerCallbacks.size > 1) {
-        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have exactly one abstract method, but {2} were found {3}.",
-            annotation.type.simpleName, listenerType.className, listenerCallbacks.size, listenerCallbacks.map { Methods.asJavaDeclaration(it) })
-      }
-
-      val listenerSetters = ownerSpec.methods.filter {
-        it.name == binding.setter() && it.arguments.size == 1
+        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have exactly one abstract method named ''{2}'', but {3} were found {4}.",
+            annotation.type.simpleName, listenerType.className, binding.callback(), listenerCallbacks.size, listenerCallbacks.map { Methods.asJavaDeclaration(it) })
       }
 
       if (listenerSetters.size == 0) {
@@ -111,6 +109,13 @@ internal data class ListenerBindingSpec(
       if (!environment.registry.isSubclassOf(listenerSpec.type, listenerSetters[0].arguments[0])) {
         throw SentoException("Unable to process @{0} annotation - listener setter ''{1}'' doesn''t accept ''{2}'' as an argument. Only subclasses of ''{3}'' are allowed.",
             annotation.type.simpleName, listenerSetters[0].name, listenerSpec.type.className, listenerSetters[0].arguments[0].className)
+      }
+
+      listenerSpec.methods.forEach {
+        if (it.access.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
+          throw SentoException("Unable to process @{0} annotation - listener method ''{1}'' returns ''{2}'', but only {3} are supported.",
+              annotation.type.simpleName, it.name, it.returns.className, listOf(Types.VOID.className, Types.BOOLEAN.className))
+        }
       }
 
       environment.registry.resolve(listenerSetters[0].arguments[0]).methods.forEach {
