@@ -1,9 +1,9 @@
 package io.sento.compiler.bindings.fields
 
-import io.sento.compiler.annotations.WithId
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
+import io.sento.compiler.annotations.id
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.simpleName
@@ -33,9 +33,8 @@ internal class ResourceBindingGenerator(
       loadArg(context.variable("finder"))
       loadArg(context.variable("source"))
 
-
       invokeInterface(Types.FINDER, Methods.get("resources", Types.RESOURCES, Types.OBJECT))
-      push(WithId.resolve(context.annotation).value())
+      push(context.annotation.id)
 
       invokeVirtual(Types.RESOURCES, Methods.get(binding.getter))
       putField(context.clazz.type, context.field.name, context.field.type)

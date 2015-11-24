@@ -4,7 +4,7 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
 import io.sento.compiler.annotations.Optional
-import io.sento.compiler.annotations.WithId
+import io.sento.compiler.annotations.id
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isInterface
@@ -37,7 +37,7 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
     context.adapter.apply {
       loadArg(context.variable("target"))
       loadArg(context.variable("finder"))
-      push(WithId.resolve(context.annotation).value())
+      push(context.annotation.id)
 
       loadArg(context.variable("source"))
       push(optional)

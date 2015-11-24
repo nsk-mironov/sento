@@ -4,7 +4,7 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
 import io.sento.compiler.annotations.Optional
-import io.sento.compiler.annotations.WithIds
+import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
@@ -37,7 +37,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
     val optional = context.method.getAnnotation<Optional>() != null
     val adapter = context.adapter
 
-    WithIds.resolve(context.annotation).value().forEach {
+    context.annotation.ids.forEach {
       val view = adapter.newLocal(Types.VIEW)
 
       adapter.loadArg(context.variable("finder"))
