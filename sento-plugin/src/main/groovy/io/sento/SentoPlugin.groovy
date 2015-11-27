@@ -11,7 +11,7 @@ public class SentoPlugin implements Plugin<Project> {
   }
 
   private static void onPrepareDependencies(final Project project) {
-    project.dependencies.add("compile", "io.sento:sento-runtime:0.10.0-SNAPSHOT@aar")
+    project.dependencies.add("compile", "io.sento:sento-runtime:0.10.0-alpha@aar")
   }
 
   private static void onPrepareTransforms(final Project project) {
