@@ -41,6 +41,7 @@ internal object Types {
   public val BINDING = Type.getObjectType("io/sento/Binding")
   public val FINDER = Type.getObjectType("io/sento/Finder")
   public val FACTORY = Type.getObjectType("io/sento/SentoFactory")
+  public val OPTIONAL = Type.getObjectType("io/sento/annotations/Optional")
 
   public inline fun <reified T : Any> get(): Type {
     return Type.getType(T::class.java)
