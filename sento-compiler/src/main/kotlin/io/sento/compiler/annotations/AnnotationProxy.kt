@@ -56,7 +56,7 @@ internal object AnnotationProxy {
   }
 
   private fun isArray(type: Class<*>): Boolean {
-    return type.isArray
+    return type.isArray && !type.componentType.isPrimitive
   }
 
   private fun isAnnotation(type: Class<*>): Boolean {
