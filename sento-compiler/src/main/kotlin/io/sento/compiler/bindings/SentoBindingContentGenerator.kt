@@ -8,6 +8,7 @@ import io.sento.compiler.bindings.fields.FieldBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingContext
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Methods
+import io.sento.compiler.common.OptionalAware
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
@@ -34,6 +35,7 @@ internal class SentoBindingContentGenerator(
     private val clazz: ClassSpec
 ) : ContentGenerator {
   private val logger = LoggerFactory.getLogger(SentoBindingContentGenerator::class.java)
+  private val optional = OptionalAware(clazz)
 
   public companion object {
     public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
@@ -139,7 +141,8 @@ internal class SentoBindingContentGenerator(
           for (annotation in field.annotations) {
             fields[annotation.type]?.let {
               val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory)
+              val optional = optional.isOptional(field)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, optional)
 
               addAll(it.bind(context, environment))
             }
@@ -150,7 +153,8 @@ internal class SentoBindingContentGenerator(
           for (annotation in method.annotations) {
             methods[annotation.type]?.let {
               val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory)
+              val optional = optional.isOptional(method)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, optional)
 
               addAll(it.bind(context, environment))
             }
@@ -170,7 +174,8 @@ internal class SentoBindingContentGenerator(
           for (annotation in field.annotations) {
             fields[annotation.type]?.let {
               val variables = mapOf("target" to 0)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory)
+              val optional = optional.isOptional(field)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, optional)
 
               addAll(it.unbind(context, environment))
             }
@@ -181,7 +186,8 @@ internal class SentoBindingContentGenerator(
           for (annotation in method.annotations) {
             methods[annotation.type]?.let {
               val variables = mapOf("target" to 0)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory)
+              val optional = optional.isOptional(method)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, optional)
 
               addAll(it.unbind(context, environment))
             }

@@ -13,7 +13,8 @@ internal class MethodBindingContext(
     public val annotation: AnnotationSpec,
     public val adapter: GeneratorAdapter,
     public val variables: Map<String, Int>,
-    public val factory: TypeFactory
+    public val factory: TypeFactory,
+    public val optional: Boolean
 ) {
   public fun variable(name: String): Int {
     return variables[name] ?: throw NoSuchElementException("Unknown variable \"$name\"")

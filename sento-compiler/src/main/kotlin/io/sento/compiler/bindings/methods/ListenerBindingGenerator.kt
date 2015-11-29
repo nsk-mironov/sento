@@ -3,7 +3,6 @@ package io.sento.compiler.bindings.methods
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
-import io.sento.compiler.annotations.Optional
 import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
@@ -33,8 +32,6 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
 
     val listener = createListenerSpec(context, environment)
     val result = listOf(onCreateBindingListener(listener, environment))
-
-    val optional = context.method.getAnnotation<Optional>() != null
     val adapter = context.adapter
 
     context.annotation.ids.forEach {
@@ -44,13 +41,13 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       adapter.push(it)
 
       adapter.loadArg(context.variable("source"))
-      adapter.push(optional)
+      adapter.push(context.optional)
 
       adapter.invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN))
       adapter.storeLocal(view)
 
       adapter.newLabel().apply {
-        if (optional) {
+        if (context.optional) {
           adapter.loadLocal(view)
           adapter.ifNull(this)
         }

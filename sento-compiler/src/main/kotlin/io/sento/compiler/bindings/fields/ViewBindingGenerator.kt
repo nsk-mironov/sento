@@ -3,7 +3,6 @@ package io.sento.compiler.bindings.fields
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
-import io.sento.compiler.annotations.Optional
 import io.sento.compiler.annotations.id
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
@@ -27,7 +26,6 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
 
     val isView = environment.registry.isSubclassOf(context.field.type, Types.VIEW)
     val isInterface = environment.registry.reference(context.field.type).access.isInterface
-    val optional = context.field.getAnnotation<Optional>() != null
 
     if (!isInterface && !isView) {
       throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - it must be a subclass of ''{3}'' or an interface, but ''{4}'' was found.",
@@ -40,7 +38,7 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
       push(context.annotation.id)
 
       loadArg(context.variable("source"))
-      push(optional)
+      push(context.optional)
 
       invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN)).apply {
         if (context.field.type != Types.VIEW) {
