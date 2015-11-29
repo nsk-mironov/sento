@@ -4,6 +4,7 @@ import io.sento.compiler.annotations.AnnotationDelegate
 import org.objectweb.asm.Type
 import java.util.HashSet
 import java.util.IdentityHashMap
+import kotlin.jvm.internal.KotlinClass
 
 internal object Types {
   private val PRIMITIVE_TYPES = HashSet<Type>().apply {
@@ -68,8 +69,22 @@ internal object Types {
   }
 
   public fun isSystemClass(type: Type): Boolean {
-    return type.className != null && arrayOf("android.", "java.", "kotlin.", "dalvik.").any {
-      type.className.startsWith(it)
+    val name = type.className
+
+    if (name.endsWith(".Nullable")) {
+      return false
+    }
+
+    if (name.endsWith(".NotNull")) {
+      return false
+    }
+
+    if (name == KotlinClass::class.qualifiedName) {
+      return false
+    }
+
+    return arrayOf("android.", "java.", "kotlin.", "dalvik.").any {
+      name.startsWith(it)
     }
   }
 

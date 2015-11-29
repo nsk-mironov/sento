@@ -11,6 +11,8 @@ apply plugin: "maven-publish"
 
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+  compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
   compile "commons-io:commons-io:$commonsIoVersion"
   compile "com.google.guava:guava:$guavaVersion"
 
