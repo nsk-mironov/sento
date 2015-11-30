@@ -35,15 +35,20 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
     val adapter = context.adapter
 
     context.annotation.ids.forEach {
-      val view = adapter.newLocal(Types.VIEW)
+      val view = adapter.newLocal(binding.owner.type)
 
-      adapter.loadArg(context.variable("finder"))
+      adapter.loadArg(context.argument("finder"))
       adapter.push(it)
 
-      adapter.loadArg(context.variable("source"))
+      adapter.loadArg(context.argument("source"))
       adapter.push(context.optional)
 
-      adapter.invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN))
+      adapter.invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN)).apply {
+        if (binding.owner.type != Types.VIEW) {
+          adapter.checkCast(binding.owner.type)
+        }
+      }
+
       adapter.storeLocal(view)
 
       adapter.newLabel().apply {
@@ -56,7 +61,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
         adapter.newInstance(listener.type)
         adapter.dup()
 
-        adapter.loadArg(context.variable("target"))
+        adapter.loadLocal(context.variable("target"))
         adapter.invokeConstructor(listener.type, Methods.getConstructor(listener.target))
         adapter.invokeVirtual(binding.owner.type, Methods.get(binding.setter))
 

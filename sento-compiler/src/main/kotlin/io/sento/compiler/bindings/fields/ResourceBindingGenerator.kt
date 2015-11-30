@@ -29,9 +29,9 @@ internal class ResourceBindingGenerator(
     }
 
     context.adapter.apply {
-      loadArg(context.variable("target"))
-      loadArg(context.variable("finder"))
-      loadArg(context.variable("source"))
+      loadLocal(context.variable("target"))
+      loadArg(context.argument("finder"))
+      loadArg(context.argument("source"))
 
       invokeInterface(Types.FINDER, Methods.get("resources", Types.RESOURCES, Types.OBJECT))
       push(context.annotation.id)

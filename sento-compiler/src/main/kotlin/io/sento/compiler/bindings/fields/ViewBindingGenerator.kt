@@ -33,11 +33,11 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
     }
 
     context.adapter.apply {
-      loadArg(context.variable("target"))
-      loadArg(context.variable("finder"))
+      loadLocal(context.variable("target"))
+      loadArg(context.argument("finder"))
       push(context.annotation.id)
 
-      loadArg(context.variable("source"))
+      loadArg(context.argument("source"))
       push(context.optional)
 
       invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN)).apply {
@@ -53,7 +53,7 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
   }
 
   override fun unbind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    context.adapter.loadArg(context.variable("target"))
+    context.adapter.loadLocal(context.variable("target"))
     context.adapter.visitInsn(Opcodes.ACONST_NULL)
     context.adapter.putField(context.clazz.type, context.field.name, context.field.type)
 

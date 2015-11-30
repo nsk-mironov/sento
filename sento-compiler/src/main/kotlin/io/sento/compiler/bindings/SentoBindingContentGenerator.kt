@@ -137,12 +137,20 @@ internal class SentoBindingContentGenerator(
       val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
       GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).apply {
+        val target = newLocal(binding.originalType).apply {
+          loadArg(0)
+          checkCast(binding.originalType)
+          storeLocal(this)
+        }
+
         for (field in binding.clazz.fields) {
           for (annotation in field.annotations) {
             fields[annotation.type]?.let {
-              val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
+              val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
+              val variables = mapOf("target" to target)
+
               val optional = optional.isOptional(field)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, optional)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
 
               addAll(it.bind(context, environment))
             }
@@ -152,9 +160,11 @@ internal class SentoBindingContentGenerator(
         for (method in binding.clazz.methods) {
           for (annotation in method.annotations) {
             methods[annotation.type]?.let {
-              val variables = mapOf("target" to 0, "source" to 1, "finder" to 2)
+              val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
+              val variables = mapOf("target" to target)
+
               val optional = optional.isOptional(method)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, optional)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
 
               addAll(it.bind(context, environment))
             }
@@ -170,12 +180,20 @@ internal class SentoBindingContentGenerator(
   private fun ClassWriter.visitUnbindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     return ArrayList<GeneratedContent>().apply {
       GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).apply {
+        val target = newLocal(binding.originalType).apply {
+          loadArg(0)
+          checkCast(binding.originalType)
+          storeLocal(this)
+        }
+
         for (field in binding.clazz.fields) {
           for (annotation in field.annotations) {
             fields[annotation.type]?.let {
-              val variables = mapOf("target" to 0)
+              val arguments = mapOf("target" to 0)
+              val variables = mapOf("target" to target)
+
               val optional = optional.isOptional(field)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, binding.factory, optional)
+              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
 
               addAll(it.unbind(context, environment))
             }
@@ -185,9 +203,11 @@ internal class SentoBindingContentGenerator(
         for (method in binding.clazz.methods) {
           for (annotation in method.annotations) {
             methods[annotation.type]?.let {
-              val variables = mapOf("target" to 0)
+              val arguments = mapOf("target" to 0)
+              val variables = mapOf("target" to target)
+
               val optional = optional.isOptional(method)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, binding.factory, optional)
+              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
 
               addAll(it.unbind(context, environment))
             }
