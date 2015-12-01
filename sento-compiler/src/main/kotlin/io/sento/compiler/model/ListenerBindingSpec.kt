@@ -67,11 +67,6 @@ internal data class ListenerBindingSpec(
             annotation.type.simpleName, listenerType.className)
       }
 
-      if (!listenerSpec.access.isAbstract && !listenerSpec.access.isInterface) {
-        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must be an abstract class or an interface.",
-            annotation.type.simpleName, listenerType.className)
-      }
-
       val listenerConstructor = listenerSpec.getConstructor()
       val listenerCallbacks = listenerSpec.methods.filter {
         it.name == binding.callback()
