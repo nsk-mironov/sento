@@ -207,10 +207,14 @@ internal class SentoBindingContentGenerator(
 
   private inner class AccessibilityPatcher(val environment: GenerationEnvironment) : ClassPatcher {
     override fun patch(spec: ClassSpec): ByteArray {
-      val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS)
-
       val bytes = spec.opener.open()
       val reader = ClassReader(bytes)
+
+      val writer = object : ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS) {
+        override fun getCommonSuperClass(left: String, right: String): String {
+          return Types.OBJECT.internalName
+        }
+      }
 
       reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
         override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
