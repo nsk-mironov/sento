@@ -34,22 +34,34 @@ internal object ClassRegistryFactory {
         logger.info("Generating class references for {}", file.absolutePath)
 
         if (file.isFile && FilenameUtils.getExtension(file.absolutePath) == EXTENSION_JAR) {
-          ZipFile(file).use {
-            for (entry in it.entries()) {
-              if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
-                add(createClassReference(JarOpener(file, entry.name), it.getInputStream(entry).use {
-                  IOUtils.toByteArray(it)
-                }))
-              }
-            }
-          }
+          addAll(createClassReferencesForJar(file))
         }
 
         if (file.isDirectory) {
-          FileUtils.iterateFiles(file, arrayOf(EXTENSION_CLASS), true).forEach {
-            add(createClassReference(FileOpener(it), FileUtils.readFileToByteArray(it)))
+          addAll(createClassReferencesForDirectory(file))
+        }
+      }
+    }
+  }
+
+  private fun createClassReferencesForJar(file: File): List<ClassReference> {
+    return ArrayList<ClassReference>().apply {
+      ZipFile(file).use {
+        for (entry in it.entries()) {
+          if (FilenameUtils.getExtension(entry.name) == EXTENSION_CLASS) {
+            add(createClassReference(JarOpener(file, entry.name), it.getInputStream(entry).use {
+              IOUtils.toByteArray(it)
+            }))
           }
         }
+      }
+    }
+  }
+
+  private fun createClassReferencesForDirectory(file: File): List<ClassReference> {
+    return ArrayList<ClassReference>().apply {
+      FileUtils.iterateFiles(file, arrayOf(EXTENSION_CLASS), true).forEach {
+        add(createClassReference(FileOpener(it), FileUtils.readFileToByteArray(it)))
       }
     }
   }
