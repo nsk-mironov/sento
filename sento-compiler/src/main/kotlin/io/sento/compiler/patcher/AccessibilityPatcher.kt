@@ -1,5 +1,6 @@
 package io.sento.compiler.patcher
 
+import io.sento.compiler.model.ClassSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
@@ -7,8 +8,9 @@ import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
-public open class AccessibilityPatcher : ClassPatcher {
-  override fun patch(bytes: ByteArray): ByteArray {
+internal open class AccessibilityPatcher : ClassPatcher {
+  override fun patch(spec: ClassSpec): ByteArray {
+    val bytes = spec.opener.open()
     val reader = ClassReader(bytes)
     val writer = ClassWriter(0)
 

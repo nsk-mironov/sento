@@ -10,6 +10,8 @@ import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.OptionalAware
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.isStatic
+import io.sento.compiler.common.isSynthetic
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
@@ -69,7 +71,7 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
-    return createAccessibilityPatcher(environment).patch(clazz.opener.open())
+    return createAccessibilityPatcher(environment).patch(clazz)
   }
 
   private fun shouldGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
@@ -81,13 +83,13 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun shouldGenerateBindingForField(field: FieldSpec?, environment: GenerationEnvironment): Boolean {
-    return field != null && field.annotations.any {
+    return field != null && !field.access.isStatic && !field.access.isSynthetic && field.annotations.any {
       fields.containsKey(it.type)
     }
   }
 
   private fun shouldGenerateBindingForMethod(method: MethodSpec?, environment: GenerationEnvironment): Boolean {
-    return method != null && method.annotations.any {
+    return method != null && !method.access.isStatic && !method.access.isSynthetic && method.annotations.any {
       methods.containsKey(it.type)
     }
   }
@@ -96,14 +98,6 @@ internal class SentoBindingContentGenerator(
     return object : AccessibilityPatcher() {
       override fun onPatchFieldFlags(access: Int, name: String, desc: String, signature: String?, value: Any?): Int {
         return if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
-          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
-        } else {
-          access
-        }
-      }
-
-      override fun onPatchMethodFlags(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): Int {
-        return if (shouldGenerateBindingForMethod(clazz.getDeclaredMethod(name, desc), environment)) {
           access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
         } else {
           access

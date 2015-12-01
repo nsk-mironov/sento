@@ -19,3 +19,9 @@ internal val Int.isAnnotation: Boolean
 
 internal val Int.isAbstract: Boolean
   get() = this and Opcodes.ACC_ABSTRACT != 0
+
+internal val Int.isSynthetic: Boolean
+  get() = this and Opcodes.ACC_SYNTHETIC != 0
+
+internal val Int.isStatic: Boolean
+  get() = this and Opcodes.ACC_STATIC != 0

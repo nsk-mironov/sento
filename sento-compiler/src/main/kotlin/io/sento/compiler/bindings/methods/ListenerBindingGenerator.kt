@@ -50,7 +50,6 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       }
 
       adapter.storeLocal(view)
-
       adapter.newLabel().apply {
         if (context.optional) {
           adapter.loadLocal(view)
