@@ -10,20 +10,23 @@ import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.OptionalAware
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
 import io.sento.compiler.model.SentoBindingSpec
-import io.sento.compiler.patcher.AccessibilityPatcher
 import io.sento.compiler.patcher.ClassPatcher
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Opcodes.ACC_FINAL
-import org.objectweb.asm.Opcodes.ACC_PRIVATE
-import org.objectweb.asm.Opcodes.ACC_PROTECTED
+import org.objectweb.asm.FieldVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
+import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
+import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
@@ -71,7 +74,7 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
-    return createAccessibilityPatcher(environment).patch(clazz)
+    return AccessibilityPatcher(environment).patch(clazz)
   }
 
   private fun shouldGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
@@ -91,18 +94,6 @@ internal class SentoBindingContentGenerator(
   private fun shouldGenerateBindingForMethod(method: MethodSpec?, environment: GenerationEnvironment): Boolean {
     return method != null && !method.access.isStatic && !method.access.isSynthetic && method.annotations.any {
       methods.containsKey(it.type)
-    }
-  }
-
-  private fun createAccessibilityPatcher(environment: GenerationEnvironment): ClassPatcher {
-    return object : AccessibilityPatcher() {
-      override fun onPatchFieldFlags(access: Int, name: String, desc: String, signature: String?, value: Any?): Int {
-        return if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
-          access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
-        } else {
-          access
-        }
-      }
     }
   }
 
@@ -210,6 +201,46 @@ internal class SentoBindingContentGenerator(
 
         returnValue()
         endMethod()
+      }
+    }
+  }
+
+  private inner class AccessibilityPatcher(val environment: GenerationEnvironment) : ClassPatcher {
+    override fun patch(spec: ClassSpec): ByteArray {
+      val writer = ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS)
+
+      val bytes = spec.opener.open()
+      val reader = ClassReader(bytes)
+
+      reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
+        override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
+          return super.visitField(onPatchFieldFlags(access, name), name, desc, signature, value)
+        }
+      }, ClassReader.SKIP_FRAMES)
+
+      spec.methods.forEach {
+        if (!it.access.isPublic && shouldGenerateBindingForMethod(it, environment)) {
+          GeneratorAdapter(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, Methods.getAccessor(spec.type, it), null, null, writer).apply {
+            for (count in 0..it.arguments.size) {
+              loadArg(count)
+            }
+
+            invokeVirtual(spec.type, Methods.get(it)).apply {
+              returnValue()
+              endMethod()
+            }
+          }
+        }
+      }
+
+      return writer.toByteArray()
+    }
+
+    private fun onPatchFieldFlags(access: Int, name: String): Int {
+      return if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
+        access and Opcodes.ACC_PRIVATE.inv() and Opcodes.ACC_PROTECTED.inv() and Opcodes.ACC_FINAL.inv() or ACC_PUBLIC
+      } else {
+        access
       }
     }
   }

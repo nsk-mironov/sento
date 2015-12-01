@@ -13,6 +13,10 @@ internal object Methods {
     return Method(name, returnType, argsType)
   }
 
+  public fun getAccessor(owner: Type, method: MethodSpec): Method {
+    return Methods.get("access\$sento\$${method.name}", method.returns, *arrayOf(owner, *method.arguments))
+  }
+
   public fun getConstructor(vararg argsType: Type): Method {
     return Method("<init>", Type.VOID_TYPE, argsType)
   }

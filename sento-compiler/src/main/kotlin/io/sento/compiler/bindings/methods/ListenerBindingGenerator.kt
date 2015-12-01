@@ -8,6 +8,7 @@ import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
+import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.MethodSpec
@@ -127,10 +128,14 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
         }
       }
 
-      invokeVirtual(listener.target, Methods.get(listener.method)).apply {
-        if (listener.callback.returns == Types.BOOLEAN && listener.method.returns == Types.VOID) {
-          push(false)
-        }
+      if (!listener.method.access.isPublic) {
+        invokeStatic(listener.target, Methods.getAccessor(listener.target, listener.method))
+      } else {
+        invokeVirtual(listener.target, Methods.get(listener.method))
+      }
+
+      if (listener.callback.returns == Types.BOOLEAN && listener.method.returns == Types.VOID) {
+        push(false)
       }
 
       returnValue()
