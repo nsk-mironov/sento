@@ -34,9 +34,7 @@ internal object Types {
 
   public val MAP = Type.getType(Map::class.java)
   public val IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
-
   public val VIEW = Type.getObjectType("android/view/View")
-  public val RESOURCES = Type.getObjectType("android/content/res/Resources")
 
   public val BINDING = Type.getObjectType("io/sento/Binding")
   public val FINDER = Type.getObjectType("io/sento/Finder")
@@ -45,18 +43,6 @@ internal object Types {
 
   public inline fun <reified T : Any> get(): Type {
     return Type.getType(T::class.java)
-  }
-
-  public fun getArrayType(type: Type): Type {
-    return Type.getType("[${type.descriptor}")
-  }
-
-  public fun getComponentTypeOrSelf(type: Type): Type {
-    return if (type.sort == Type.ARRAY) {
-      getComponentTypeOrSelf(type.elementType)
-    } else {
-      type
-    }
   }
 
   public fun getAnnotationType(clazz: Class<*>): Type {

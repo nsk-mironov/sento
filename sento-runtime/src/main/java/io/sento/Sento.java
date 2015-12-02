@@ -108,15 +108,14 @@ public final class Sento {
 
   private static final Finder<Activity> ACTIVITY_FINDER = new Finder<Activity>() {
     @Override
-    @SuppressWarnings("unchecked")
-    public <V extends View> V find(final int id, final Activity source, final boolean optional) {
+    public View find(final int id, final Activity source, final boolean optional) {
       final View result = source.findViewById(id);
 
       if (result == null && !optional) {
         throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)));
       }
 
-      return (V) result;
+      return result;
     }
 
     @Override
@@ -127,15 +126,14 @@ public final class Sento {
 
   private static final Finder<View> VIEW_FINDER = new Finder<View>() {
     @Override
-    @SuppressWarnings("unchecked")
-    public <V extends View> V find(final int id, final View source, final boolean optional) {
+    public View find(final int id, final View source, final boolean optional) {
       final View result = source.findViewById(id);
 
       if (result == null && !optional) {
         throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)));
       }
 
-      return (V) result;
+      return result;
     }
 
     @Override
