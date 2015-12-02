@@ -2,18 +2,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="vertical"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="match_parent"
+  android:background="@color/color_background"
+  android:padding="@dimen/padding_large">
 
   <TextView
     android:id="@+id/first_name_label"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:labelFor="@+id/first_name_input"/>
+    android:labelFor="@+id/first_name_input"
+    android:text="@string/first_name_label"
+    android:textSize="@dimen/font_small"
+    android:textColor="@color/color_primary"
+    android:paddingLeft="@dimen/padding_small"
+    android:paddingTop="@dimen/padding_tiny"
+    android:paddingRight="@dimen/padding_small"
+    android:paddingBottom="@dimen/padding_tiny"/>
 
   <EditText
     android:id="@+id/first_name_input"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
+    android:layout_height="wrap_content"
+    android:hint="@string/first_name_hint"
+    android:textSize="@dimen/font_normal"
+    android:textColor="@color/color_text"
+    android:textColorHint="@color/color_hint"/>
 
   <View
     android:layout_width="match_parent"
@@ -23,12 +36,23 @@
     android:id="@+id/last_name_label"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:labelFor="@+id/last_name_input"/>
+    android:text="@string/last_name_label"
+    android:textSize="@dimen/font_small"
+    android:textColor="@color/color_primary"
+    android:labelFor="@+id/last_name_input"
+    android:paddingLeft="@dimen/padding_small"
+    android:paddingTop="@dimen/padding_tiny"
+    android:paddingRight="@dimen/padding_small"
+    android:paddingBottom="@dimen/padding_tiny"/>
 
   <EditText
     android:id="@+id/last_name_input"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
+    android:layout_height="wrap_content"
+    android:hint="@string/last_name_hint"
+    android:textSize="@dimen/font_normal"
+    android:textColor="@color/color_text"
+    android:textColorHint="@color/color_hint"/>
 
   <View
     android:layout_width="match_parent"

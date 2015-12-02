@@ -13,7 +13,7 @@ import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
 
 internal class ViewBindingGenerator : FieldBindingGenerator {
-  private val logger = LoggerFactory.getLogger(ResourceBindingGenerator::class.java)
+  private val logger = LoggerFactory.getLogger(ViewBindingGenerator::class.java)
 
   override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     logger.info("Generating @{} binding for '{}' field",

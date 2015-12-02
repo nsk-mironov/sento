@@ -1,53 +1,21 @@
 package io.sento.sample
 
 import android.app.Fragment
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import io.sento.Sento
-import io.sento.annotations.Bind
-import io.sento.annotations.BindColor
-import io.sento.annotations.BindDimen
-import io.sento.annotations.BindString
 import io.sento.annotations.OnClick
 import io.sento.annotations.OnLongClick
 import io.sento.sample.annotations.OnFocusReceived
 import io.sento.sample.annotations.OnTextChanged
 import io.sento.sample.extensions.asTrue
-import io.sento.sample.extensions.notNull
 
 public class SampleFragment : Fragment() {
-  private @Bind(R.id.first_name_input) val first_name_input: EditText = notNull()
-  private @Bind(R.id.first_name_label) val first_name_label: TextView = notNull()
-
-  private @Bind(R.id.last_name_input) val last_name_input: EditText = notNull()
-  private @Bind(R.id.last_name_label) val last_name_label: TextView = notNull()
-
-  private @BindString(R.string.first_name_label) val firstNameLabel: String = notNull()
-  private @BindString(R.string.first_name_hint) val firstNameHint: String = notNull()
-
-  private @BindString(R.string.last_name_label) val lastNameLabel: String = notNull()
-  private @BindString(R.string.last_name_hint) val lastNameHint: String = notNull()
-
-  private @BindDimen(R.dimen.padding_tiny) val paddingTiny = 0
-  private @BindDimen(R.dimen.padding_small) val paddingSmall = 0
-  private @BindDimen(R.dimen.padding_large) val paddingLarge = 0
-
-  private @BindColor(R.color.color_primary) val colorPrimary = 0
-  private @BindColor(R.color.color_background) val colorBackground = 0
-  private @BindColor(R.color.color_text) val colorText = 0
-  private @BindColor(R.color.color_hint) val colorHint = 0
-
-  private @BindDimen(R.dimen.font_small) val fontSmall = 0.0f
-  private @BindDimen(R.dimen.font_normal) val fontNormal = 0.0f
-
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
     return inflater.inflate(R.layout.fragment_sample, container, false)
   }
@@ -55,29 +23,6 @@ public class SampleFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     Sento.bind(this, view)
-
-    view.background = ColorDrawable(colorBackground)
-    view.setPadding(paddingLarge, paddingLarge, paddingLarge, paddingLarge)
-
-    first_name_label.text = firstNameLabel
-    first_name_label.setPadding(paddingSmall, paddingTiny, paddingSmall, paddingTiny)
-    first_name_label.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSmall)
-    first_name_label.setTextColor(colorPrimary)
-
-    last_name_label.text = lastNameLabel
-    last_name_label.setPadding(paddingSmall, paddingTiny, paddingSmall, paddingTiny)
-    last_name_label.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSmall)
-    last_name_label.setTextColor(colorPrimary)
-
-    first_name_input.hint = firstNameHint
-    first_name_input.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontNormal)
-    first_name_input.setHintTextColor(colorHint)
-    first_name_input.setTextColor(colorText)
-
-    last_name_input.hint = lastNameHint
-    last_name_input.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontNormal)
-    last_name_input.setTextColor(colorText)
-    last_name_input.setHintTextColor(colorHint)
   }
 
   override fun onDestroyView() {

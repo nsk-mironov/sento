@@ -4,9 +4,7 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.Bind
 import io.sento.compiler.annotations.ListenerBinding
-import io.sento.compiler.annotations.ResourceBindings
 import io.sento.compiler.bindings.fields.FieldBindingGenerator
-import io.sento.compiler.bindings.fields.ResourceBindingGenerator
 import io.sento.compiler.bindings.fields.ViewBindingGenerator
 import io.sento.compiler.bindings.methods.ListenerBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingGenerator
@@ -15,7 +13,6 @@ import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.ListenerBindingSpec
-import io.sento.compiler.model.ResourceBindingSpec
 import io.sento.compiler.model.SentoBindingSpec
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
@@ -35,20 +32,6 @@ internal class SentoContentGeneratorFactory private constructor(
     private fun createFieldBindings(environment: GenerationEnvironment): Map<Type, FieldBindingGenerator> {
       return HashMap<Type, FieldBindingGenerator>().apply {
         put(Types.getAnnotationType(Bind::class.java), ViewBindingGenerator())
-
-        environment.registry.references.forEach {
-          if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {
-            val spec = environment.registry.resolve(it)
-            val binding = spec.getAnnotation<ResourceBindings>()
-
-            if (binding != null && !binding.value().isEmpty()) {
-              logger.info("New ResourceBindings found - @{}", spec.type.simpleName)
-              logger.info("Creating a ResourceBindingGenerator for @{}", spec.type.simpleName)
-
-              put(spec.type, ResourceBindingGenerator(ResourceBindingSpec.create(spec, binding, environment)))
-            }
-          }
-        }
       }
     }
 
