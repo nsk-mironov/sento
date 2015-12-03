@@ -5,10 +5,15 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.body
 import io.sento.compiler.model.SentoBindingSpec
-
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Opcodes.*
+import org.objectweb.asm.Opcodes.ACC_FINAL
+import org.objectweb.asm.Opcodes.ACC_PRIVATE
+import org.objectweb.asm.Opcodes.ACC_PUBLIC
+import org.objectweb.asm.Opcodes.ACC_STATIC
+import org.objectweb.asm.Opcodes.ACC_SUPER
+import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.commons.GeneratorAdapter
 
 internal class SentoFactoryContentGenerator(private val bindings: Collection<SentoBindingSpec>) : ContentGenerator {
@@ -33,12 +38,9 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
   }
 
   private fun ClassWriter.visitConstructor(environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PRIVATE, Methods.getConstructor(), null, null, this).apply {
+    GeneratorAdapter(ACC_PRIVATE, Methods.getConstructor(), null, null, this).body {
       loadThis()
       invokeConstructor(Types.OBJECT, Methods.getConstructor())
-
-      returnValue()
-      endMethod()
     }
   }
 
@@ -46,20 +48,17 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
     val method = Methods.get("createBinding", Types.BINDING, Types.CLASS)
     val signature = "(Ljava/lang/Class<*>;)Lio/sento/Binding<Ljava/lang/Object;>;"
 
-    GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, method, signature, null, this).apply {
+    GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, method, signature, null, this).body {
       getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
       loadArg(0)
 
       invokeInterface(Types.MAP, Methods.get("get", Types.OBJECT, Types.OBJECT))
       checkCast(Types.BINDING)
-
-      returnValue()
-      endMethod()
     }
   }
 
   private fun ClassWriter.visitStaticConstructor(environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_STATIC, Methods.getStaticConstructor(), null, null, this).apply {
+    GeneratorAdapter(ACC_STATIC, Methods.getStaticConstructor(), null, null, this).body {
       newInstance(Types.IDENTITY_MAP)
       dup()
 
@@ -77,9 +76,6 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
         invokeInterface(Types.MAP, Methods.get("put", Types.OBJECT, Types.OBJECT, Types.OBJECT))
         pop()
       }
-
-      returnValue()
-      endMethod()
     }
   }
 }

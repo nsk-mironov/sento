@@ -11,6 +11,7 @@ import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.OptionalAware
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.body
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
@@ -113,12 +114,9 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun ClassWriter.visitConstructor(binding: SentoBindingSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(), null, null, this).apply {
+    GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(), null, null, this).body {
       loadThis()
       invokeConstructor(Types.OBJECT, Methods.getConstructor())
-
-      returnValue()
-      endMethod()
     }
   }
 
@@ -127,7 +125,7 @@ internal class SentoBindingContentGenerator(
       val descriptor = Methods.get("bind", Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
       val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
-      GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).apply {
+      GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).body {
         val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
         val variables = HashMap<String, Int>()
 
@@ -170,16 +168,13 @@ internal class SentoBindingContentGenerator(
           addAll(it.generator.bind(MethodBindingContext(it.method, binding.clazz, it.annotation, this,
               variables, arguments, binding.factory, it.optional), environment))
         }
-
-        returnValue()
-        endMethod()
       }
     }
   }
 
   private fun ClassWriter.visitUnbindMethod(binding: SentoBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     return ArrayList<GeneratedContent>().apply {
-      GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).apply {
+      GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).body {
         val arguments = mapOf("target" to 0)
         
         val variables = mapOf("target" to newLocal(binding.originalType).apply {
@@ -197,9 +192,6 @@ internal class SentoBindingContentGenerator(
           addAll(it.generator.unbind(MethodBindingContext(it.method, binding.clazz, it.annotation, this,
               variables, arguments, binding.factory, it.optional), environment))
         }
-
-        returnValue()
-        endMethod()
       }
     }
   }
@@ -261,15 +253,12 @@ internal class SentoBindingContentGenerator(
 
       spec.methods.forEach {
         if (!it.access.isPublic && shouldGenerateBindingForMethod(it, environment)) {
-          GeneratorAdapter(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, Methods.getAccessor(spec.type, it), null, null, writer).apply {
+          GeneratorAdapter(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, Methods.getAccessor(spec.type, it), null, null, writer).body {
             for (count in 0..it.arguments.size) {
               loadArg(count)
             }
 
-            invokeVirtual(spec.type, Methods.get(it)).apply {
-              returnValue()
-              endMethod()
-            }
+            invokeVirtual(spec.type, Methods.get(it))
           }
         }
       }

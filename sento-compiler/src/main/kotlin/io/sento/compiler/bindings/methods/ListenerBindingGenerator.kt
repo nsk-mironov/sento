@@ -6,6 +6,7 @@ import io.sento.compiler.SentoException
 import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
+import io.sento.compiler.common.body
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPublic
@@ -107,21 +108,18 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   }
 
   private fun ClassVisitor.visitListenerConstructor(listener: ListenerSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target), null, null, this).apply {
+    GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target), null, null, this).body {
       loadThis()
       invokeConstructor(binding.listenerParent, Methods.getConstructor())
 
       loadThis()
       loadArg(0)
       putField(listener.type, "target", listener.target)
-
-      returnValue()
-      endMethod()
     }
   }
 
   private fun ClassVisitor.visitListenerCallback(listener: ListenerSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.get(listener.callback), listener.callback.signature, null, this).apply {
+    GeneratorAdapter(ACC_PUBLIC, Methods.get(listener.callback), listener.callback.signature, null, this).body {
       loadThis()
       getField(listener.type, "target", listener.target)
 
@@ -142,20 +140,14 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       if (listener.callback.returns == Types.BOOLEAN && listener.method.returns == Types.VOID) {
         push(false)
       }
-
-      returnValue()
-      endMethod()
     }
   }
 
   private fun ClassVisitor.visitListenerStub(listener: ListenerSpec, method: MethodSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.get(method), method.signature, null, this).apply {
+    GeneratorAdapter(ACC_PUBLIC, Methods.get(method), method.signature, null, this).body {
       if (method.returns == Types.BOOLEAN) {
         push(false)
       }
-
-      returnValue()
-      endMethod()
     }
   }
 
