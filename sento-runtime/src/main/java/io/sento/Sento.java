@@ -108,14 +108,16 @@ public final class Sento {
 
   private static final Finder<Activity> ACTIVITY_FINDER = new Finder<Activity>() {
     @Override
-    public View find(final int id, final Activity source, final boolean optional) {
-      final View result = source.findViewById(id);
+    public View find(final int id, final Activity source) {
+      return source.findViewById(id);
+    }
 
-      if (result == null && !optional) {
-        throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)));
+    @Override
+    public View require(final int id, final View view, final Activity source, final String message) {
+      if (view == null) {
+        throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)) + " for " + message);
       }
-
-      return result;
+      return view;
     }
 
     @Override
@@ -126,14 +128,16 @@ public final class Sento {
 
   private static final Finder<View> VIEW_FINDER = new Finder<View>() {
     @Override
-    public View find(final int id, final View source, final boolean optional) {
-      final View result = source.findViewById(id);
+    public View find(final int id, final View source) {
+      return source.findViewById(id);
+    }
 
-      if (result == null && !optional) {
-        throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)));
+    @Override
+    public View require(final int id, final View view, final View source, final String message) {
+      if (view == null) {
+        throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)) + " for " + message);
       }
-
-      return result;
+      return view;
     }
 
     @Override

@@ -34,15 +34,27 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
 
     context.adapter.apply {
       loadLocal(context.variable("target"))
-      loadArg(context.argument("finder"))
-      push(context.annotation.id)
 
-      loadArg(context.argument("source"))
-      push(context.optional)
+      if (!context.optional) {
+        loadArg(context.argument("finder"))
+        push(context.annotation.id)
 
-      invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT, Types.BOOLEAN)).apply {
-        if (context.field.type != Types.VIEW) {
-          checkCast(context.field.type)
+        loadLocal(context.variable("view${context.annotation.id}"))
+        loadArg(context.argument("source"))
+        push("field '${context.field.name}'")
+
+        invokeInterface(Types.FINDER, Methods.get("require", Types.VIEW, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING)).apply {
+          if (context.field.type != Types.VIEW) {
+            checkCast(context.field.type)
+          }
+        }
+      }
+
+      if (context.optional) {
+        loadLocal(context.variable("view${context.annotation.id}")).apply {
+          if (context.field.type != Types.VIEW) {
+            checkCast(context.field.type)
+          }
         }
       }
 

@@ -6,16 +6,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import io.sento.Sento
+import io.sento.annotations.Bind
 import io.sento.annotations.OnClick
 import io.sento.annotations.OnLongClick
 import io.sento.sample.annotations.OnFocusReceived
 import io.sento.sample.annotations.OnTextChanged
 import io.sento.sample.extensions.asTrue
+import io.sento.sample.extensions.notNull
 
 public class SampleFragment : Fragment() {
+  private @Bind(R.id.first_name_input) val first_name_input: EditText? = notNull()
+  private @Bind(R.id.first_name_label) val first_name_label: TextView? = notNull()
+
+  private @Bind(R.id.last_name_input) val last_name_input: EditText = notNull()
+  private @Bind(R.id.last_name_label) val last_name_label: TextView = notNull()
+
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
     return inflater.inflate(R.layout.fragment_sample, container, false)
   }

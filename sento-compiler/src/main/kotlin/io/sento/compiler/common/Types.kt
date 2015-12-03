@@ -30,6 +30,7 @@ internal object Types {
   public val LONG = Type.LONG_TYPE
   public val SHORT = Type.SHORT_TYPE
   public val BOOLEAN = Type.BOOLEAN_TYPE
+  public val STRING = Type.getType(String::class.java)
   public val VOID = Type.VOID_TYPE
 
   public val MAP = Type.getType(Map::class.java)
