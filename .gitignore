@@ -4,6 +4,7 @@
 
 local.properties
 captures
+generated
 build
 
 *.iml

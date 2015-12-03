@@ -1,4 +1,4 @@
-package io.sento
+package io.sento.plugin
 
 import com.android.build.gradle.AppExtension
 import com.android.build.api.transform.Context
@@ -67,6 +67,14 @@ public class SentoTransform extends Transform {
         QualifiedContent.Scope.EXTERNAL_LIBRARIES,
         QualifiedContent.Scope.PROVIDED_ONLY
     )
+  }
+
+  @Override
+  public Map<String, Object> getParameterInputs() {
+    return [
+        version: BuildConfig.VERSION,
+        hash: BuildConfig.GIT_HASH
+    ]
   }
 
   @Override

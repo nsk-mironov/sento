@@ -1,4 +1,4 @@
-package io.sento
+package io.sento.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -11,7 +11,7 @@ public class SentoPlugin implements Plugin<Project> {
   }
 
   private static void onPrepareDependencies(final Project project) {
-    project.dependencies.add("compile", "io.sento:sento-runtime:0.10.3-SNAPSHOT@aar")
+    project.dependencies.add("compile", "io.sento:sento-runtime:${BuildConfig.VERSION}@aar")
   }
 
   private static void onPrepareTransforms(final Project project) {
