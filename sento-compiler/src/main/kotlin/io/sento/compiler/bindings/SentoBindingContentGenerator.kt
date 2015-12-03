@@ -14,6 +14,7 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
+import io.sento.compiler.model.AnnotationSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
@@ -23,11 +24,14 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
-import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Opcodes.ACC_FINAL
+import org.objectweb.asm.Opcodes.ACC_PRIVATE
+import org.objectweb.asm.Opcodes.ACC_PROTECTED
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
+import org.objectweb.asm.Opcodes.ASM5
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
@@ -133,40 +137,38 @@ internal class SentoBindingContentGenerator(
           storeLocal(this)
         })
 
-        findBindableViewIds(binding).forEach {
-          if (!variables.containsKey("view$it")) {
-            variables.put("view$it", newLocal(Types.VIEW).apply {
-              loadArg(arguments["finder"]!!)
-              push(it)
+        val fields = findBindableFieldTargets(binding)
+        val methods = findBindableMethodTargets(binding)
+        val views = LinkedHashSet<Int>()
 
-              loadArg(arguments["source"]!!)
-              invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT))
-
-              storeLocal(this)
-            })
-          }
+        fields.flatMapTo(views) {
+          it.annotation.ids.toArrayList()
         }
 
-        for (field in binding.clazz.fields) {
-          for (annotation in field.annotations) {
-            fields[annotation.type]?.let {
-              val optional = optional.isOptional(field)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
-
-              addAll(it.bind(context, environment))
-            }
-          }
+        methods.flatMapTo(views) {
+          it.annotation.ids.toArrayList()
         }
 
-        for (method in binding.clazz.methods) {
-          for (annotation in method.annotations) {
-            methods[annotation.type]?.let {
-              val optional = optional.isOptional(method)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
+        views.forEach {
+          variables.put("view$it", newLocal(Types.VIEW).apply {
+            loadArg(arguments["finder"]!!)
+            push(it)
 
-              addAll(it.bind(context, environment))
-            }
-          }
+            loadArg(arguments["source"]!!)
+            invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT))
+
+            storeLocal(this)
+          })
+        }
+
+        fields.forEach {
+          addAll(it.generator.bind(FieldBindingContext(it.field, binding.clazz, it.annotation, this,
+              variables, arguments, binding.factory, it.optional), environment))
+        }
+
+        methods.forEach {
+          addAll(it.generator.bind(MethodBindingContext(it.method, binding.clazz, it.annotation, this,
+              variables, arguments, binding.factory, it.optional), environment))
         }
 
         returnValue()
@@ -179,32 +181,21 @@ internal class SentoBindingContentGenerator(
     return ArrayList<GeneratedContent>().apply {
       GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).apply {
         val arguments = mapOf("target" to 0)
+        
         val variables = mapOf("target" to newLocal(binding.originalType).apply {
           loadArg(arguments["target"]!!)
           checkCast(binding.originalType)
           storeLocal(this)
         })
 
-        for (field in binding.clazz.fields) {
-          for (annotation in field.annotations) {
-            fields[annotation.type]?.let {
-              val optional = optional.isOptional(field)
-              val context = FieldBindingContext(field, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
-
-              addAll(it.unbind(context, environment))
-            }
-          }
+        findBindableFieldTargets(binding).forEach {
+          addAll(it.generator.unbind(FieldBindingContext(it.field, binding.clazz, it.annotation, this,
+              variables, arguments, binding.factory, it.optional), environment))
         }
 
-        for (method in binding.clazz.methods) {
-          for (annotation in method.annotations) {
-            methods[annotation.type]?.let {
-              val optional = optional.isOptional(method)
-              val context = MethodBindingContext(method, binding.clazz, annotation, this, variables, arguments, binding.factory, optional)
-
-              addAll(it.unbind(context, environment))
-            }
-          }
+        findBindableMethodTargets(binding).forEach {
+          addAll(it.generator.unbind(MethodBindingContext(it.method, binding.clazz, it.annotation, this,
+              variables, arguments, binding.factory, it.optional), environment))
         }
 
         returnValue()
@@ -213,25 +204,43 @@ internal class SentoBindingContentGenerator(
     }
   }
 
-  private fun findBindableViewIds(binding: SentoBindingSpec): Collection<Int> {
-    return LinkedHashSet<Int>().apply {
+  private fun findBindableFieldTargets(binding: SentoBindingSpec): Collection<FieldTargetSpec> {
+    return ArrayList<FieldTargetSpec>().apply {
       for (field in binding.clazz.fields) {
         for (annotation in field.annotations) {
-          if (fields[annotation.type] != null) {
-            addAll(annotation.ids.toArrayList())
-          }
-        }
-      }
-
-      for (method in binding.clazz.methods) {
-        for (annotation in method.annotations) {
-          if (methods[annotation.type] != null) {
-            addAll(annotation.ids.toArrayList())
+          fields[annotation.type]?.let {
+            add(FieldTargetSpec(field, annotation, it, optional.isOptional(field)))
           }
         }
       }
     }
   }
+
+  private fun findBindableMethodTargets(binding: SentoBindingSpec): Collection<MethodTargetSpec> {
+    return ArrayList<MethodTargetSpec>().apply {
+      for (method in binding.clazz.methods) {
+        for (annotation in method.annotations) {
+          methods[annotation.type]?.let {
+            add(MethodTargetSpec(method, annotation, it, optional.isOptional(method)))
+          }
+        }
+      }
+    }
+  }
+
+  private data class FieldTargetSpec (
+      val field: FieldSpec,
+      val annotation: AnnotationSpec,
+      val generator: FieldBindingGenerator,
+      val optional: Boolean
+  )
+
+  private data class MethodTargetSpec (
+      val method: MethodSpec,
+      val annotation: AnnotationSpec,
+      val generator: MethodBindingGenerator,
+      val optional: Boolean
+  )
 
   private inner class AccessibilityPatcher(val environment: GenerationEnvironment) : ClassPatcher {
     override fun patch(spec: ClassSpec): ByteArray {
@@ -244,7 +253,7 @@ internal class SentoBindingContentGenerator(
         }
       }
 
-      reader.accept(object : ClassVisitor(Opcodes.ASM5, writer) {
+      reader.accept(object : ClassVisitor(ASM5, writer) {
         override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
           return super.visitField(onPatchFieldFlags(access, name), name, desc, signature, value)
         }
@@ -270,7 +279,7 @@ internal class SentoBindingContentGenerator(
 
     private fun onPatchFieldFlags(access: Int, name: String): Int {
       return if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
-        access and Opcodes.ACC_PRIVATE.inv() and Opcodes.ACC_PROTECTED.inv() and Opcodes.ACC_FINAL.inv() or ACC_PUBLIC
+        access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
       } else {
         access
       }
