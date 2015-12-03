@@ -20,7 +20,6 @@ import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
 import io.sento.compiler.model.MethodSpec
 import io.sento.compiler.model.SentoBindingSpec
-import io.sento.compiler.patcher.ClassPatcher
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
@@ -72,16 +71,12 @@ internal class SentoBindingContentGenerator(
           }
         }
 
-        add(GeneratedContent(Types.getClassFilePath(binding.originalType), onGenerateTargetClass(clazz, environment)))
+        add(GeneratedContent(Types.getClassFilePath(binding.originalType), AccessibilityPatcher(environment).patch(clazz)))
         add(GeneratedContent(Types.getClassFilePath(binding.generatedType), bytes, HashMap<String, Any>().apply {
           put(EXTRA_BINDING_SPEC, binding)
         }))
       }
     }
-  }
-
-  private fun onGenerateTargetClass(clazz: ClassSpec, environment: GenerationEnvironment): ByteArray {
-    return AccessibilityPatcher(environment).patch(clazz)
   }
 
   private fun shouldGenerateBindingClass(clazz: ClassSpec, environment: GenerationEnvironment): Boolean {
@@ -234,8 +229,8 @@ internal class SentoBindingContentGenerator(
       val optional: Boolean
   )
 
-  private inner class AccessibilityPatcher(val environment: GenerationEnvironment) : ClassPatcher {
-    override fun patch(spec: ClassSpec): ByteArray {
+  private inner class AccessibilityPatcher(val environment: GenerationEnvironment) {
+    public fun patch(spec: ClassSpec): ByteArray {
       val bytes = spec.opener.open()
       val reader = ClassReader(bytes)
 
