@@ -4,7 +4,6 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
 import io.sento.compiler.annotations.id
-import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.simpleName
@@ -34,28 +33,10 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
 
     context.adapter.apply {
       loadLocal(context.variable("target"))
+      loadLocal(context.variable("view${context.annotation.id}"))
 
-      if (!context.optional) {
-        loadArg(context.argument("finder"))
-        push(context.annotation.id)
-
-        loadLocal(context.variable("view${context.annotation.id}"))
-        loadArg(context.argument("source"))
-        push("field '${context.field.name}'")
-
-        invokeInterface(Types.FINDER, Methods.get("require", Types.VIEW, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING)).apply {
-          if (context.field.type != Types.VIEW) {
-            checkCast(context.field.type)
-          }
-        }
-      }
-
-      if (context.optional) {
-        loadLocal(context.variable("view${context.annotation.id}")).apply {
-          if (context.field.type != Types.VIEW) {
-            checkCast(context.field.type)
-          }
-        }
+      if (context.field.type != Types.VIEW) {
+        checkCast(context.field.type)
       }
 
       putField(context.clazz.type, context.field.name, context.field.type)

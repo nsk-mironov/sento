@@ -38,7 +38,6 @@ import org.objectweb.asm.commons.GeneratorAdapter
 import org.slf4j.LoggerFactory
 import java.util.ArrayList
 import java.util.HashMap
-import java.util.LinkedHashSet
 
 internal class SentoBindingContentGenerator(
     private val fields: Map<Type, FieldBindingGenerator>,
@@ -132,26 +131,29 @@ internal class SentoBindingContentGenerator(
 
         val fields = findBindableFieldTargets(binding)
         val methods = findBindableMethodTargets(binding)
-        val views = LinkedHashSet<Int>()
+        val views = findBindableViewTargets(fields, methods)
 
-        fields.flatMapTo(views) {
-          it.annotation.ids.toArrayList()
-        }
-
-        methods.flatMapTo(views) {
-          it.annotation.ids.toArrayList()
-        }
-
-        views.forEach {
-          variables.put("view$it", newLocal(Types.VIEW).apply {
+        views.distinctBy { it.id }.forEach {
+          variables.put("view${it.id}", newLocal(Types.VIEW).apply {
             loadArg(arguments["finder"]!!)
-            push(it)
+            push(it.id)
 
             loadArg(arguments["source"]!!)
             invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT))
 
             storeLocal(this)
           })
+        }
+
+        views.filter { !it.optional }.distinctBy { it.id }.forEach {
+          loadArg(arguments["finder"]!!)
+          push(it.id)
+
+          loadLocal(variables["view${it.id}"]!!)
+          loadArg(arguments["source"]!!)
+          push(it.owner)
+
+          invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
         }
 
         fields.forEach {
@@ -215,6 +217,22 @@ internal class SentoBindingContentGenerator(
     }
   }
 
+  private fun findBindableViewTargets(fields: Collection<FieldTargetSpec>, methods: Collection<MethodTargetSpec>): Collection<ViewTargetSpec> {
+    return ArrayList<ViewTargetSpec>().apply {
+      for (field in fields) {
+        addAll(field.annotation.ids.map {
+          ViewTargetSpec(it, field.optional, "field '${field.field.name}'")
+        })
+      }
+
+      for (method in methods) {
+        addAll(method.annotation.ids.map {
+          ViewTargetSpec(it, method.optional, "method '${method.method.name}'")
+        })
+      }
+    }
+  }
+
   private data class FieldTargetSpec (
       val field: FieldSpec,
       val annotation: AnnotationSpec,
@@ -227,6 +245,12 @@ internal class SentoBindingContentGenerator(
       val annotation: AnnotationSpec,
       val generator: MethodBindingGenerator,
       val optional: Boolean
+  )
+
+  private data class ViewTargetSpec (
+      val id: Int,
+      val optional: Boolean,
+      val owner: String
   )
 
   private inner class AccessibilityPatcher(val environment: GenerationEnvironment) {

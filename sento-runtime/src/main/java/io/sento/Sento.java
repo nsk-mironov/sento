@@ -113,11 +113,10 @@ public final class Sento {
     }
 
     @Override
-    public View require(final int id, final View view, final Activity source, final String message) {
+    public void require(final int id, final View view, final Activity source, final String message) {
       if (view == null) {
         throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)) + " for " + message);
       }
-      return view;
     }
 
     @Override
@@ -133,11 +132,10 @@ public final class Sento {
     }
 
     @Override
-    public View require(final int id, final View view, final View source, final String message) {
+    public void require(final int id, final View view, final View source, final String message) {
       if (view == null) {
         throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)) + " for " + message);
       }
-      return view;
     }
 
     @Override

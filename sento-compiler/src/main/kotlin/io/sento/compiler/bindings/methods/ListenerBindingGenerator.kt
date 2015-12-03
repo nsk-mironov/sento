@@ -38,29 +38,14 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
 
     context.annotation.ids.forEach {
       adapter.newLabel().apply {
-        if (!context.optional) {
-          adapter.loadArg(context.argument("finder"))
-          adapter.push(it)
-
-          adapter.loadLocal(context.variable("view$it"))
-          adapter.loadArg(context.argument("source"))
-          adapter.push("method '${listener.callback.name}'")
-
-          adapter.invokeInterface(Types.FINDER, Methods.get("require", Types.VIEW, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING)).apply {
-            if (binding.owner.type != Types.VIEW) {
-              adapter.checkCast(binding.owner.type)
-            }
-          }
-        }
-
         if (context.optional) {
           adapter.loadLocal(context.variable("view$it"))
           adapter.ifNull(this)
+        }
 
-          adapter.loadLocal(context.variable("view$it")).apply {
-            if (binding.owner.type != Types.VIEW) {
-              adapter.checkCast(binding.owner.type)
-            }
+        adapter.loadLocal(context.variable("view$it")).apply {
+          if (binding.owner.type != Types.VIEW) {
+            adapter.checkCast(binding.owner.type)
           }
         }
 
