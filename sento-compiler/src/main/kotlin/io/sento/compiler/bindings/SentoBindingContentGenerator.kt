@@ -14,11 +14,13 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.body
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
-import io.sento.compiler.model.AnnotationSpec
 import io.sento.compiler.model.ClassSpec
 import io.sento.compiler.model.FieldSpec
+import io.sento.compiler.model.FieldTargetSpec
 import io.sento.compiler.model.MethodSpec
+import io.sento.compiler.model.MethodTargetSpec
 import io.sento.compiler.model.SentoBindingSpec
+import io.sento.compiler.model.ViewTargetSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
@@ -247,26 +249,6 @@ internal class SentoBindingContentGenerator(
   private fun cachedFieldNameForViewTarget(target: ViewTargetSpec): String {
     return "sento\$cached\$view_${target.id}"
   }
-
-  private data class FieldTargetSpec (
-      val field: FieldSpec,
-      val annotation: AnnotationSpec,
-      val generator: FieldBindingGenerator,
-      val optional: Boolean
-  )
-
-  private data class MethodTargetSpec (
-      val method: MethodSpec,
-      val annotation: AnnotationSpec,
-      val generator: MethodBindingGenerator,
-      val optional: Boolean
-  )
-
-  private data class ViewTargetSpec (
-      val id: Int,
-      val optional: Boolean,
-      val owner: String
-  )
 
   private inner class AccessibilityPatcher(val environment: GenerationEnvironment) {
     public fun patch(spec: ClassSpec): ByteArray {
