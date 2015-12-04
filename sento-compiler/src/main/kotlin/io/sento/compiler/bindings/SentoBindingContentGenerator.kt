@@ -14,13 +14,13 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.body
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
-import io.sento.compiler.reflection.ClassSpec
-import io.sento.compiler.reflection.FieldSpec
 import io.sento.compiler.model.FieldTargetSpec
-import io.sento.compiler.reflection.MethodSpec
 import io.sento.compiler.model.MethodTargetSpec
 import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ViewTargetSpec
+import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflection.FieldSpec
+import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
@@ -58,43 +58,43 @@ internal class SentoBindingContentGenerator(
   }
 
   private val bindableFieldTargets by lazy(LazyThreadSafetyMode.NONE) {
-    ArrayList<FieldTargetSpec>().apply {
-      for (field in binding.clazz.fields) {
-        for (annotation in field.annotations) {
-          fields[annotation.type]?.let {
-            add(FieldTargetSpec(field, annotation, it, optional.isOptional(field)))
-          }
+    binding.clazz.fields.flatMap { field ->
+      field.annotations.map { annotation ->
+        fields[annotation.type]?.let { generator ->
+          FieldTargetSpec(field, annotation, generator, optional.isOptional(field))
         }
-      }
+      }.filterNotNull()
     }
   }
 
   private val bindableMethodTargets by lazy(LazyThreadSafetyMode.NONE) {
-    ArrayList<MethodTargetSpec>().apply {
-      for (method in binding.clazz.methods) {
-        for (annotation in method.annotations) {
-          methods[annotation.type]?.let {
-            add(MethodTargetSpec(method, annotation, it, optional.isOptional(method)))
-          }
+    binding.clazz.methods.flatMap { method ->
+      method.annotations.map { annotation ->
+        methods[annotation.type]?.let {
+          MethodTargetSpec(method, annotation, it, optional.isOptional(method))
         }
+      }.filterNotNull()
+    }
+  }
+
+  private val bindableViewTargetsForFields by lazy(LazyThreadSafetyMode.NONE) {
+    bindableFieldTargets.flatMap { field ->
+      field.annotation.ids.map { id ->
+        ViewTargetSpec(id, field.optional, "field '${field.field.name}'")
       }
     }
   }
 
-  private val bindableViewTargets by lazy(LazyThreadSafetyMode.NONE) {
-    ArrayList<ViewTargetSpec>().apply {
-      for (field in bindableFieldTargets) {
-        addAll(field.annotation.ids.map {
-          ViewTargetSpec(it, field.optional, "field '${field.field.name}'")
-        })
-      }
-
-      for (method in bindableMethodTargets) {
-        addAll(method.annotation.ids.map {
-          ViewTargetSpec(it, method.optional, "method '${method.method.name}'")
-        })
+  private val bindableViewTargetsForMethods by lazy(LazyThreadSafetyMode.NONE) {
+    bindableMethodTargets.flatMap { method ->
+      method.annotation.ids.map { id ->
+        ViewTargetSpec(id, method.optional, "method '${method.method.name}'")
       }
     }
+  }
+
+  private val bindableViewTargetsForAll by lazy(LazyThreadSafetyMode.NONE) {
+    bindableViewTargetsForFields + bindableViewTargetsForMethods
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
@@ -174,7 +174,7 @@ internal class SentoBindingContentGenerator(
           storeLocal(this)
         })
 
-        bindableViewTargets.distinctBy { it.id }.forEach {
+        bindableViewTargetsForAll.distinctBy { it.id }.forEach {
           variables.put("view${it.id}", newLocal(Types.VIEW).apply {
             loadArg(arguments["finder"]!!)
             push(it.id)
@@ -186,7 +186,7 @@ internal class SentoBindingContentGenerator(
           })
         }
 
-        bindableViewTargets.filter { !it.optional }.distinctBy { it.id }.forEach {
+        bindableViewTargetsForAll.filter { !it.optional }.distinctBy { it.id }.forEach {
           loadArg(arguments["finder"]!!)
           push(it.id)
 
@@ -197,7 +197,7 @@ internal class SentoBindingContentGenerator(
           invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
         }
 
-        bindableViewTargets.distinctBy { it.id }.forEach {
+        bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
           loadLocal(variables["target"]!!)
           loadLocal(variables["view${it.id}"]!!)
           putField(binding.clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
@@ -237,7 +237,7 @@ internal class SentoBindingContentGenerator(
               variables, arguments, binding.factory, it.optional), environment))
         }
 
-        bindableViewTargets.distinctBy { it.id }.forEach {
+        bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
           loadLocal(variables["target"]!!)
           visitInsn(Opcodes.ACONST_NULL)
           putField(binding.clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
@@ -263,11 +263,15 @@ internal class SentoBindingContentGenerator(
 
       reader.accept(object : ClassVisitor(ASM5, writer) {
         override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
-          return super.visitField(onPatchFieldFlags(access, name), name, desc, signature, value)
+          return super.visitField(if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
+            access and ACC_PRIVATE.inv() and ACC_FINAL.inv() or ACC_PROTECTED
+          } else {
+            access
+          }, name, desc, signature, value)
         }
       }, ClassReader.SKIP_FRAMES)
 
-      bindableViewTargets.distinctBy { it.id }.forEach {
+      bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
         writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, cachedFieldNameForViewTarget(it), Types.VIEW.descriptor, null, null)
       }
 
@@ -281,14 +285,6 @@ internal class SentoBindingContentGenerator(
       }
 
       return writer.toByteArray()
-    }
-
-    private fun onPatchFieldFlags(access: Int, name: String): Int {
-      return if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
-        access and ACC_PRIVATE.inv() and ACC_FINAL.inv() or ACC_PROTECTED
-      } else {
-        access
-      }
     }
   }
 }
