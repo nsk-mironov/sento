@@ -282,7 +282,7 @@ internal class SentoBindingContentGenerator(
 
     private fun onPatchFieldFlags(access: Int, name: String): Int {
       return if (shouldGenerateBindingForField(clazz.getDeclaredField(name), environment)) {
-        access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() and ACC_FINAL.inv() or ACC_PUBLIC
+        access and ACC_PRIVATE.inv() and ACC_FINAL.inv() or ACC_PROTECTED
       } else {
         access
       }
