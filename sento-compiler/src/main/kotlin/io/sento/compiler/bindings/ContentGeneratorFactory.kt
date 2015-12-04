@@ -4,10 +4,8 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.Bind
 import io.sento.compiler.annotations.ListenerBinding
-import io.sento.compiler.bindings.fields.FieldBindingGenerator
 import io.sento.compiler.bindings.fields.ViewBindingGenerator
 import io.sento.compiler.bindings.methods.ListenerBindingGenerator
-import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName
@@ -19,24 +17,24 @@ import org.slf4j.LoggerFactory
 import java.util.HashMap
 
 internal class ContentGeneratorFactory private constructor(
-    private val fields: Map<Type, FieldBindingGenerator>,
-    private val methods: Map<Type, MethodBindingGenerator>
+    private val fields: Map<Type, ViewBindingGenerator>,
+    private val methods: Map<Type, ListenerBindingGenerator>
 ) {
   public companion object {
     private val logger = LoggerFactory.getLogger(ContentGeneratorFactory::class.java)
 
     public fun from(environment: GenerationEnvironment): ContentGeneratorFactory {
-      return ContentGeneratorFactory(createFieldBindings(environment), createMethodBindings(environment))
+      return ContentGeneratorFactory(createViewBindings(environment), createMethodBindings(environment))
     }
 
-    private fun createFieldBindings(environment: GenerationEnvironment): Map<Type, FieldBindingGenerator> {
-      return HashMap<Type, FieldBindingGenerator>().apply {
+    private fun createViewBindings(environment: GenerationEnvironment): Map<Type, ViewBindingGenerator> {
+      return HashMap<Type, ViewBindingGenerator>().apply {
         put(Types.getAnnotationType(Bind::class.java), ViewBindingGenerator())
       }
     }
 
-    private fun createMethodBindings(environment: GenerationEnvironment): Map<Type, MethodBindingGenerator> {
-      return HashMap<Type, MethodBindingGenerator>().apply {
+    private fun createMethodBindings(environment: GenerationEnvironment): Map<Type, ListenerBindingGenerator> {
+      return HashMap<Type, ListenerBindingGenerator>().apply {
         environment.registry.references.forEach {
           if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {
             val spec = environment.registry.resolve(it)

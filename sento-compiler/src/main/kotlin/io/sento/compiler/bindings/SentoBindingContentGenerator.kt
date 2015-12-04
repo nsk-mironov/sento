@@ -5,11 +5,12 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.ids
 import io.sento.compiler.bindings.fields.FieldBindingContext
-import io.sento.compiler.bindings.fields.FieldBindingGenerator
+import io.sento.compiler.bindings.fields.ViewBindingGenerator
+import io.sento.compiler.bindings.methods.ListenerBindingGenerator
 import io.sento.compiler.bindings.methods.MethodBindingContext
-import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.OptionalAware
+import io.sento.compiler.common.TypeFactory
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.body
 import io.sento.compiler.common.isStatic
@@ -42,8 +43,8 @@ import java.util.ArrayList
 import java.util.HashMap
 
 internal class SentoBindingContentGenerator(
-    private val fields: Map<Type, FieldBindingGenerator>,
-    private val methods: Map<Type, MethodBindingGenerator>,
+    private val views: Map<Type, ViewBindingGenerator>,
+    private val listeners: Map<Type, ListenerBindingGenerator>,
     private val clazz: ClassSpec
 ) : ContentGenerator {
   public companion object {
@@ -53,14 +54,18 @@ internal class SentoBindingContentGenerator(
   private val logger = LoggerFactory.getLogger(SentoBindingContentGenerator::class.java)
   private val optional = OptionalAware(clazz)
 
-  private val binding by lazy(LazyThreadSafetyMode.NONE) {
+  private val spec by lazy(LazyThreadSafetyMode.NONE) {
     SentoBindingSpec.create(clazz)
   }
 
+  private val types by lazy(LazyThreadSafetyMode.NONE) {
+    TypeFactory(spec.binding)
+  }
+
   private val bindableFieldTargets by lazy(LazyThreadSafetyMode.NONE) {
-    binding.clazz.fields.flatMap { field ->
+    clazz.fields.flatMap { field ->
       field.annotations.map { annotation ->
-        fields[annotation.type]?.let { generator ->
+        views[annotation.type]?.let { generator ->
           FieldTargetSpec(field, annotation, generator, optional.isOptional(field))
         }
       }.filterNotNull()
@@ -68,9 +73,9 @@ internal class SentoBindingContentGenerator(
   }
 
   private val bindableMethodTargets by lazy(LazyThreadSafetyMode.NONE) {
-    binding.clazz.methods.flatMap { method ->
+    clazz.methods.flatMap { method ->
       method.annotations.map { annotation ->
-        methods[annotation.type]?.let {
+        listeners[annotation.type]?.let {
           MethodTargetSpec(method, annotation, it, optional.isOptional(method))
         }
       }.filterNotNull()
@@ -115,9 +120,9 @@ internal class SentoBindingContentGenerator(
           }
         }
 
-        add(GeneratedContent(Types.getClassFilePath(binding.originalType), AccessibilityPatcher(environment).patch(clazz)))
-        add(GeneratedContent(Types.getClassFilePath(binding.generatedType), bytes, HashMap<String, Any>().apply {
-          put(EXTRA_BINDING_SPEC, binding)
+        add(GeneratedContent(Types.getClassFilePath(spec.target), AccessibilityPatcher(environment).patch(clazz)))
+        add(GeneratedContent(Types.getClassFilePath(spec.binding), bytes, HashMap<String, Any>().apply {
+          put(EXTRA_BINDING_SPEC, spec)
         }))
       }
     }
@@ -133,18 +138,18 @@ internal class SentoBindingContentGenerator(
 
   private fun shouldGenerateBindingForField(field: FieldSpec?, environment: GenerationEnvironment): Boolean {
     return field != null && !field.access.isStatic && !field.access.isSynthetic && field.annotations.any {
-      fields.containsKey(it.type)
+      views.containsKey(it.type)
     }
   }
 
   private fun shouldGenerateBindingForMethod(method: MethodSpec?, environment: GenerationEnvironment): Boolean {
     return method != null && !method.access.isStatic && !method.access.isSynthetic && method.annotations.any {
-      methods.containsKey(it.type)
+      listeners.containsKey(it.type)
     }
   }
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) = apply {
-    val name = binding.generatedType.internalName
+    val name = spec.binding.internalName
     val signature = "L${Types.OBJECT.internalName};L${Types.BINDING.internalName}<L${Types.OBJECT.internalName};>;"
     val superName = Types.OBJECT.internalName
     val interfaces = arrayOf(Types.BINDING.internalName)
@@ -168,9 +173,9 @@ internal class SentoBindingContentGenerator(
         val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
         val variables = HashMap<String, Int>()
 
-        variables.put("target", newLocal(binding.originalType).apply {
+        variables.put("target", newLocal(spec.target).apply {
           loadArg(arguments["target"]!!)
-          checkCast(binding.originalType)
+          checkCast(spec.target)
           storeLocal(this)
         })
 
@@ -200,17 +205,17 @@ internal class SentoBindingContentGenerator(
         bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
           loadLocal(variables["target"]!!)
           loadLocal(variables["view${it.id}"]!!)
-          putField(binding.clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
+          putField(clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
         }
 
         bindableFieldTargets.forEach {
-          addAll(it.generator.bind(FieldBindingContext(it.field, binding.clazz, it.annotation, this,
-              variables, arguments, binding.factory, it.optional), environment))
+          addAll(it.generator.bind(FieldBindingContext(it.field, clazz, it.annotation, this,
+              variables, arguments, types, it.optional), environment))
         }
 
         bindableMethodTargets.forEach {
-          addAll(it.generator.bind(MethodBindingContext(it.method, binding.clazz, it.annotation, this,
-              variables, arguments, binding.factory, it.optional), environment))
+          addAll(it.generator.bind(MethodBindingContext(it.method, clazz, it.annotation, this,
+              variables, arguments, types, it.optional), environment))
         }
       }
     }
@@ -220,27 +225,27 @@ internal class SentoBindingContentGenerator(
     return ArrayList<GeneratedContent>().apply {
       GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).body {
         val arguments = mapOf("target" to 0)
-        
-        val variables = mapOf("target" to newLocal(binding.originalType).apply {
+
+        val variables = mapOf("target" to newLocal(spec.target).apply {
           loadArg(arguments["target"]!!)
-          checkCast(binding.originalType)
+          checkCast(spec.target)
           storeLocal(this)
         })
 
         bindableFieldTargets.forEach {
-          addAll(it.generator.unbind(FieldBindingContext(it.field, binding.clazz, it.annotation, this,
-              variables, arguments, binding.factory, it.optional), environment))
+          addAll(it.generator.unbind(FieldBindingContext(it.field, clazz, it.annotation, this,
+              variables, arguments, types, it.optional), environment))
         }
 
         bindableMethodTargets.forEach {
-          addAll(it.generator.unbind(MethodBindingContext(it.method, binding.clazz, it.annotation, this,
-              variables, arguments, binding.factory, it.optional), environment))
+          addAll(it.generator.unbind(MethodBindingContext(it.method, clazz, it.annotation, this,
+              variables, arguments, types, it.optional), environment))
         }
 
         bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
           loadLocal(variables["target"]!!)
           visitInsn(Opcodes.ACONST_NULL)
-          putField(binding.clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
+          putField(clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
         }
       }
     }

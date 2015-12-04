@@ -67,12 +67,12 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
 
       bindings.forEach {
         getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
-        push(it.originalType)
+        push(it.target)
 
-        newInstance(it.generatedType)
+        newInstance(it.binding)
         dup()
 
-        invokeConstructor(it.generatedType, Methods.getConstructor())
+        invokeConstructor(it.binding, Methods.getConstructor())
         invokeInterface(Types.MAP, Methods.get("put", Types.OBJECT, Types.OBJECT, Types.OBJECT))
         pop()
       }
