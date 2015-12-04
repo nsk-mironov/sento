@@ -11,22 +11,22 @@ import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName
-import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.SentoBindingSpec
+import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
 import java.util.HashMap
 
-internal class SentoContentGeneratorFactory private constructor(
+internal class ContentGeneratorFactory private constructor(
     private val fields: Map<Type, FieldBindingGenerator>,
     private val methods: Map<Type, MethodBindingGenerator>
 ) {
   public companion object {
-    private val logger = LoggerFactory.getLogger(SentoContentGeneratorFactory::class.java)
+    private val logger = LoggerFactory.getLogger(ContentGeneratorFactory::class.java)
 
-    public fun from(environment: GenerationEnvironment): SentoContentGeneratorFactory {
-      return SentoContentGeneratorFactory(createFieldBindings(environment), createMethodBindings(environment))
+    public fun from(environment: GenerationEnvironment): ContentGeneratorFactory {
+      return ContentGeneratorFactory(createFieldBindings(environment), createMethodBindings(environment))
     }
 
     private fun createFieldBindings(environment: GenerationEnvironment): Map<Type, FieldBindingGenerator> {

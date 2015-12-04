@@ -1,7 +1,7 @@
 package io.sento.compiler
 
 import io.sento.compiler.bindings.SentoBindingContentGenerator
-import io.sento.compiler.bindings.SentoContentGeneratorFactory
+import io.sento.compiler.bindings.ContentGeneratorFactory
 import io.sento.compiler.model.SentoBindingSpec
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
@@ -31,7 +31,7 @@ public class SentoCompiler() {
     logger.info("Referenced classes count: {}", registry.references.size)
     logger.info("Input classes count: {}", registry.inputs.size)
 
-    val factory = SentoContentGeneratorFactory.from(environment)
+    val factory = ContentGeneratorFactory.from(environment)
     val bindings = ArrayList<SentoBindingSpec>()
 
     options.inputs.forEach {

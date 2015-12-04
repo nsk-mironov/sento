@@ -53,8 +53,7 @@ internal class OptionalAware(private val spec: ClassSpec) {
   }
 
   private fun createKotlinMetaData(): ClassData?  {
-    val target = KotlinClass::class.java
-    val annotation = spec.getAnnotation(target) ?: return null
+    val annotation = spec.getAnnotation<KotlinClass>() ?: return null
 
     val strings = annotation.strings
     val data = annotation.data
