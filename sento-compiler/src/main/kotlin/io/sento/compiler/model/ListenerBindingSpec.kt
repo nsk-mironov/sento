@@ -15,7 +15,6 @@ import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.Type
 
 internal data class ListenerBindingSpec(
-    public val annotation: ClassSpec,
     public val owner: ClassSpec,
     public val listener: ClassSpec,
     public val setter: MethodSpec,
@@ -122,7 +121,7 @@ internal data class ListenerBindingSpec(
         }
       }
 
-      return ListenerBindingSpec(annotation, ownerSpec, listenerSpec, listenerSetters[0], listenerCallbacks[0])
+      return ListenerBindingSpec(ownerSpec, listenerSpec, listenerSetters[0], listenerCallbacks[0])
     }
   }
 }
