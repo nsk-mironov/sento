@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PROTECTED
@@ -194,6 +195,12 @@ internal class SentoBindingContentGenerator(
           invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
         }
 
+        bindableViewTargets.distinctBy { it.id }.forEach {
+          loadLocal(variables["target"]!!)
+          loadLocal(variables["view${it.id}"]!!)
+          putField(binding.clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
+        }
+
         bindableFieldTargets.forEach {
           addAll(it.generator.bind(FieldBindingContext(it.field, binding.clazz, it.annotation, this,
               variables, arguments, binding.factory, it.optional), environment))
@@ -227,8 +234,18 @@ internal class SentoBindingContentGenerator(
           addAll(it.generator.unbind(MethodBindingContext(it.method, binding.clazz, it.annotation, this,
               variables, arguments, binding.factory, it.optional), environment))
         }
+
+        bindableViewTargets.distinctBy { it.id }.forEach {
+          loadLocal(variables["target"]!!)
+          visitInsn(Opcodes.ACONST_NULL)
+          putField(binding.clazz.type, cachedFieldNameForViewTarget(it), Types.VIEW)
+        }
       }
     }
+  }
+
+  private fun cachedFieldNameForViewTarget(target: ViewTargetSpec): String {
+    return "sento\$cached\$view_${target.id}"
   }
 
   private data class FieldTargetSpec (
@@ -269,7 +286,7 @@ internal class SentoBindingContentGenerator(
       }, ClassReader.SKIP_FRAMES)
 
       bindableViewTargets.distinctBy { it.id }.forEach {
-        writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, "cached\$sento\$view_${it.id}", Types.VIEW.descriptor, null, null)
+        writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, cachedFieldNameForViewTarget(it), Types.VIEW.descriptor, null, null)
       }
 
       bindableMethodTargets.forEach {
