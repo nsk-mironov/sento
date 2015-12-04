@@ -268,6 +268,10 @@ internal class SentoBindingContentGenerator(
         }
       }, ClassReader.SKIP_FRAMES)
 
+      bindableViewTargets.distinctBy { it.id }.forEach {
+        writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, "cached\$sento\$view_${it.id}", Types.VIEW.descriptor, null, null)
+      }
+
       bindableMethodTargets.forEach {
         GeneratorAdapter(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, Methods.getAccessor(spec.type, it.method), null, null, writer).body {
           for (count in 0..it.method.arguments.size) {
