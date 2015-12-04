@@ -1,4 +1,4 @@
-package io.sento.compiler.model
+package io.sento.compiler.reflection
 
 import io.sento.compiler.annotations.AnnotationProxy
 import io.sento.compiler.common.Opener

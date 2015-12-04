@@ -12,7 +12,7 @@ import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
-import io.sento.compiler.model.MethodSpec
+import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE

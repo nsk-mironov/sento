@@ -1,7 +1,7 @@
 package io.sento.compiler.annotations
 
 import com.google.common.reflect.AbstractInvocationHandler
-import io.sento.compiler.model.AnnotationSpec
+import io.sento.compiler.reflection.AnnotationSpec
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.HashMap

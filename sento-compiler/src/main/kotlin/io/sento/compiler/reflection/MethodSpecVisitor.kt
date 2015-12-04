@@ -1,7 +1,7 @@
-package io.sento.compiler.visitors
+package io.sento.compiler.reflection
 
 import io.sento.compiler.common.Types
-import io.sento.compiler.model.MethodSpec
+import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes

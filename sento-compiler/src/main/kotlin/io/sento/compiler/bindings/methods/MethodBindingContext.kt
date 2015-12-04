@@ -1,9 +1,9 @@
 package io.sento.compiler.bindings.methods
 
 import io.sento.compiler.common.TypeFactory
-import io.sento.compiler.model.AnnotationSpec
-import io.sento.compiler.model.ClassSpec
-import io.sento.compiler.model.MethodSpec
+import io.sento.compiler.reflection.AnnotationSpec
+import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.commons.GeneratorAdapter
 import java.util.NoSuchElementException
 

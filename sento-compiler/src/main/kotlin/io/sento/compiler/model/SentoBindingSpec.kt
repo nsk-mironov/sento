@@ -1,6 +1,7 @@
 package io.sento.compiler.model
 
 import io.sento.compiler.common.TypeFactory
+import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.Type
 
 internal class SentoBindingSpec(

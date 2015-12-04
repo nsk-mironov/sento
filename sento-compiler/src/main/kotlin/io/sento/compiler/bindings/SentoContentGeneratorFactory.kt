@@ -11,7 +11,7 @@ import io.sento.compiler.bindings.methods.MethodBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName
-import io.sento.compiler.model.ClassSpec
+import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.SentoBindingSpec
 import org.objectweb.asm.Type

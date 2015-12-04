@@ -1,6 +1,6 @@
 package io.sento.compiler.common
 
-import io.sento.compiler.model.MethodSpec
+import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.Method
 

@@ -14,10 +14,10 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.body
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
-import io.sento.compiler.model.ClassSpec
-import io.sento.compiler.model.FieldSpec
+import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflection.FieldSpec
 import io.sento.compiler.model.FieldTargetSpec
-import io.sento.compiler.model.MethodSpec
+import io.sento.compiler.reflection.MethodSpec
 import io.sento.compiler.model.MethodTargetSpec
 import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.model.ViewTargetSpec

@@ -1,7 +1,6 @@
-package io.sento.compiler.model
+package io.sento.compiler.reflection
 
 import io.sento.compiler.common.Opener
-import io.sento.compiler.visitors.ClassSpecVisitor
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Type
 import java.util.concurrent.atomic.AtomicReference
