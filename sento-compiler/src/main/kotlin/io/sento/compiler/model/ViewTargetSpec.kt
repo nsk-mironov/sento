@@ -1,7 +1,12 @@
 package io.sento.compiler.model
 
-internal data class ViewTargetSpec (
-    public val id: Int,
-    public val optional: Boolean,
-    public val owner: String
+import io.sento.compiler.bindings.fields.ViewBindingGenerator
+import io.sento.compiler.reflection.AnnotationSpec
+import io.sento.compiler.reflection.FieldSpec
+
+internal data class ViewTargetSpec(
+    public val field: FieldSpec,
+    public val annotation: AnnotationSpec,
+    public val generator: ViewBindingGenerator,
+    public val optional: Boolean
 )

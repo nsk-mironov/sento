@@ -14,7 +14,7 @@ internal object Methods {
   }
 
   public fun getAccessor(owner: Type, method: MethodSpec): Method {
-    return Methods.get("sento\$access\$${method.name}", method.returns, *arrayOf(owner, *method.arguments))
+    return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner, *method.arguments))
   }
 
   public fun getConstructor(vararg argsType: Type): Method {

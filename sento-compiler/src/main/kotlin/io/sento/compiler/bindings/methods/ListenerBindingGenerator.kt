@@ -9,6 +9,7 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.body
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
+import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
@@ -25,7 +26,9 @@ import org.slf4j.LoggerFactory
 import java.util.ArrayList
 import java.util.LinkedHashSet
 
-internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec) : MethodBindingGenerator {
+internal class ListenerBindingGenerator (
+    public val spec: ListenerBindingSpec
+) : MethodBindingGenerator {
   private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
 
   override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
@@ -44,8 +47,8 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
         }
 
         adapter.loadLocal(context.variable("view$it")).apply {
-          if (binding.owner.type != Types.VIEW) {
-            adapter.checkCast(binding.owner.type)
+          if (spec.owner.type != Types.VIEW) {
+            adapter.checkCast(spec.owner.type)
           }
         }
 
@@ -54,7 +57,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
 
         adapter.loadLocal(context.variable("target"))
         adapter.invokeConstructor(listener.type, Methods.getConstructor(listener.target))
-        adapter.invokeVirtual(binding.owner.type, Methods.get(binding.setter))
+        adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
 
         adapter.mark(this)
       }
@@ -70,7 +73,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
       visitListenerConstructor(listener, environment)
 
       val registry = environment.registry
-      val callbacks = registry.listPublicMethods(binding.listener).filter {
+      val callbacks = registry.listPublicMethods(spec.listener).filter {
         it.access.isAbstract
       }
 
@@ -85,7 +88,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   }
 
   private fun ClassVisitor.visitListenerHeader(listener: ListenerSpec, environment: GenerationEnvironment) {
-    visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, binding.listenerParent.internalName, binding.listenerInterfaces.map { it.internalName }.toTypedArray())
+    visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, spec.listenerParent.internalName, spec.listenerInterfaces.map { it.internalName }.toTypedArray())
   }
 
   private fun ClassVisitor.visitListenerFields(listener: ListenerSpec, environment: GenerationEnvironment) {
@@ -95,7 +98,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
   private fun ClassVisitor.visitListenerConstructor(listener: ListenerSpec, environment: GenerationEnvironment) {
     GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target), null, null, this).body {
       loadThis()
-      invokeConstructor(binding.listenerParent, Methods.getConstructor())
+      invokeConstructor(spec.listenerParent, Methods.getConstructor())
 
       loadThis()
       loadArg(0)
@@ -116,7 +119,7 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
         }
       }
 
-      if (!listener.method.access.isPublic) {
+      if (listener.method.access.isPrivate) {
         invokeStatic(listener.target, Methods.getAccessor(listener.target, listener.method))
       } else {
         invokeVirtual(listener.target, Methods.get(listener.method))
@@ -145,14 +148,14 @@ internal class ListenerBindingGenerator(private val binding: ListenerBindingSpec
           context.annotation.type.simpleName, context.clazz.type.className, context.method.name, context.method.returns.className, listOf(Types.VOID.className, Types.BOOLEAN.className))
     }
 
-    return ListenerSpec(type, context.clazz.type, binding.callback, context.method, args)
+    return ListenerSpec(type, context.clazz.type, spec.callback, context.method, args)
   }
 
   private fun remapMethodArgs(context: MethodBindingContext, environment: GenerationEnvironment): Collection<ArgumentSpec> {
     val result = ArrayList<ArgumentSpec>()
     val available = LinkedHashSet<Int>()
 
-    val from = binding.callback
+    val from = spec.callback
     val to = context.method
 
     for (index in 0..from.arguments.size - 1) {
