@@ -108,9 +108,16 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
           context.adapter.checkCast(spec.owner.type)
         }
 
-        context.adapter.visitInsn(Opcodes.ACONST_NULL)
-        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.unsetter))
+        if (context.binding.descriptor.setter != context.binding.descriptor.unsetter) {
+          context.adapter.loadLocal(context.variable("target"))
+          context.adapter.getField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
+        }
 
+        if (context.binding.descriptor.setter == context.binding.descriptor.unsetter) {
+          context.adapter.visitInsn(Opcodes.ACONST_NULL)
+        }
+
+        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.unsetter))
         context.adapter.mark(this)
       }
     }
