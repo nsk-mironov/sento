@@ -4,10 +4,6 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.ids
-import io.sento.compiler.bindings.ViewBindingContext
-import io.sento.compiler.bindings.ViewBindingGenerator
-import io.sento.compiler.bindings.ListenerBindingContext
-import io.sento.compiler.bindings.ListenerBindingGenerator
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Naming
 import io.sento.compiler.common.OptionalAware
@@ -205,8 +201,8 @@ internal class SentoBindingContentGenerator(
         }
 
         bindableFieldTargets.forEach {
-          addAll(it.generator.bind(ViewBindingContext(it.field, clazz, it.annotation, this,
-              variables, arguments, it.optional), environment))
+          it.generator.bind(ViewBindingContext(it.field, clazz, it.annotation, this,
+              variables, arguments, it.optional), environment)
         }
 
         bindableMethodTargets.forEach {
@@ -229,8 +225,8 @@ internal class SentoBindingContentGenerator(
         })
 
         bindableFieldTargets.forEach {
-          addAll(it.generator.unbind(ViewBindingContext(it.field, clazz, it.annotation, this,
-              variables, arguments, it.optional), environment))
+          it.generator.unbind(ViewBindingContext(it.field, clazz, it.annotation, this,
+              variables, arguments, it.optional), environment)
         }
 
         bindableMethodTargets.forEach {
