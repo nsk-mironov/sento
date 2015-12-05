@@ -12,5 +12,5 @@ internal interface ListenerClass {
 
   public fun setter(): String
 
-  public fun unsetter(): String
+  public fun unsetter(): String?
 }

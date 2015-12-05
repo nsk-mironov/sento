@@ -74,9 +74,8 @@ internal data class ListenerClassSpec private constructor(
         it.name == binding.callback()
       }
 
-      val listenerSetters = ownerSpec.methods.filter {
-        it.name == binding.setter() && it.arguments.size == 1
-      }
+      val listenerSetter = resolveListenerSetterSpec(binding.setter(), annotation, binding, environment)
+      val listenerUnsetter = resolveListenerSetterSpec(binding.unsetter() ?: binding.setter(), annotation, binding, environment)
 
       if (!listenerSpec.access.isInterface && (listenerConstructor == null || listenerConstructor.access.isPrivate)) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have a zero-arg constructor with public or protected visibility.",
@@ -93,21 +92,6 @@ internal data class ListenerClassSpec private constructor(
             annotation.type.simpleName, listenerType.className, binding.callback(), listenerCallbacks.size, listenerCallbacks.map { Methods.asJavaDeclaration(it) })
       }
 
-      if (listenerSetters.size == 0) {
-        throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must have exactly one single-arg method ''{2}'', but none was found.",
-            annotation.type.simpleName, ownerType.className, binding.setter())
-      }
-
-      if (listenerSetters.size > 1) {
-        throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must have exactly one single-arg method ''{2}'', but {3} were found {4}.",
-            annotation.type.simpleName, ownerType.className, binding.setter(), listenerSetters.size, listenerSetters.map { Methods.asJavaDeclaration(it) })
-      }
-
-      if (!environment.registry.isSubclassOf(listenerSpec.type, listenerSetters[0].arguments[0])) {
-        throw SentoException("Unable to process @{0} annotation - listener setter ''{1}'' doesn''t accept ''{2}'' as an argument. Only subclasses of ''{3}'' are allowed.",
-            annotation.type.simpleName, listenerSetters[0].name, listenerSpec.type.className, listenerSetters[0].arguments[0].className)
-      }
-
       listenerSpec.methods.forEach {
         if (it.access.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
           throw SentoException("Unable to process @{0} annotation - listener method ''{1}'' returns ''{2}'', but only {3} are supported.",
@@ -115,14 +99,43 @@ internal data class ListenerClassSpec private constructor(
         }
       }
 
+      return ListenerClassSpec(ownerSpec, listenerSpec, listenerSetter, listenerUnsetter, listenerCallbacks[0])
+    }
+
+    private fun resolveListenerSetterSpec(name: String, annotation: ClassSpec, binding: ListenerClass, environment: GenerationEnvironment): MethodSpec {
+      val ownerType = binding.owner()
+      val listenerType = binding.listener()
+
+      val ownerSpec = environment.registry.resolve(ownerType)
+      val listenerSpec = environment.registry.resolve(listenerType)
+
+      val listenerSetters = ownerSpec.methods.filter {
+        it.name == name && it.arguments.size == 1
+      }
+
+      if (listenerSetters.size == 0) {
+        throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must have exactly one single-arg method ''{2}'', but none was found.",
+            annotation.type.simpleName, ownerType.className, name)
+      }
+
+      if (listenerSetters.size > 1) {
+        throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must have exactly one single-arg method ''{2}'', but {3} were found {4}.",
+            annotation.type.simpleName, ownerType.className, name, listenerSetters.size, listenerSetters.map { Methods.asJavaDeclaration(it) })
+      }
+
+      if (!environment.registry.isSubclassOf(listenerSpec.type, listenerSetters[0].arguments[0])) {
+        throw SentoException("Unable to process @{0} annotation - method ''{1}'' doesn''t accept ''{2}'' as an argument. Only subclasses of ''{3}'' are allowed.",
+            annotation.type.simpleName, listenerSetters[0].name, listenerSpec.type.className, listenerSetters[0].arguments[0].className)
+      }
+
       environment.registry.resolve(listenerSetters[0].arguments[0]).methods.forEach {
         if (it.access.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
-          throw SentoException("Unable to process @{0} annotation - listener method ''{1}'' returns ''{2}'', but only {3} are supported.",
+          throw SentoException("Unable to process @{0} annotation - method ''{1}'' returns ''{2}'', but only {3} are supported.",
               annotation.type.simpleName, it.name, it.returns.className, listOf(Types.VOID.className, Types.BOOLEAN.className))
         }
       }
 
-      return ListenerClassSpec(ownerSpec, listenerSpec, listenerSetters[0], listenerSetters[0], listenerCallbacks[0])
+      return listenerSetters[0]
     }
   }
 }
