@@ -99,15 +99,19 @@ internal class SentoBindingContentGenerator(
       if (shouldGenerateBindingClass(clazz, environment)) {
         logger.info("Generating SentoBinding for '{}' class:", target.className)
 
+        val listeners = bindableMethodTargets.map {
+          ListenerBindingSpec.create(it, it.generator.spec, environment)
+        }
+
         val bytes = environment.newClass {
           visitHeader(environment)
           visitConstructor(environment)
 
-          visitBindMethod(environment).apply {
+          visitBindMethod(listeners, environment).apply {
             addAll(this)
           }
 
-          visitUnbindMethod(environment).apply {
+          visitUnbindMethod(listeners, environment).apply {
             addAll(this)
           }
         }
@@ -156,7 +160,7 @@ internal class SentoBindingContentGenerator(
     }
   }
 
-  private fun ClassWriter.visitBindMethod(environment: GenerationEnvironment): List<GeneratedContent> {
+  private fun ClassWriter.visitBindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment): List<GeneratedContent> {
     return ArrayList<GeneratedContent>().apply {
       val descriptor = Methods.get("bind", Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
       val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
@@ -204,15 +208,14 @@ internal class SentoBindingContentGenerator(
           it.generator.bind(ViewBindingContext(it, this, variables, arguments), environment)
         }
 
-        bindableMethodTargets.forEach {
-          addAll(it.generator.bind(ListenerBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
-              environment), this, variables, arguments), environment))
+        listeners.forEach {
+          addAll(it.target.generator.bind(ListenerBindingContext(it, this, variables, arguments), environment))
         }
       }
     }
   }
 
-  private fun ClassWriter.visitUnbindMethod(environment: GenerationEnvironment): List<GeneratedContent> {
+  private fun ClassWriter.visitUnbindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment): List<GeneratedContent> {
     return ArrayList<GeneratedContent>().apply {
       GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).body {
         val arguments = mapOf("target" to 0)
@@ -227,9 +230,8 @@ internal class SentoBindingContentGenerator(
           it.generator.unbind(ViewBindingContext(it, this, variables, arguments), environment)
         }
 
-        bindableMethodTargets.forEach {
-          addAll(it.generator.unbind(ListenerBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
-              environment), this, variables, arguments), environment))
+        listeners.forEach {
+          addAll(it.target.generator.unbind(ListenerBindingContext(it, this, variables, arguments), environment))
         }
 
         bindableMethodTargets.distinctBy { it.method.name to it.annotation.type }.forEach {
