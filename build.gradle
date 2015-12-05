@@ -27,7 +27,7 @@ ext {
   projectTargetSdkVersion = 23
 
   androidToolsVersion = "1.5.0"
-  kotlinVersion = "1.0.0-beta-3594"
+  kotlinVersion = "1.0.0-beta-3595"
   bintrayVersion = "1.4"
 
   guavaVersion = "18.0"
