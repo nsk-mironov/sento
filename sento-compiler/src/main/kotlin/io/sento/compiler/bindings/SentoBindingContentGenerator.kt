@@ -201,8 +201,7 @@ internal class SentoBindingContentGenerator(
         }
 
         bindableFieldTargets.forEach {
-          it.generator.bind(ViewBindingContext(it.field, clazz, it.annotation, this,
-              variables, arguments, it.optional), environment)
+          it.generator.bind(ViewBindingContext(it, this, variables, arguments), environment)
         }
 
         bindableMethodTargets.forEach {
@@ -225,8 +224,7 @@ internal class SentoBindingContentGenerator(
         })
 
         bindableFieldTargets.forEach {
-          it.generator.unbind(ViewBindingContext(it.field, clazz, it.annotation, this,
-              variables, arguments, it.optional), environment)
+          it.generator.unbind(ViewBindingContext(it, this, variables, arguments), environment)
         }
 
         bindableMethodTargets.forEach {

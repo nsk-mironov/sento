@@ -15,36 +15,36 @@ internal class ViewBindingGenerator {
 
   public fun bind(context: ViewBindingContext, environment: GenerationEnvironment) {
     logger.info("Generating @{} binding for '{}' field",
-        context.annotation.type.simpleName, context.field.name)
+        context.target.annotation.type.simpleName, context.target.field.name)
 
-    if (context.field.type.sort == Type.ARRAY) {
+    if (context.target.field.type.sort == Type.ARRAY) {
       throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - arrays are not supported, but ''{3}'' was found.",
-          context.annotation.type.simpleName, context.clazz.type.className, context.field.name, context.field.type.className)
+          context.target.annotation.type.simpleName, context.target.clazz.type.className, context.target.field.name, context.target.field.type.className)
     }
 
-    val isView = environment.registry.isSubclassOf(context.field.type, Types.VIEW)
-    val isInterface = environment.registry.reference(context.field.type).access.isInterface
+    val isView = environment.registry.isSubclassOf(context.target.field.type, Types.VIEW)
+    val isInterface = environment.registry.reference(context.target.field.type).access.isInterface
 
     if (!isInterface && !isView) {
       throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - it must be a subclass of ''{3}'' or an interface, but ''{4}'' was found.",
-          context.annotation.type.simpleName, context.clazz.type.className, context.field.name, Types.VIEW.className, context.field.type.className)
+          context.target.annotation.type.simpleName, context.target.clazz.type.className, context.target.field.name, Types.VIEW.className, context.target.field.type.className)
     }
 
     context.adapter.apply {
       loadLocal(context.variable("target"))
-      loadLocal(context.variable("view${context.annotation.id}"))
+      loadLocal(context.variable("view${context.target.annotation.id}"))
 
-      if (context.field.type != Types.VIEW) {
-        checkCast(context.field.type)
+      if (context.target.field.type != Types.VIEW) {
+        checkCast(context.target.field.type)
       }
 
-      putField(context.clazz.type, context.field.name, context.field.type)
+      putField(context.target.clazz.type, context.target.field.name, context.target.field.type)
     }
   }
 
   public fun unbind(context: ViewBindingContext, environment: GenerationEnvironment) {
     context.adapter.loadLocal(context.variable("target"))
     context.adapter.visitInsn(Opcodes.ACONST_NULL)
-    context.adapter.putField(context.clazz.type, context.field.name, context.field.type)
+    context.adapter.putField(context.target.clazz.type, context.target.field.name, context.target.field.type)
   }
 }
