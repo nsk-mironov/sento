@@ -1,7 +1,6 @@
 package io.sento.compiler.reflection
 
 import io.sento.compiler.common.Types
-import io.sento.compiler.reflection.FieldSpec
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes
