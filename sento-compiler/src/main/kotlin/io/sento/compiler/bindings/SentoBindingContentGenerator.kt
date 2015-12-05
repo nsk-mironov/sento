@@ -67,7 +67,7 @@ internal class SentoBindingContentGenerator(
     clazz.fields.flatMap { field ->
       field.annotations.map { annotation ->
         views[annotation.type]?.let { generator ->
-          ViewTargetSpec(field, annotation, generator, optional.isOptional(field))
+          ViewTargetSpec(clazz, field, annotation, generator, optional.isOptional(field))
         }
       }.filterNotNull()
     }
@@ -77,7 +77,7 @@ internal class SentoBindingContentGenerator(
     clazz.methods.flatMap { method ->
       method.annotations.map { annotation ->
         listeners[annotation.type]?.let {
-          ListenerTargetSpec(method, annotation, it, optional.isOptional(method))
+          ListenerTargetSpec(clazz, method, annotation, it, optional.isOptional(method))
         }
       }.filterNotNull()
     }
