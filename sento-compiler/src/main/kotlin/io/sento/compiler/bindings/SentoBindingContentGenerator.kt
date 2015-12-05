@@ -103,17 +103,15 @@ internal class SentoBindingContentGenerator(
           ListenerBindingSpec.create(it, it.generator.spec, environment)
         }
 
+        addAll(listeners.flatMap {
+          it.target.generator.generate(it, environment)
+        })
+
         val bytes = environment.newClass {
           visitHeader(environment)
           visitConstructor(environment)
-
-          visitBindMethod(listeners, environment).apply {
-            addAll(this)
-          }
-
-          visitUnbindMethod(listeners, environment).apply {
-            addAll(this)
-          }
+          visitBindMethod(listeners, environment)
+          visitUnbindMethod(listeners, environment)
         }
 
         add(GeneratedContent(Types.getClassFilePath(target), AccessibilityPatcher(environment).patch(clazz)))
@@ -160,91 +158,87 @@ internal class SentoBindingContentGenerator(
     }
   }
 
-  private fun ClassWriter.visitBindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment): List<GeneratedContent> {
-    return ArrayList<GeneratedContent>().apply {
-      val descriptor = Methods.get("bind", Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
-      val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
+  private fun ClassWriter.visitBindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment) {
+    val descriptor = Methods.get("bind", Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
+    val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
-      GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).body {
-        val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
-        val variables = HashMap<String, Int>()
+    GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).body {
+      val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
+      val variables = HashMap<String, Int>()
 
-        variables.put("target", newLocal(target).apply {
-          loadArg(arguments["target"]!!)
-          checkCast(target)
-          storeLocal(this)
-        })
+      variables.put("target", newLocal(target).apply {
+        loadArg(arguments["target"]!!)
+        checkCast(target)
+        storeLocal(this)
+      })
 
-        bindableViewTargetsForAll.distinctBy { it.id }.forEach {
-          variables.put("view${it.id}", newLocal(Types.VIEW).apply {
-            loadArg(arguments["finder"]!!)
-            push(it.id)
-
-            loadArg(arguments["source"]!!)
-            invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT))
-
-            storeLocal(this)
-          })
-        }
-
-        bindableViewTargetsForAll.filter { !it.optional }.distinctBy { it.id }.forEach {
+      bindableViewTargetsForAll.distinctBy { it.id }.forEach {
+        variables.put("view${it.id}", newLocal(Types.VIEW).apply {
           loadArg(arguments["finder"]!!)
           push(it.id)
 
-          loadLocal(variables["view${it.id}"]!!)
           loadArg(arguments["source"]!!)
-          push(it.owner)
+          invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT))
 
-          invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
-        }
+          storeLocal(this)
+        })
+      }
 
-        bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
-          loadLocal(variables["target"]!!)
-          loadLocal(variables["view${it.id}"]!!)
-          putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
-        }
+      bindableViewTargetsForAll.filter { !it.optional }.distinctBy { it.id }.forEach {
+        loadArg(arguments["finder"]!!)
+        push(it.id)
 
-        bindableFieldTargets.forEach {
-          it.generator.bind(ViewBindingContext(it, this, variables, arguments), environment)
-        }
+        loadLocal(variables["view${it.id}"]!!)
+        loadArg(arguments["source"]!!)
+        push(it.owner)
 
-        listeners.forEach {
-          addAll(it.target.generator.bind(ListenerBindingContext(it, this, variables, arguments), environment))
-        }
+        invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
+      }
+
+      bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
+        loadLocal(variables["target"]!!)
+        loadLocal(variables["view${it.id}"]!!)
+        putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
+      }
+
+      bindableFieldTargets.forEach {
+        it.generator.bind(ViewBindingContext(it, this, variables, arguments), environment)
+      }
+
+      listeners.forEach {
+        it.target.generator.bind(ListenerBindingContext(it, this, variables, arguments), environment)
       }
     }
   }
 
-  private fun ClassWriter.visitUnbindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment): List<GeneratedContent> {
-    return ArrayList<GeneratedContent>().apply {
-      GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).body {
-        val arguments = mapOf("target" to 0)
+  private fun ClassWriter.visitUnbindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment) {
+    GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).body {
+      val arguments = mapOf("target" to 0)
 
-        val variables = mapOf("target" to newLocal(target).apply {
-          loadArg(arguments["target"]!!)
-          checkCast(target)
-          storeLocal(this)
-        })
+      val variables = mapOf("target" to newLocal(target).apply {
+        loadArg(arguments["target"]!!)
+        checkCast(target)
+        storeLocal(this)
+      })
 
-        bindableFieldTargets.forEach {
-          it.generator.unbind(ViewBindingContext(it, this, variables, arguments), environment)
-        }
+      bindableFieldTargets.forEach {
+        it.generator.unbind(ViewBindingContext(it, this, variables, arguments), environment)
+      }
 
-        listeners.forEach {
-          addAll(it.target.generator.unbind(ListenerBindingContext(it, this, variables, arguments), environment))
-        }
+      listeners.forEach {
+        it.target.generator.unbind(ListenerBindingContext(it, this, variables, arguments), environment)
+      }
 
-        bindableMethodTargets.distinctBy { it.method.name to it.annotation.type }.forEach {
-          loadLocal(variables["target"]!!)
-          visitInsn(Opcodes.ACONST_NULL)
-          putField(target, Naming.getSyntheticFieldNameForMethodTarget(it), it.generator.spec.listener.type)
-        }
+      bindableMethodTargets.distinctBy { it.method.name to it.annotation.type }.forEach {
+        loadLocal(variables["target"]!!)
+        visitInsn(Opcodes.ACONST_NULL)
+        putField(target, Naming.getSyntheticFieldNameForMethodTarget(it), it.generator.spec.listener.type)
+      }
 
-        bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
-          loadLocal(variables["target"]!!)
-          visitInsn(Opcodes.ACONST_NULL)
-          putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
-        }
+      bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
+        loadLocal(variables["target"]!!)
+        visitInsn(Opcodes.ACONST_NULL)
+        putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
       }
     }
   }

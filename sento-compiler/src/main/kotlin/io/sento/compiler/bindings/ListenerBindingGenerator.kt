@@ -27,50 +27,11 @@ import org.slf4j.LoggerFactory
 internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
   private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
 
-  public fun bind(context: ListenerBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    logger.info("Generating @{} binding for '{}' method",
-        context.binding.target.annotation.type.simpleName, context.binding.target.method.name)
-
-    val listener = context.binding
-    val result = listOf(onCreateBindingListener(listener, environment))
-    val adapter = context.adapter
-
-    context.binding.target.annotation.ids.forEach {
-      adapter.newLabel().apply {
-        if (context.binding.target.optional) {
-          adapter.loadLocal(context.variable("view$it"))
-          adapter.ifNull(this)
-        }
-
-        adapter.loadLocal(context.variable("view$it")).apply {
-          if (spec.owner.type != Types.VIEW) {
-            adapter.checkCast(spec.owner.type)
-          }
-        }
-
-        adapter.newInstance(listener.type)
-        adapter.dup()
-
-        adapter.loadLocal(context.variable("target"))
-        adapter.invokeConstructor(listener.type, Methods.getConstructor(listener.target.clazz.type))
-        adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
-
-        adapter.mark(this)
-      }
-    }
-
-    return result
-  }
-
-  public fun unbind(context: ListenerBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
-    return emptyList()
-  }
-
-  private fun onCreateBindingListener(listener: ListenerBindingSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(Types.getClassFilePath(listener.type), environment.newClass {
-      visitListenerHeader(listener, environment)
-      visitListenerFields(listener, environment)
-      visitListenerConstructor(listener, environment)
+  public fun generate(context: ListenerBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
+    return listOf(GeneratedContent(Types.getClassFilePath(context.type), environment.newClass {
+      visitListenerHeader(context, environment)
+      visitListenerFields(context, environment)
+      visitListenerConstructor(context, environment)
 
       val registry = environment.registry
       val callbacks = registry.listPublicMethods(spec.listener).filter {
@@ -78,13 +39,46 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
       }
 
       callbacks.forEach {
-        if (it.name == listener.descriptor.callback.name && it.type == listener.descriptor.callback.type) {
-          visitListenerCallback(listener, environment)
+        if (it.name == context.descriptor.callback.name && it.type == context.descriptor.callback.type) {
+          visitListenerCallback(context, environment)
         } else {
-          visitListenerStub(listener, it, environment)
+          visitListenerStub(context, it, environment)
         }
       }
-    })
+    }))
+  }
+
+  public fun bind(context: ListenerBindingContext, environment: GenerationEnvironment) {
+    logger.info("Generating @{} binding for '{}' method",
+        context.binding.target.annotation.type.simpleName, context.binding.target.method.name)
+
+    context.binding.target.annotation.ids.forEach {
+      context.adapter.newLabel().apply {
+        if (context.binding.target.optional) {
+          context.adapter.loadLocal(context.variable("view$it"))
+          context.adapter.ifNull(this)
+        }
+
+        context.adapter.loadLocal(context.variable("view$it")).apply {
+          if (spec.owner.type != Types.VIEW) {
+            context.adapter.checkCast(spec.owner.type)
+          }
+        }
+
+        context.adapter.newInstance(context.binding.type)
+        context.adapter.dup()
+
+        context.adapter.loadLocal(context.variable("target"))
+        context.adapter.invokeConstructor(context.binding.type, Methods.getConstructor(context.binding.target.clazz.type))
+        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
+
+        context.adapter.mark(this)
+      }
+    }
+  }
+
+  public fun unbind(context: ListenerBindingContext, environment: GenerationEnvironment) {
+    // do nothing for now
   }
 
   private fun ClassVisitor.visitListenerHeader(listener: ListenerBindingSpec, environment: GenerationEnvironment) {
