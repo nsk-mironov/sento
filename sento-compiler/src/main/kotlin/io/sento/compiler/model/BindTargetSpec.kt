@@ -1,6 +1,6 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.bindings.fields.ViewBindingGenerator
+import io.sento.compiler.bindings.ViewBindingGenerator
 import io.sento.compiler.reflection.AnnotationSpec
 import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.FieldSpec

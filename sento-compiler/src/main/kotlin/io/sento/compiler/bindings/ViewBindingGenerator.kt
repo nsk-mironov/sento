@@ -1,4 +1,4 @@
-package io.sento.compiler.bindings.fields
+package io.sento.compiler.bindings
 
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
@@ -11,10 +11,10 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
 
-internal class ViewBindingGenerator : FieldBindingGenerator {
+internal class ViewBindingGenerator {
   private val logger = LoggerFactory.getLogger(ViewBindingGenerator::class.java)
 
-  override fun bind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
+  public fun bind(context: ViewBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     logger.info("Generating @{} binding for '{}' field",
         context.annotation.type.simpleName, context.field.name)
 
@@ -45,7 +45,7 @@ internal class ViewBindingGenerator : FieldBindingGenerator {
     return emptyList()
   }
 
-  override fun unbind(context: FieldBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
+  public fun unbind(context: ViewBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     context.adapter.loadLocal(context.variable("target"))
     context.adapter.visitInsn(Opcodes.ACONST_NULL)
     context.adapter.putField(context.clazz.type, context.field.name, context.field.type)

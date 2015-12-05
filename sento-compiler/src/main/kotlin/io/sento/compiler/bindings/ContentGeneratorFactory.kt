@@ -4,8 +4,8 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.Bind
 import io.sento.compiler.annotations.ListenerClass
-import io.sento.compiler.bindings.fields.ViewBindingGenerator
-import io.sento.compiler.bindings.methods.ListenerBindingGenerator
+import io.sento.compiler.bindings.ViewBindingGenerator
+import io.sento.compiler.bindings.ListenerBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName

@@ -4,10 +4,10 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.ids
-import io.sento.compiler.bindings.fields.FieldBindingContext
-import io.sento.compiler.bindings.fields.ViewBindingGenerator
-import io.sento.compiler.bindings.methods.ListenerBindingGenerator
-import io.sento.compiler.bindings.methods.MethodBindingContext
+import io.sento.compiler.bindings.ViewBindingContext
+import io.sento.compiler.bindings.ViewBindingGenerator
+import io.sento.compiler.bindings.ListenerBindingContext
+import io.sento.compiler.bindings.ListenerBindingGenerator
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Naming
 import io.sento.compiler.common.OptionalAware
@@ -205,12 +205,12 @@ internal class SentoBindingContentGenerator(
         }
 
         bindableFieldTargets.forEach {
-          addAll(it.generator.bind(FieldBindingContext(it.field, clazz, it.annotation, this,
+          addAll(it.generator.bind(ViewBindingContext(it.field, clazz, it.annotation, this,
               variables, arguments, it.optional), environment))
         }
 
         bindableMethodTargets.forEach {
-          addAll(it.generator.bind(MethodBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
+          addAll(it.generator.bind(ListenerBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
               environment), this, variables, arguments), environment))
         }
       }
@@ -229,12 +229,12 @@ internal class SentoBindingContentGenerator(
         })
 
         bindableFieldTargets.forEach {
-          addAll(it.generator.unbind(FieldBindingContext(it.field, clazz, it.annotation, this,
+          addAll(it.generator.unbind(ViewBindingContext(it.field, clazz, it.annotation, this,
               variables, arguments, it.optional), environment))
         }
 
         bindableMethodTargets.forEach {
-          addAll(it.generator.unbind(MethodBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
+          addAll(it.generator.unbind(ListenerBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
               environment), this, variables, arguments), environment))
         }
 

@@ -1,4 +1,4 @@
-package io.sento.compiler.bindings.methods
+package io.sento.compiler.bindings
 
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
@@ -24,12 +24,10 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
 import org.slf4j.LoggerFactory
 
-internal class ListenerBindingGenerator (
-    public val spec: ListenerClassSpec
-) : MethodBindingGenerator {
+internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
   private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
 
-  override fun bind(context: MethodBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
+  public fun bind(context: ListenerBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
     logger.info("Generating @{} binding for '{}' method",
         context.binding.target.annotation.type.simpleName, context.binding.target.method.name)
 
@@ -62,6 +60,10 @@ internal class ListenerBindingGenerator (
     }
 
     return result
+  }
+
+  public fun unbind(context: ListenerBindingContext, environment: GenerationEnvironment): List<GeneratedContent> {
+    return emptyList()
   }
 
   private fun onCreateBindingListener(listener: ListenerBindingSpec, environment: GenerationEnvironment): GeneratedContent {
