@@ -19,7 +19,7 @@ import org.objectweb.asm.commons.GeneratorAdapter
 
 internal class SentoFactoryContentGenerator(private val bindings: Collection<ClassSpec>) : ContentGenerator {
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
-    return listOf(GeneratedContent(Types.getClassFilePath(Types.FACTORY), environment.createClass {
+    return listOf(GeneratedContent(Types.getClassFilePath(Types.FACTORY), environment.newClass {
       visitHeader(environment)
       visitFields(environment)
 

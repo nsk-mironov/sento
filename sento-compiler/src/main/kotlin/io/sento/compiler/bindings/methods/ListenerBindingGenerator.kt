@@ -67,7 +67,7 @@ internal class ListenerBindingGenerator (
   }
 
   private fun onCreateBindingListener(listener: ListenerSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent(Types.getClassFilePath(listener.type), environment.createClass {
+    return GeneratedContent(Types.getClassFilePath(listener.type), environment.newClass {
       visitListenerHeader(listener, environment)
       visitListenerFields(listener, environment)
       visitListenerConstructor(listener, environment)

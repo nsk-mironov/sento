@@ -102,7 +102,7 @@ internal class SentoBindingContentGenerator(
       if (shouldGenerateBindingClass(clazz, environment)) {
         logger.info("Generating SentoBinding for '{}' class:", target.className)
 
-        val bytes = environment.createClass {
+        val bytes = environment.newClass {
           visitHeader(environment)
           visitConstructor(environment)
 
@@ -254,14 +254,10 @@ internal class SentoBindingContentGenerator(
 
   private inner class AccessibilityPatcher(val environment: GenerationEnvironment) {
     public fun patch(spec: ClassSpec): ByteArray {
+      val writer = environment.newClassWriter()
+
       val bytes = spec.opener.open()
       val reader = ClassReader(bytes)
-
-      val writer = object : ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS) {
-        override fun getCommonSuperClass(left: String, right: String): String {
-          return Types.OBJECT.internalName
-        }
-      }
 
       reader.accept(object : ClassVisitor(ASM5, writer) {
         override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
