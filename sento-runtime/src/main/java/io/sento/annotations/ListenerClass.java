@@ -12,7 +12,9 @@ public @interface ListenerClass {
 
   public Class<?> listener();
 
+  public String callback();
+
   public String setter();
 
-  public String callback();
+  public String unsetter() default "";
 }

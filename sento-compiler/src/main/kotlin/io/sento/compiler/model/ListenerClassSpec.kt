@@ -18,6 +18,7 @@ internal data class ListenerClassSpec private constructor(
     public val owner: ClassSpec,
     public val listener: ClassSpec,
     public val setter: MethodSpec,
+    public val unsetter: MethodSpec,
     public val callback: MethodSpec
 ) {
   public companion object {
@@ -121,7 +122,7 @@ internal data class ListenerClassSpec private constructor(
         }
       }
 
-      return ListenerClassSpec(ownerSpec, listenerSpec, listenerSetters[0], listenerCallbacks[0])
+      return ListenerClassSpec(ownerSpec, listenerSpec, listenerSetters[0], listenerSetters[0], listenerCallbacks[0])
     }
   }
 }

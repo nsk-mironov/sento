@@ -8,7 +8,9 @@ internal interface ListenerClass {
 
   public fun listener(): Type
 
+  public fun callback(): String
+
   public fun setter(): String
 
-  public fun callback(): String
+  public fun unsetter(): String
 }

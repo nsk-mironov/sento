@@ -109,7 +109,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         }
 
         context.adapter.visitInsn(Opcodes.ACONST_NULL)
-        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
+        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.unsetter))
 
         context.adapter.mark(this)
       }
