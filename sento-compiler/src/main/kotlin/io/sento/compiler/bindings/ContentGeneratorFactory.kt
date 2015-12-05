@@ -10,7 +10,6 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
-import io.sento.compiler.model.SentoBindingSpec
 import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
@@ -56,7 +55,7 @@ internal class ContentGeneratorFactory private constructor(
     return SentoBindingContentGenerator(fields, methods, clazz)
   }
 
-  public fun createFactory(bindings: Collection<SentoBindingSpec>): ContentGenerator {
+  public fun createFactory(bindings: Collection<ClassSpec>): ContentGenerator {
     return SentoFactoryContentGenerator(bindings)
   }
 }

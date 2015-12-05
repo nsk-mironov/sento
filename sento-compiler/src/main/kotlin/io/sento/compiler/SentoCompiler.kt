@@ -1,8 +1,8 @@
 package io.sento.compiler
 
-import io.sento.compiler.bindings.SentoBindingContentGenerator
 import io.sento.compiler.bindings.ContentGeneratorFactory
-import io.sento.compiler.model.SentoBindingSpec
+import io.sento.compiler.bindings.SentoBindingContentGenerator
+import io.sento.compiler.reflection.ClassSpec
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -32,7 +32,7 @@ public class SentoCompiler() {
     logger.info("Input classes count: {}", registry.inputs.size)
 
     val factory = ContentGeneratorFactory.from(environment)
-    val bindings = ArrayList<SentoBindingSpec>()
+    val bindings = ArrayList<ClassSpec>()
 
     options.inputs.forEach {
       logger.info("Copying files from {} to {}", it.absolutePath, options.output.absolutePath)
@@ -44,7 +44,7 @@ public class SentoCompiler() {
         logger.info("Writing generated class {}", File(options.output, it.path))
 
         if (it.has(SentoBindingContentGenerator.EXTRA_BINDING_SPEC)) {
-          bindings.add(it.extra<SentoBindingSpec>(SentoBindingContentGenerator.EXTRA_BINDING_SPEC))
+          bindings.add(it.extra<ClassSpec>(SentoBindingContentGenerator.EXTRA_BINDING_SPEC))
         }
 
         FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)

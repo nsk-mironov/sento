@@ -4,9 +4,10 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Methods
+import io.sento.compiler.common.Naming
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.body
-import io.sento.compiler.model.SentoBindingSpec
+import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
@@ -16,7 +17,7 @@ import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.commons.GeneratorAdapter
 
-internal class SentoFactoryContentGenerator(private val bindings: Collection<SentoBindingSpec>) : ContentGenerator {
+internal class SentoFactoryContentGenerator(private val bindings: Collection<ClassSpec>) : ContentGenerator {
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     return listOf(GeneratedContent(Types.getClassFilePath(Types.FACTORY), environment.createClass {
       visitHeader(environment)
@@ -67,12 +68,12 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Sen
 
       bindings.forEach {
         getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
-        push(it.target)
+        push(it.type)
 
-        newInstance(it.binding)
+        newInstance(Naming.getSentoBindingType(it.type))
         dup()
 
-        invokeConstructor(it.binding, Methods.getConstructor())
+        invokeConstructor(Naming.getSentoBindingType(it.type), Methods.getConstructor())
         invokeInterface(Types.MAP, Methods.get("put", Types.OBJECT, Types.OBJECT, Types.OBJECT))
         pop()
       }

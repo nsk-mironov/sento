@@ -1,6 +1,5 @@
 package io.sento.compiler.bindings.fields
 
-import io.sento.compiler.common.TypeFactory
 import io.sento.compiler.reflection.AnnotationSpec
 import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.FieldSpec
@@ -14,7 +13,6 @@ internal class FieldBindingContext(
     public val adapter: GeneratorAdapter,
     public val variables: Map<String, Int>,
     public val arguments: Map<String, Int>,
-    public val factory: TypeFactory,
     public val optional: Boolean
 ) {
   public fun argument(name: String): Int {

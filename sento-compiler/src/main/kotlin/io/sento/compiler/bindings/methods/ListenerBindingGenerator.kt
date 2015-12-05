@@ -5,12 +5,12 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
 import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.Methods
+import io.sento.compiler.common.Naming
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.body
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPrivate
-import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.reflection.MethodSpec
@@ -120,7 +120,7 @@ internal class ListenerBindingGenerator (
       }
 
       if (listener.method.access.isPrivate) {
-        invokeStatic(listener.target, Methods.getAccessor(listener.target, listener.method))
+        invokeStatic(listener.target, Naming.getSyntheticAccessor(listener.target, listener.method))
       } else {
         invokeVirtual(listener.target, Methods.get(listener.method))
       }
@@ -140,7 +140,7 @@ internal class ListenerBindingGenerator (
   }
 
   private fun createListenerSpec(context: MethodBindingContext, environment: GenerationEnvironment): ListenerSpec {
-    val type = context.factory.newAnonymousType()
+    val type = Naming.getAnonymousType(Naming.getSentoBindingType(context.clazz.type))
     val args = remapMethodArgs(context, environment)
 
     if (context.method.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
