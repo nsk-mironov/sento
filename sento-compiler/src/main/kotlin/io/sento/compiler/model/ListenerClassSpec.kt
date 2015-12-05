@@ -14,7 +14,7 @@ import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.Type
 
-internal data class ListenerClassSpec(
+internal data class ListenerClassSpec private constructor(
     public val owner: ClassSpec,
     public val listener: ClassSpec,
     public val setter: MethodSpec,

@@ -17,6 +17,7 @@ import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
 import io.sento.compiler.model.BindTargetSpec
+import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ListenerTargetSpec
 import io.sento.compiler.model.ViewSpec
 import io.sento.compiler.reflection.ClassSpec
@@ -209,8 +210,8 @@ internal class SentoBindingContentGenerator(
         }
 
         bindableMethodTargets.forEach {
-          addAll(it.generator.bind(MethodBindingContext(it.method, clazz, it.annotation, this,
-              variables, arguments, it.optional), environment))
+          addAll(it.generator.bind(MethodBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
+              environment), this, variables, arguments), environment))
         }
       }
     }
@@ -233,8 +234,8 @@ internal class SentoBindingContentGenerator(
         }
 
         bindableMethodTargets.forEach {
-          addAll(it.generator.unbind(MethodBindingContext(it.method, clazz, it.annotation, this,
-              variables, arguments, it.optional), environment))
+          addAll(it.generator.unbind(MethodBindingContext(ListenerBindingSpec.create(it, it.generator.spec,
+              environment), this, variables, arguments), environment))
         }
 
         bindableMethodTargets.distinctBy { it.method.name to it.annotation.type }.forEach {
