@@ -1,11 +1,11 @@
 package io.sento.sample.annotations
 
 import android.view.View
-import io.sento.annotations.ListenerBinding
+import io.sento.annotations.ListenerClass
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@ListenerBinding(
+@ListenerClass(
     owner = View::class,
     listener = OnFocusLostListener::class,
     setter = "setOnFocusChangeListener",

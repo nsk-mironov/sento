@@ -3,13 +3,13 @@ package io.sento.compiler.bindings
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.Bind
-import io.sento.compiler.annotations.ListenerBinding
+import io.sento.compiler.annotations.ListenerClass
 import io.sento.compiler.bindings.fields.ViewBindingGenerator
 import io.sento.compiler.bindings.methods.ListenerBindingGenerator
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAnnotation
 import io.sento.compiler.common.simpleName
-import io.sento.compiler.model.ListenerBindingSpec
+import io.sento.compiler.model.ListenerClassSpec
 import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
@@ -37,13 +37,13 @@ internal class ContentGeneratorFactory private constructor(
         environment.registry.references.forEach {
           if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {
             val spec = environment.registry.resolve(it)
-            val binding = spec.getAnnotation<ListenerBinding>()
+            val listener = spec.getAnnotation<ListenerClass>()
 
-            if (binding != null) {
-              logger.info("New ListenerBinding found - @{} with binding {}", spec.type.simpleName, binding)
+            if (listener != null) {
+              logger.info("New ListenerBinding found - @{} with listener {}", spec.type.simpleName, listener)
               logger.info("Creating a ListenerBindingGenerator for @{}", spec.type.simpleName)
 
-              put(it.type, ListenerBindingGenerator(ListenerBindingSpec.create(spec, binding, environment)))
+              put(it.type, ListenerBindingGenerator(ListenerClassSpec.create(spec, listener, environment)))
             }
           }
         }

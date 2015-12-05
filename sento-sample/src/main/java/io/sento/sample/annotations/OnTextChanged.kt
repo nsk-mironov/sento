@@ -2,11 +2,11 @@ package io.sento.sample.annotations
 
 import android.text.TextWatcher
 import android.widget.TextView
-import io.sento.annotations.ListenerBinding
+import io.sento.annotations.ListenerClass
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@ListenerBinding(
+@ListenerClass(
     owner = TextView::class,
     listener = TextWatcher::class,
     setter = "addTextChangedListener",
@@ -16,7 +16,7 @@ public annotation class OnTextChanged(vararg val value: Int)
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@ListenerBinding(
+@ListenerClass(
     owner = TextView::class,
     listener = TextWatcher::class,
     setter = "addTextChangedListener",
@@ -26,7 +26,7 @@ public annotation class AfterTextChanged(vararg val value: Int)
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@ListenerBinding(
+@ListenerClass(
     owner = TextView::class,
     listener = TextWatcher::class,
     setter = "addTextChangedListener",

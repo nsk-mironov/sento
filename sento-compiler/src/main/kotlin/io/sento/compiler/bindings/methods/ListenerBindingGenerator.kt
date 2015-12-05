@@ -12,7 +12,7 @@ import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.simpleName
-import io.sento.compiler.model.ListenerBindingSpec
+import io.sento.compiler.model.ListenerClassSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes.ACC_FINAL
@@ -27,7 +27,7 @@ import java.util.ArrayList
 import java.util.LinkedHashSet
 
 internal class ListenerBindingGenerator (
-    public val spec: ListenerBindingSpec
+    public val spec: ListenerClassSpec
 ) : MethodBindingGenerator {
   private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
 
@@ -179,10 +179,10 @@ internal class ListenerBindingGenerator (
     return result
   }
 
-  private val ListenerBindingSpec.listenerParent: Type
+  private val ListenerClassSpec.listenerParent: Type
     get() = if (listener.access.isInterface) Types.OBJECT else listener.type
 
-  private val ListenerBindingSpec.listenerInterfaces: Array<Type>
+  private val ListenerClassSpec.listenerInterfaces: Array<Type>
     get() = if (listener.access.isInterface) arrayOf(listener.type) else emptyArray()
 
   private data class ListenerSpec(

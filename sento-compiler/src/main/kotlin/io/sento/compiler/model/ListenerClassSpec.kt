@@ -2,7 +2,7 @@ package io.sento.compiler.model
 
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
-import io.sento.compiler.annotations.ListenerBinding
+import io.sento.compiler.annotations.ListenerClass
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
@@ -14,14 +14,14 @@ import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.Type
 
-internal data class ListenerBindingSpec(
+internal data class ListenerClassSpec(
     public val owner: ClassSpec,
     public val listener: ClassSpec,
     public val setter: MethodSpec,
     public val callback: MethodSpec
 ) {
   public companion object {
-    public fun create(annotation: ClassSpec, binding: ListenerBinding, environment: GenerationEnvironment): ListenerBindingSpec {
+    public fun create(annotation: ClassSpec, binding: ListenerClass, environment: GenerationEnvironment): ListenerClassSpec {
       val ownerType = binding.owner()
       val listenerType = binding.listener()
 
@@ -121,7 +121,7 @@ internal data class ListenerBindingSpec(
         }
       }
 
-      return ListenerBindingSpec(ownerSpec, listenerSpec, listenerSetters[0], listenerCallbacks[0])
+      return ListenerClassSpec(ownerSpec, listenerSpec, listenerSetters[0], listenerCallbacks[0])
     }
   }
 }

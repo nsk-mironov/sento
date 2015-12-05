@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
-@ListenerBinding(
+@ListenerClass(
     owner = View.class,
     listener = View.OnClickListener.class,
     setter = "setOnClickListener",
