@@ -195,18 +195,22 @@ internal class SentoBindingContentGenerator(
         invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
       }
 
+      bindableFieldTargets.forEach {
+        it.generator.bind(ViewBindingContext(it, this, variables, arguments), environment)
+      }
+
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
         loadLocal(variables["target"]!!)
         loadLocal(variables["view${it.id}"]!!)
         putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
       }
 
-      bindableFieldTargets.forEach {
-        it.generator.bind(ViewBindingContext(it, this, variables, arguments), environment)
+      listeners.forEach {
+        it.target.generator.bindFields(ListenerBindingContext(it, this, variables, arguments), environment)
       }
 
       listeners.forEach {
-        it.target.generator.bind(ListenerBindingContext(it, this, variables, arguments), environment)
+        it.target.generator.bindListeners(ListenerBindingContext(it, this, variables, arguments), environment)
       }
     }
   }
@@ -221,24 +225,22 @@ internal class SentoBindingContentGenerator(
         storeLocal(this)
       })
 
-      bindableFieldTargets.forEach {
-        it.generator.unbind(ViewBindingContext(it, this, variables, arguments), environment)
+      listeners.forEach {
+        it.target.generator.unbindListeners(ListenerBindingContext(it, this, variables, arguments), environment)
       }
 
       listeners.forEach {
-        it.target.generator.unbind(ListenerBindingContext(it, this, variables, arguments), environment)
-      }
-
-      bindableMethodTargets.distinctBy { it.method.name to it.annotation.type }.forEach {
-        loadLocal(variables["target"]!!)
-        visitInsn(Opcodes.ACONST_NULL)
-        putField(target, Naming.getSyntheticFieldNameForMethodTarget(it), it.generator.spec.listener.type)
+        it.target.generator.unbindFields(ListenerBindingContext(it, this, variables, arguments), environment)
       }
 
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
         loadLocal(variables["target"]!!)
         visitInsn(Opcodes.ACONST_NULL)
         putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
+      }
+
+      bindableFieldTargets.forEach {
+        it.generator.unbind(ViewBindingContext(it, this, variables, arguments), environment)
       }
     }
   }

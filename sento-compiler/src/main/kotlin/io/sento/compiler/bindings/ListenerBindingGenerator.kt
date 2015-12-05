@@ -10,11 +10,12 @@ import io.sento.compiler.common.body
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPrivate
-import io.sento.compiler.common.simpleName
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ListenerClassSpec
+import io.sento.compiler.model.ViewSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
@@ -22,11 +23,8 @@ import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
-import org.slf4j.LoggerFactory
 
 internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
-  private val logger = LoggerFactory.getLogger(ListenerBindingGenerator::class.java)
-
   public fun generate(context: ListenerBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     return listOf(GeneratedContent(Types.getClassFilePath(context.type), environment.newClass {
       visitListenerHeader(context, environment)
@@ -48,37 +46,74 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
     }))
   }
 
-  public fun bind(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    logger.info("Generating @{} binding for '{}' method",
-        context.binding.target.annotation.type.simpleName, context.binding.target.method.name)
+  public fun bindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
+    context.adapter.loadLocal(context.variable("target"))
+    context.adapter.newInstance(context.binding.type)
+    context.adapter.dup()
+    context.adapter.loadLocal(context.variable("target"))
+    context.adapter.invokeConstructor(context.binding.type, Methods.getConstructor(context.binding.target.clazz.type))
+    context.adapter.putField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
+  }
 
+  public fun bindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
     context.binding.target.annotation.ids.forEach {
       context.adapter.newLabel().apply {
+        val view = ViewSpec(it, context.binding.target.optional, "method '${context.binding.target.method.name}'")
+        val name = Naming.getSyntheticFieldNameForViewTarget(view)
+
         if (context.binding.target.optional) {
-          context.adapter.loadLocal(context.variable("view$it"))
+          context.adapter.loadLocal(context.variable("target"))
+          context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
           context.adapter.ifNull(this)
         }
 
-        context.adapter.loadLocal(context.variable("view$it")).apply {
-          if (spec.owner.type != Types.VIEW) {
-            context.adapter.checkCast(spec.owner.type)
-          }
+        context.adapter.loadLocal(context.variable("target"))
+        context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
+
+        if (spec.owner.type != Types.VIEW) {
+          context.adapter.checkCast(spec.owner.type)
         }
 
-        context.adapter.newInstance(context.binding.type)
-        context.adapter.dup()
-
         context.adapter.loadLocal(context.variable("target"))
-        context.adapter.invokeConstructor(context.binding.type, Methods.getConstructor(context.binding.target.clazz.type))
-        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
+        context.adapter.getField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
 
+        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
         context.adapter.mark(this)
       }
     }
   }
 
-  public fun unbind(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    // do nothing for now
+  public fun unbindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
+    context.adapter.loadLocal(context.variables["target"]!!)
+    context.adapter.visitInsn(Opcodes.ACONST_NULL)
+    context.adapter.putField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
+  }
+
+  public fun unbindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
+    context.binding.target.annotation.ids.forEach {
+      context.adapter.newLabel().apply {
+        val view = ViewSpec(it, context.binding.target.optional, "method '${context.binding.target.method.name}'")
+        val name = Naming.getSyntheticFieldNameForViewTarget(view)
+
+        if (context.binding.target.optional) {
+          context.adapter.loadLocal(context.variable("target"))
+          context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
+          context.adapter.ifNull(this)
+        }
+
+        context.adapter.loadLocal(context.variable("target"))
+        context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
+
+        if (spec.owner.type != Types.VIEW) {
+          context.adapter.checkCast(spec.owner.type)
+        }
+
+        context.adapter.visitInsn(Opcodes.ACONST_NULL)
+        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
+
+        context.adapter.mark(this)
+      }
+    }
   }
 
   private fun ClassVisitor.visitListenerHeader(listener: ListenerBindingSpec, environment: GenerationEnvironment) {

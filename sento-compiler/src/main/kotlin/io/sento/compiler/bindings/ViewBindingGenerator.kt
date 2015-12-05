@@ -14,7 +14,7 @@ internal class ViewBindingGenerator {
   private val logger = LoggerFactory.getLogger(ViewBindingGenerator::class.java)
 
   public fun bind(context: ViewBindingContext, environment: GenerationEnvironment) {
-    logger.info("Generating @{} binding for '{}' field",
+    logger.info("Generating @{} binder for '{}' field",
         context.target.annotation.type.simpleName, context.target.field.name)
 
     if (context.target.field.type.sort == Type.ARRAY) {
@@ -43,6 +43,9 @@ internal class ViewBindingGenerator {
   }
 
   public fun unbind(context: ViewBindingContext, environment: GenerationEnvironment) {
+    logger.info("Generating @{} unbinder for '{}' field",
+        context.target.annotation.type.simpleName, context.target.field.name)
+
     context.adapter.loadLocal(context.variable("target"))
     context.adapter.visitInsn(Opcodes.ACONST_NULL)
     context.adapter.putField(context.target.clazz.type, context.target.field.name, context.target.field.type)
