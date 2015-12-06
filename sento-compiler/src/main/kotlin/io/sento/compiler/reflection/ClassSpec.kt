@@ -44,10 +44,6 @@ internal data class ClassSpec(
     }
   }
 
-  public fun getConstructor(descriptor: String): MethodSpec? {
-    return getDeclaredMethod("<init>", descriptor)
-  }
-
   public fun getConstructor(vararg args: Type): MethodSpec? {
     return getDeclaredMethod("<init>", *args)
   }

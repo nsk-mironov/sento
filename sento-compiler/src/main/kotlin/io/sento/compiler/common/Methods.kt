@@ -9,12 +9,12 @@ internal object Methods {
     return Method(spec.name, spec.type.descriptor)
   }
 
-  public fun get(name: String, returnType: Type, vararg argsType: Type): Method {
-    return Method(name, returnType, argsType)
+  public fun get(name: String, returns: Type, vararg args: Type): Method {
+    return Method(name, returns, args)
   }
 
-  public fun getConstructor(vararg argsType: Type): Method {
-    return Method("<init>", Type.VOID_TYPE, argsType)
+  public fun getConstructor(vararg args: Type): Method {
+    return Method("<init>", Type.VOID_TYPE, args)
   }
 
   public fun getStaticConstructor(): Method {

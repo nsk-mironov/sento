@@ -13,8 +13,6 @@ import io.sento.compiler.common.isPrivate
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ListenerClassSpec
 import io.sento.compiler.model.ViewSpec
-import io.sento.compiler.reflection.MethodSpec
-import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
@@ -25,27 +23,6 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.commons.GeneratorAdapter
 
 internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
-  public fun generate(context: ListenerBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    return listOf(GeneratedContent(Types.getClassFilePath(context.type), environment.newClass {
-      visitListenerHeader(context, environment)
-      visitListenerFields(context, environment)
-      visitListenerConstructor(context, environment)
-
-      val registry = environment.registry
-      val callbacks = registry.listPublicMethods(spec.listener).filter {
-        it.access.isAbstract
-      }
-
-      callbacks.forEach {
-        if (it.name == context.descriptor.callback.name && it.type == context.descriptor.callback.type) {
-          visitListenerCallback(context, environment)
-        } else {
-          visitListenerStub(context, it, environment)
-        }
-      }
-    }))
-  }
-
   public fun bindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
     context.adapter.loadLocal(context.variable("target"))
     context.adapter.newInstance(context.binding.type)
@@ -123,56 +100,60 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
     }
   }
 
-  private fun ClassVisitor.visitListenerHeader(listener: ListenerBindingSpec, environment: GenerationEnvironment) {
-    visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, spec.listenerParent.internalName, spec.listenerInterfaces.map { it.internalName }.toTypedArray())
-  }
+  public fun generate(listener: ListenerBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
+    return listOf(GeneratedContent(Types.getClassFilePath(listener.type), environment.newClass {
+      visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, spec.listenerParent.internalName, spec.listenerInterfaces.map { it.internalName }.toTypedArray())
+      visitField(ACC_PRIVATE + ACC_FINAL, "target", listener.target.clazz.type.descriptor, null, null)
 
-  private fun ClassVisitor.visitListenerFields(listener: ListenerBindingSpec, environment: GenerationEnvironment) {
-    visitField(ACC_PRIVATE + ACC_FINAL, "target", listener.target.clazz.type.descriptor, null, null)
-  }
+      GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz.type), null, null, this).body {
+        loadThis()
+        invokeConstructor(spec.listenerParent, Methods.getConstructor())
 
-  private fun ClassVisitor.visitListenerConstructor(listener: ListenerBindingSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz.type), null, null, this).body {
-      loadThis()
-      invokeConstructor(spec.listenerParent, Methods.getConstructor())
+        loadThis()
+        loadArg(0)
+        putField(listener.type, "target", listener.target.clazz.type)
+      }
 
-      loadThis()
-      loadArg(0)
-      putField(listener.type, "target", listener.target.clazz.type)
-    }
-  }
+      val registry = environment.registry
+      val methods = registry.listPublicMethods(spec.listener).filter {
+        it.access.isAbstract
+      }
 
-  private fun ClassVisitor.visitListenerCallback(listener: ListenerBindingSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.get(listener.descriptor.callback), listener.descriptor.callback.signature, null, this).body {
-      loadThis()
-      getField(listener.type, "target", listener.target.clazz.type)
+      val stubs = methods.filterNot {
+        it.name == listener.descriptor.callback.name && it.type == listener.descriptor.callback.type
+      }
 
-      listener.args.forEach {
-        loadArg(it.index).apply {
-          if (!Types.isPrimitive(it.type)) {
-            checkCast(it.type)
+      GeneratorAdapter(ACC_PUBLIC, Methods.get(listener.descriptor.callback), listener.descriptor.callback.signature, null, this).body {
+        loadThis()
+        getField(listener.type, "target", listener.target.clazz.type)
+
+        listener.args.forEach {
+          loadArg(it.index).apply {
+            if (!Types.isPrimitive(it.type)) {
+              checkCast(it.type)
+            }
           }
+        }
+
+        if (listener.target.method.access.isPrivate) {
+          invokeStatic(listener.target.clazz.type, Naming.getSyntheticAccessor(listener.target.clazz.type, listener.target.method))
+        } else {
+          invokeVirtual(listener.target.clazz.type, Methods.get(listener.target.method))
+        }
+
+        if (listener.descriptor.callback.returns == Types.BOOLEAN && listener.target.method.returns == Types.VOID) {
+          push(false)
         }
       }
 
-      if (listener.target.method.access.isPrivate) {
-        invokeStatic(listener.target.clazz.type, Naming.getSyntheticAccessor(listener.target.clazz.type, listener.target.method))
-      } else {
-        invokeVirtual(listener.target.clazz.type, Methods.get(listener.target.method))
+      stubs.forEach {
+        GeneratorAdapter(ACC_PUBLIC, Methods.get(it), it.signature, null, this).body {
+          if (it.returns == Types.BOOLEAN) {
+            push(false)
+          }
+        }
       }
-
-      if (listener.descriptor.callback.returns == Types.BOOLEAN && listener.target.method.returns == Types.VOID) {
-        push(false)
-      }
-    }
-  }
-
-  private fun ClassVisitor.visitListenerStub(listener: ListenerBindingSpec, method: MethodSpec, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.get(method), method.signature, null, this).body {
-      if (method.returns == Types.BOOLEAN) {
-        push(false)
-      }
-    }
+    }))
   }
 
   private val ListenerClassSpec.listenerParent: Type
