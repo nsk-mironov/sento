@@ -56,4 +56,11 @@ internal class GeneratorAdapter(visitor: ClassVisitor, access: Int, method: Meth
   public fun invokeVirtual(owner: ClassSpec, method: MethodSpec) {
     invokeVirtual(owner.type, Methods.get(method))
   }
+
+  public fun newInstance(type: Type, method: Method, args: () -> Unit = {}) {
+    newInstance(type)
+    dup()
+    args()
+    invokeConstructor(type, method)
+  }
 }

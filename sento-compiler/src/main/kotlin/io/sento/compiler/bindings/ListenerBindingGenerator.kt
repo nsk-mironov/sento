@@ -22,10 +22,9 @@ import org.objectweb.asm.Type
 internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
   public fun bindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
     context.adapter.loadLocal(context.variable("target"))
-    context.adapter.newInstance(context.binding.type)
-    context.adapter.dup()
-    context.adapter.loadLocal(context.variable("target"))
-    context.adapter.invokeConstructor(context.binding.type, Methods.getConstructor(context.binding.target.clazz.type))
+    context.adapter.newInstance(context.binding.type, Methods.getConstructor(context.binding.target.clazz)) {
+      context.adapter.loadLocal(context.variable("target"))
+    }
     context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
 
@@ -102,7 +101,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
       visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, spec.listenerParent.internalName, spec.listenerInterfaces.map { it.internalName }.toTypedArray())
       visitField(ACC_PRIVATE + ACC_FINAL, "target", listener.target.clazz.type.descriptor, null, null)
 
-      newMethod(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz.type)) {
+      newMethod(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz)) {
         loadThis()
         invokeConstructor(spec.listenerParent, Methods.getConstructor())
 

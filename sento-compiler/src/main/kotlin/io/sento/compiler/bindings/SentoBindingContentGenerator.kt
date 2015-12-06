@@ -43,6 +43,10 @@ internal class SentoBindingContentGenerator(
 ) : ContentGenerator {
   public companion object {
     public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
+
+    private const val ARGUMENT_TARGET = 0
+    private const val ARGUMENT_SOURCE = 1
+    private const val ARGUMENT_FINDER = 2
   }
 
   private val logger = LoggerFactory.getLogger(SentoBindingContentGenerator::class.java)
@@ -158,21 +162,20 @@ internal class SentoBindingContentGenerator(
     val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
     newMethod(ACC_PUBLIC, descriptor, signature) {
-      val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
       val variables = HashMap<String, Int>()
 
       variables.put("target", newLocal(clazz.type).apply {
-        loadArg(arguments["target"]!!)
+        loadArg(ARGUMENT_TARGET)
         checkCast(clazz.type)
         storeLocal(this)
       })
 
       bindableViewTargetsForAll.distinctBy { it.id }.forEach {
         variables.put("view${it.id}", newLocal(Types.VIEW).apply {
-          loadArg(arguments["finder"]!!)
+          loadArg(ARGUMENT_FINDER)
           push(it.id)
 
-          loadArg(arguments["source"]!!)
+          loadArg(ARGUMENT_SOURCE)
           invokeInterface(Types.FINDER, Methods.get("find", Types.VIEW, Types.INT, Types.OBJECT))
 
           storeLocal(this)
@@ -180,18 +183,18 @@ internal class SentoBindingContentGenerator(
       }
 
       bindableViewTargetsForAll.filter { !it.optional }.distinctBy { it.id }.forEach {
-        loadArg(arguments["finder"]!!)
+        loadArg(ARGUMENT_FINDER)
         push(it.id)
 
         loadLocal(variables["view${it.id}"]!!)
-        loadArg(arguments["source"]!!)
+        loadArg(ARGUMENT_SOURCE)
         push(it.owner)
 
         invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
       }
 
       bindableFieldTargets.forEach {
-        it.generator.bind(ViewBindingContext(it, this, variables, arguments), environment)
+        it.generator.bind(ViewBindingContext(it, this, variables), environment)
       }
 
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
@@ -201,31 +204,29 @@ internal class SentoBindingContentGenerator(
       }
 
       listeners.forEach {
-        it.target.generator.bindFields(ListenerBindingContext(it, this, variables, arguments), environment)
+        it.target.generator.bindFields(ListenerBindingContext(it, this, variables), environment)
       }
 
       listeners.forEach {
-        it.target.generator.bindListeners(ListenerBindingContext(it, this, variables, arguments), environment)
+        it.target.generator.bindListeners(ListenerBindingContext(it, this, variables), environment)
       }
     }
   }
 
   private fun ClassWriter.visitUnbindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment) {
     newMethod(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT)) {
-      val arguments = mapOf("target" to 0)
-
       val variables = mapOf("target" to newLocal(clazz.type).apply {
-        loadArg(arguments["target"]!!)
+        loadArg(ARGUMENT_TARGET)
         checkCast(clazz.type)
         storeLocal(this)
       })
 
       listeners.forEach {
-        it.target.generator.unbindListeners(ListenerBindingContext(it, this, variables, arguments), environment)
+        it.target.generator.unbindListeners(ListenerBindingContext(it, this, variables), environment)
       }
 
       listeners.forEach {
-        it.target.generator.unbindFields(ListenerBindingContext(it, this, variables, arguments), environment)
+        it.target.generator.unbindFields(ListenerBindingContext(it, this, variables), environment)
       }
 
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
@@ -235,7 +236,7 @@ internal class SentoBindingContentGenerator(
       }
 
       bindableFieldTargets.forEach {
-        it.generator.unbind(ViewBindingContext(it, this, variables, arguments), environment)
+        it.generator.unbind(ViewBindingContext(it, this, variables), environment)
       }
     }
   }

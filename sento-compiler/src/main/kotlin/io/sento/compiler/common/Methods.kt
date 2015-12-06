@@ -1,5 +1,6 @@
 package io.sento.compiler.common
 
+import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.Method
@@ -13,8 +14,16 @@ internal object Methods {
     return Method(name, returns, args)
   }
 
-  public fun getConstructor(vararg args: Type): Method {
-    return Method("<init>", Type.VOID_TYPE, args)
+  public fun getConstructor(): Method {
+    return Method("<init>", Type.VOID_TYPE, emptyArray())
+  }
+
+  public fun getConstructor(first: Type, vararg args: Type): Method {
+    return Method("<init>", Type.VOID_TYPE, arrayOf(first) + args)
+  }
+
+  public fun getConstructor(first: ClassSpec, vararg args: ClassSpec): Method {
+    return Method("<init>", Type.VOID_TYPE, arrayOf(first.type) + args.map { it.type })
   }
 
   public fun getStaticConstructor(): Method {

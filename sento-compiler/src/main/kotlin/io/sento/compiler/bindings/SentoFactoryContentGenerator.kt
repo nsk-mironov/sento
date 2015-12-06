@@ -34,20 +34,14 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Cla
       }
 
       newMethod(ACC_STATIC, Methods.getStaticConstructor())  {
-        newInstance(Types.IDENTITY_MAP)
-        dup()
-
-        invokeConstructor(Types.IDENTITY_MAP, Methods.getConstructor())
+        newInstance(Types.IDENTITY_MAP, Methods.getConstructor())
         putStatic(Types.FACTORY, "BINDINGS", Types.MAP)
 
         bindings.forEach {
           getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
           push(it.type)
 
-          newInstance(environment.naming.getSentoBindingType(it))
-          dup()
-
-          invokeConstructor(environment.naming.getSentoBindingType(it), Methods.getConstructor())
+          newInstance(environment.naming.getSentoBindingType(it), Methods.getConstructor())
           invokeInterface(Types.MAP, Methods.get("put", Types.OBJECT, Types.OBJECT, Types.OBJECT))
           pop()
         }
