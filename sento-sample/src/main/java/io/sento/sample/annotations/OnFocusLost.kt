@@ -6,8 +6,8 @@ import io.sento.annotations.ListenerClass
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @ListenerClass(
-    owner = View::class,
-    listener = OnFocusLostListener::class,
+    owner = "android.view.View",
+    listener = "io.sento.sample.annotations.OnFocusLostListener",
     setter = "setOnFocusChangeListener",
     callback = "onFocusLost"
 )

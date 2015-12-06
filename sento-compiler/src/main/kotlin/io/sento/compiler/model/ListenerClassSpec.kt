@@ -23,8 +23,8 @@ internal data class ListenerClassSpec private constructor(
 ) {
   public companion object {
     public fun create(annotation: ClassSpec, binding: ListenerClass, environment: GenerationEnvironment): ListenerClassSpec {
-      val ownerType = binding.owner()
-      val listenerType = binding.listener()
+      val ownerType = Types.getClassType(binding.owner())
+      val listenerType = Types.getClassType(binding.listener())
 
       if (ownerType.sort == Type.ARRAY) {
         throw SentoException("Unable to process @{0} annotation - owner type mustn''t be an array, but ''{1}'' was found.",
@@ -103,8 +103,8 @@ internal data class ListenerClassSpec private constructor(
     }
 
     private fun resolveListenerSetterSpec(name: String, annotation: ClassSpec, binding: ListenerClass, environment: GenerationEnvironment): MethodSpec {
-      val ownerType = binding.owner()
-      val listenerType = binding.listener()
+      val ownerType = Types.getClassType(binding.owner())
+      val listenerType = Types.getClassType(binding.listener())
 
       val ownerSpec = environment.registry.resolve(ownerType)
       val listenerSpec = environment.registry.resolve(listenerType)

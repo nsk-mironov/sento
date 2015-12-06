@@ -2,6 +2,7 @@ package io.sento.compiler.common
 
 import io.sento.compiler.annotations.AnnotationDelegate
 import org.objectweb.asm.Type
+import java.util.HashMap
 import java.util.HashSet
 import java.util.IdentityHashMap
 import kotlin.jvm.internal.KotlinClass
@@ -17,6 +18,18 @@ internal object Types {
     add(Type.SHORT_TYPE)
     add(Type.BOOLEAN_TYPE)
     add(Type.VOID_TYPE)
+  }
+
+  private val PRIMITIVES = HashMap<String, String>().apply {
+    put("byte", "B")
+    put("char", "C")
+    put("double", "D")
+    put("float", "F")
+    put("int", "I")
+    put("long", "J")
+    put("short", "S")
+    put("boolean", "Z")
+    put("void", "V")
   }
 
   public val OBJECT = Type.getType(Any::class.java)
@@ -42,8 +55,20 @@ internal object Types {
   public val FACTORY = Type.getObjectType("io/sento/SentoFactory")
   public val OPTIONAL = Type.getObjectType("io/sento/annotations/Optional")
 
-  public inline fun <reified T : Any> get(): Type {
-    return Type.getType(T::class.java)
+  public fun getClassType(name: String): Type {
+    val mapping = PRIMITIVES.withDefault {
+      "L$it;"
+    }
+
+    return if (!name.endsWith("[]")) {
+      Type.getType("${mapping.getOrImplicitDefault(name.replace('.', '/'))}")
+    } else {
+      getArrayType(getClassType(name.substring(0, name.length - 2)))
+    }
+  }
+
+  public fun getArrayType(type: Type): Type {
+    return Type.getType("[${type.descriptor}")
   }
 
   public fun getAnnotationType(clazz: Class<*>): Type {

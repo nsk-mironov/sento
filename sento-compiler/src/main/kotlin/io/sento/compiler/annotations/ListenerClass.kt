@@ -1,12 +1,10 @@
 package io.sento.compiler.annotations
 
-import org.objectweb.asm.Type
-
 @AnnotationDelegate("io.sento.annotations.ListenerClass")
 internal interface ListenerClass {
-  public fun owner(): Type
+  public fun owner(): String
 
-  public fun listener(): Type
+  public fun listener(): String
 
   public fun callback(): String
 
