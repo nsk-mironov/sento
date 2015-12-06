@@ -6,7 +6,6 @@ import io.sento.compiler.annotations.id
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.simpleName
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.slf4j.LoggerFactory
 
@@ -30,16 +29,14 @@ internal class ViewBindingGenerator {
           context.target.annotation.type.simpleName, context.target.clazz.type.className, context.target.field.name, Types.VIEW.className, context.target.field.type.className)
     }
 
-    context.adapter.apply {
-      loadLocal(context.variable("target"))
-      loadLocal(context.variable("view${context.target.annotation.id}"))
+    context.adapter.loadLocal(context.variable("target"))
+    context.adapter.loadLocal(context.variable("view${context.target.annotation.id}"))
 
-      if (context.target.field.type != Types.VIEW) {
-        checkCast(context.target.field.type)
-      }
-
-      putField(context.target.clazz.type, context.target.field.name, context.target.field.type)
+    if (context.target.field.type != Types.VIEW) {
+      context.adapter.checkCast(context.target.field.type)
     }
+
+    context.adapter.putField(context.target.clazz, context.target.field)
   }
 
   public fun unbind(context: ViewBindingContext, environment: GenerationEnvironment) {
@@ -47,7 +44,7 @@ internal class ViewBindingGenerator {
         context.target.annotation.type.simpleName, context.target.field.name)
 
     context.adapter.loadLocal(context.variable("target"))
-    context.adapter.visitInsn(Opcodes.ACONST_NULL)
-    context.adapter.putField(context.target.clazz.type, context.target.field.name, context.target.field.type)
+    context.adapter.pushNull()
+    context.adapter.putField(context.target.clazz, context.target.field)
   }
 }

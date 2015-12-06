@@ -23,7 +23,6 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PROTECTED
@@ -201,7 +200,7 @@ internal class SentoBindingContentGenerator(
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
         loadLocal(variables["target"]!!)
         loadLocal(variables["view${it.id}"]!!)
-        putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
+        putField(clazz, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
       }
 
       listeners.forEach {
@@ -234,8 +233,8 @@ internal class SentoBindingContentGenerator(
 
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
         loadLocal(variables["target"]!!)
-        visitInsn(Opcodes.ACONST_NULL)
-        putField(target, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
+        pushNull()
+        putField(clazz, Naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
       }
 
       bindableFieldTargets.forEach {
@@ -274,7 +273,7 @@ internal class SentoBindingContentGenerator(
           for (count in 0..it.method.arguments.size) {
             loadArg(count)
           }
-          invokeVirtual(spec.type, Methods.get(it.method))
+          invokeVirtual(spec, it.method)
         }
       }
 

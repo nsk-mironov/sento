@@ -1,7 +1,7 @@
 package io.sento.compiler.bindings
 
+import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.model.ListenerBindingSpec
-import org.objectweb.asm.commons.GeneratorAdapter
 import java.util.NoSuchElementException
 
 internal class ListenerBindingContext(

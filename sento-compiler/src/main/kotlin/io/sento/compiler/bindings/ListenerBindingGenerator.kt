@@ -13,7 +13,6 @@ import io.sento.compiler.common.newMethod
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ListenerClassSpec
 import io.sento.compiler.model.ViewSpec
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
@@ -28,7 +27,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
     context.adapter.dup()
     context.adapter.loadLocal(context.variable("target"))
     context.adapter.invokeConstructor(context.binding.type, Methods.getConstructor(context.binding.target.clazz.type))
-    context.adapter.putField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
+    context.adapter.putField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
 
   public fun bindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
@@ -39,21 +38,21 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
 
         if (context.binding.target.optional) {
           context.adapter.loadLocal(context.variable("target"))
-          context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
+          context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
           context.adapter.ifNull(this)
         }
 
         context.adapter.loadLocal(context.variable("target"))
-        context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
+        context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
 
         if (spec.owner.type != Types.VIEW) {
-          context.adapter.checkCast(spec.owner.type)
+          context.adapter.checkCast(spec.owner)
         }
 
         context.adapter.loadLocal(context.variable("target"))
-        context.adapter.getField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
+        context.adapter.getField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
 
-        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.setter))
+        context.adapter.invokeVirtual(spec.owner, spec.setter)
         context.adapter.mark(this)
       }
     }
@@ -61,8 +60,9 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
 
   public fun unbindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
     context.adapter.loadLocal(context.variables["target"]!!)
-    context.adapter.visitInsn(Opcodes.ACONST_NULL)
-    context.adapter.putField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
+    context.adapter.pushNull()
+
+    context.adapter.putField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
 
   public fun unbindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
@@ -73,27 +73,27 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
 
         if (context.binding.target.optional) {
           context.adapter.loadLocal(context.variable("target"))
-          context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
+          context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
           context.adapter.ifNull(this)
         }
 
         context.adapter.loadLocal(context.variable("target"))
-        context.adapter.getField(context.binding.target.clazz.type, name, Types.VIEW)
+        context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
 
         if (spec.owner.type != Types.VIEW) {
-          context.adapter.checkCast(spec.owner.type)
+          context.adapter.checkCast(spec.owner)
         }
 
         if (context.binding.descriptor.setter != context.binding.descriptor.unsetter) {
           context.adapter.loadLocal(context.variable("target"))
-          context.adapter.getField(context.binding.target.clazz.type, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener.type)
+          context.adapter.getField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
         }
 
         if (context.binding.descriptor.setter == context.binding.descriptor.unsetter) {
-          context.adapter.visitInsn(Opcodes.ACONST_NULL)
+          context.adapter.pushNull()
         }
 
-        context.adapter.invokeVirtual(spec.owner.type, Methods.get(spec.unsetter))
+        context.adapter.invokeVirtual(spec.owner, spec.unsetter)
         context.adapter.mark(this)
       }
     }
@@ -130,9 +130,9 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         }
 
         if (listener.target.method.access.isPrivate) {
-          invokeStatic(listener.target.clazz.type, Naming.getSyntheticAccessor(listener.target.clazz.type, listener.target.method))
+          invokeStatic(listener.target.clazz, Naming.getSyntheticAccessor(listener.target.clazz.type, listener.target.method))
         } else {
-          invokeVirtual(listener.target.clazz.type, Methods.get(listener.target.method))
+          invokeVirtual(listener.target.clazz, listener.target.method)
         }
 
         if (listener.descriptor.callback.returns == Types.BOOLEAN && listener.target.method.returns == Types.VOID) {
