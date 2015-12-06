@@ -24,4 +24,8 @@ internal object Methods {
   public fun asJavaDeclaration(spec: MethodSpec): String {
     return "${spec.name}(${spec.arguments.map { it.className }.joinToString(", ")})"
   }
+
+  public fun equalsByJavaDeclaration(left: MethodSpec, right: MethodSpec): Boolean {
+    return left.name == right.name && left.type.descriptor == right.type.descriptor
+  }
 }

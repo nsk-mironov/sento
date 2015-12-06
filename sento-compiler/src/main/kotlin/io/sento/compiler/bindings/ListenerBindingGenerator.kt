@@ -113,16 +113,11 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         putField(listener.type, "target", listener.target.clazz.type)
       }
 
-      val registry = environment.registry
-      val methods = registry.listPublicMethods(spec.listener).filter {
-        it.access.isAbstract
+      val stubs = environment.registry.listPublicMethods(spec.listener).filter {
+        it.access.isAbstract && !Methods.equalsByJavaDeclaration(it, listener.descriptor.callback)
       }
 
-      val stubs = methods.filterNot {
-        it.name == listener.descriptor.callback.name && it.type == listener.descriptor.callback.type
-      }
-
-      newMethod (ACC_PUBLIC, listener.descriptor.callback) {
+      newMethod(ACC_PUBLIC, listener.descriptor.callback) {
         loadThis()
         getField(listener.type, "target", listener.target.clazz.type)
 
