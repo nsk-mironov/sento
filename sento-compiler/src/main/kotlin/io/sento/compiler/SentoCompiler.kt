@@ -2,6 +2,7 @@ package io.sento.compiler
 
 import io.sento.compiler.bindings.ContentGeneratorFactory
 import io.sento.compiler.bindings.SentoBindingContentGenerator
+import io.sento.compiler.common.Naming
 import io.sento.compiler.reflection.ClassSpec
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
@@ -10,6 +11,11 @@ import java.util.ArrayList
 
 public class SentoCompiler() {
   private val logger = LoggerFactory.getLogger(SentoCompiler::class.java)
+
+  init {
+    // TODO: fix me https://github.com/nsk-mironov/sento/issues/39
+    Naming.initialize()
+  }
 
   public fun compile(options: SentoOptions) {
     logger.info("Starting sento compiler:").apply {

@@ -11,6 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger
 internal object Naming {
   private val anonymous = HashMap<Type, AtomicInteger>()
 
+  public fun initialize() {
+    anonymous.clear()
+  }
+
   public fun getSyntheticAccessor(owner: Type, method: MethodSpec): Method {
     return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner, *method.arguments))
   }
