@@ -8,10 +8,10 @@ import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Naming
 import io.sento.compiler.common.OptionalAware
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.body
 import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.isStatic
 import io.sento.compiler.common.isSynthetic
+import io.sento.compiler.common.newMethod
 import io.sento.compiler.model.BindTargetSpec
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ListenerTargetSpec
@@ -34,7 +34,6 @@ import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.ASM5
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
-import org.objectweb.asm.commons.GeneratorAdapter
 import org.slf4j.LoggerFactory
 import java.util.ArrayList
 import java.util.HashMap
@@ -152,7 +151,7 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun ClassWriter.visitConstructor(environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(), null, null, this).body {
+    newMethod(ACC_PUBLIC, Methods.getConstructor()) {
       loadThis()
       invokeConstructor(Types.OBJECT, Methods.getConstructor())
     }
@@ -162,7 +161,7 @@ internal class SentoBindingContentGenerator(
     val descriptor = Methods.get("bind", Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
     val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
-    GeneratorAdapter(ACC_PUBLIC, descriptor, signature, null, this@visitBindMethod).body {
+    newMethod(ACC_PUBLIC, descriptor, signature) {
       val arguments = mapOf("target" to 0, "source" to 1, "finder" to 2)
       val variables = HashMap<String, Int>()
 
@@ -216,7 +215,7 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun ClassWriter.visitUnbindMethod(listeners: Collection<ListenerBindingSpec>, environment: GenerationEnvironment) {
-    GeneratorAdapter(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT), null, null, this@visitUnbindMethod).body {
+    newMethod(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT)) {
       val arguments = mapOf("target" to 0)
 
       val variables = mapOf("target" to newLocal(target).apply {
@@ -271,7 +270,7 @@ internal class SentoBindingContentGenerator(
       }
 
       bindableMethodTargets.filter { it.method.access.isPrivate }.forEach {
-        GeneratorAdapter(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, Naming.getSyntheticAccessor(spec.type, it.method), null, null, writer).body {
+        writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, Naming.getSyntheticAccessor(spec.type, it.method)) {
           for (count in 0..it.method.arguments.size) {
             loadArg(count)
           }

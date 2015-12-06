@@ -6,7 +6,7 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Naming
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.method
+import io.sento.compiler.common.newMethod
 import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
@@ -21,12 +21,12 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Cla
       visit(V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.FACTORY.internalName, null, Types.OBJECT.internalName, null)
       visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", Types.MAP.descriptor, "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;", null)
 
-      method(ACC_PRIVATE, Methods.getConstructor()) {
+      newMethod(ACC_PRIVATE, Methods.getConstructor()) {
         loadThis()
         invokeConstructor(Types.OBJECT, Methods.getConstructor())
       }
 
-      method(ACC_PUBLIC + ACC_STATIC, Methods.get("createBinding", Types.BINDING, Types.CLASS), "(Ljava/lang/Class<*>;)Lio/sento/Binding<Ljava/lang/Object;>;") {
+      newMethod(ACC_PUBLIC + ACC_STATIC, Methods.get("createBinding", Types.BINDING, Types.CLASS), "(Ljava/lang/Class<*>;)Lio/sento/Binding<Ljava/lang/Object;>;") {
         getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
         loadArg(0)
 
@@ -34,7 +34,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Cla
         checkCast(Types.BINDING)
       }
 
-      method(ACC_STATIC, Methods.getStaticConstructor())  {
+      newMethod(ACC_STATIC, Methods.getStaticConstructor())  {
         newInstance(Types.IDENTITY_MAP)
         dup()
 

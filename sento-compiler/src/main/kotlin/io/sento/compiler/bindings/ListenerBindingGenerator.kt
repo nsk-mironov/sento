@@ -6,10 +6,10 @@ import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Naming
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.body
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPrivate
+import io.sento.compiler.common.newMethod
 import io.sento.compiler.model.ListenerBindingSpec
 import io.sento.compiler.model.ListenerClassSpec
 import io.sento.compiler.model.ViewSpec
@@ -20,7 +20,6 @@ import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
-import org.objectweb.asm.commons.GeneratorAdapter
 
 internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
   public fun bindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
@@ -105,7 +104,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
       visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, spec.listenerParent.internalName, spec.listenerInterfaces.map { it.internalName }.toTypedArray())
       visitField(ACC_PRIVATE + ACC_FINAL, "target", listener.target.clazz.type.descriptor, null, null)
 
-      GeneratorAdapter(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz.type), null, null, this).body {
+      newMethod(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz.type)) {
         loadThis()
         invokeConstructor(spec.listenerParent, Methods.getConstructor())
 
@@ -123,7 +122,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         it.name == listener.descriptor.callback.name && it.type == listener.descriptor.callback.type
       }
 
-      GeneratorAdapter(ACC_PUBLIC, Methods.get(listener.descriptor.callback), listener.descriptor.callback.signature, null, this).body {
+      newMethod (ACC_PUBLIC, listener.descriptor.callback) {
         loadThis()
         getField(listener.type, "target", listener.target.clazz.type)
 
@@ -147,7 +146,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
       }
 
       stubs.forEach {
-        GeneratorAdapter(ACC_PUBLIC, Methods.get(it), it.signature, null, this).body {
+        newMethod(ACC_PUBLIC, it) {
           if (it.returns == Types.BOOLEAN) {
             push(false)
           }
