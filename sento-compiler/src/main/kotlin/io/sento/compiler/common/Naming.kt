@@ -2,6 +2,7 @@ package io.sento.compiler.common
 
 import io.sento.compiler.model.ListenerTargetSpec
 import io.sento.compiler.model.ViewSpec
+import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.Method
@@ -11,12 +12,12 @@ import java.util.concurrent.atomic.AtomicInteger
 internal class Naming {
   private val anonymous = HashMap<Type, AtomicInteger>()
 
-  public fun getSyntheticAccessor(owner: Type, method: MethodSpec): Method {
-    return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner, *method.arguments))
+  public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec): Method {
+    return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner.type, *method.arguments))
   }
 
-  public fun getSentoBindingType(type: Type): Type {
-    return Type.getObjectType("${type.internalName}\$\$SentoBinding");
+  public fun getSentoBindingType(spec: ClassSpec): Type {
+    return Type.getObjectType("${spec.type.internalName}\$\$SentoBinding");
   }
 
   public fun getAnonymousType(type: Type): Type {

@@ -93,7 +93,7 @@ internal class SentoBindingContentGenerator(
       if (shouldGenerateBindingClass(clazz, environment)) {
         logger.info("Generating SentoBinding for '{}' class:", clazz.type.className)
 
-        val binding = environment.naming.getSentoBindingType(clazz.type)
+        val binding = environment.naming.getSentoBindingType(clazz)
         val listeners = bindableMethodTargets.map {
           ListenerBindingSpec.create(it, it.generator.spec, environment)
         }
@@ -138,7 +138,7 @@ internal class SentoBindingContentGenerator(
   }
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) = apply {
-    val name = environment.naming.getSentoBindingType(clazz.type).internalName
+    val name = environment.naming.getSentoBindingType(clazz).internalName
     val signature = "L${Types.OBJECT.internalName};L${Types.BINDING.internalName}<L${Types.OBJECT.internalName};>;"
     val superName = Types.OBJECT.internalName
     val interfaces = arrayOf(Types.BINDING.internalName)
@@ -266,7 +266,7 @@ internal class SentoBindingContentGenerator(
       }
 
       bindableMethodTargets.filter { it.method.access.isPrivate }.forEach {
-        writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(spec.type, it.method)) {
+        writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(spec, it.method)) {
           for (count in 0..it.method.arguments.size) {
             loadArg(count)
           }

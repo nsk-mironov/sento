@@ -60,7 +60,6 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
   public fun unbindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
     context.adapter.loadLocal(context.variables["target"]!!)
     context.adapter.pushNull()
-
     context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
 
@@ -112,10 +111,6 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         putField(listener.type, "target", listener.target.clazz.type)
       }
 
-      val stubs = environment.registry.listPublicMethods(spec.listener).filter {
-        it.access.isAbstract && !Methods.equalsByJavaDeclaration(it, listener.descriptor.callback)
-      }
-
       newMethod(ACC_PUBLIC, listener.descriptor.callback) {
         loadThis()
         getField(listener.type, "target", listener.target.clazz.type)
@@ -129,7 +124,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         }
 
         if (listener.target.method.access.isPrivate) {
-          invokeStatic(listener.target.clazz, environment.naming.getSyntheticAccessor(listener.target.clazz.type, listener.target.method))
+          invokeStatic(listener.target.clazz, environment.naming.getSyntheticAccessor(listener.target.clazz, listener.target.method))
         } else {
           invokeVirtual(listener.target.clazz, listener.target.method)
         }
@@ -139,7 +134,9 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         }
       }
 
-      stubs.forEach {
+      environment.registry.listPublicMethods(spec.listener).filter {
+        it.access.isAbstract && !Methods.equalsByJavaDeclaration(it, listener.descriptor.callback)
+      }.forEach {
         newMethod(ACC_PUBLIC, it) {
           if (it.returns == Types.BOOLEAN) {
             push(false)
