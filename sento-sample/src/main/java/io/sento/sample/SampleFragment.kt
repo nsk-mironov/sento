@@ -12,8 +12,8 @@ import io.sento.Sento
 import io.sento.annotations.Bind
 import io.sento.annotations.OnClick
 import io.sento.annotations.OnLongClick
+import io.sento.annotations.OnTextChanged
 import io.sento.sample.annotations.OnFocusReceived
-import io.sento.sample.annotations.OnTextChanged
 import io.sento.sample.extensions.asTrue
 import io.sento.sample.extensions.notNull
 
