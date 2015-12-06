@@ -2,7 +2,6 @@ package io.sento.compiler.model
 
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
-import io.sento.compiler.common.Naming
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.simpleName
 import org.objectweb.asm.Type
@@ -17,7 +16,7 @@ internal data class ListenerBindingSpec private constructor (
 ) {
   public companion object {
     public fun create(target: ListenerTargetSpec, binding: ListenerClassSpec, environment: GenerationEnvironment): ListenerBindingSpec {
-      val type = Naming.getAnonymousType(Naming.getSentoBindingType(target.clazz.type))
+      val type = environment.naming.getAnonymousType(environment.naming.getSentoBindingType(target.clazz.type))
       val args = remapMethodArgs(target, binding, environment)
 
       if (target.method.returns !in listOf(Types.VOID, Types.BOOLEAN)) {

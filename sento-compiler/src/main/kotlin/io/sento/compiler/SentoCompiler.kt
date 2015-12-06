@@ -12,11 +12,6 @@ import java.util.ArrayList
 public class SentoCompiler() {
   private val logger = LoggerFactory.getLogger(SentoCompiler::class.java)
 
-  init {
-    // TODO: fix me https://github.com/nsk-mironov/sento/issues/39
-    Naming.initialize()
-  }
-
   public fun compile(options: SentoOptions) {
     logger.info("Starting sento compiler:").apply {
       options.libs.forEach {
@@ -31,7 +26,7 @@ public class SentoCompiler() {
     }
 
     val registry = ClassRegistryFactory.create(options)
-    val environment = GenerationEnvironment(registry)
+    val environment = GenerationEnvironment(registry, Naming())
 
     logger.info("Successfully created class registry:")
     logger.info("Referenced classes count: {}", registry.references.size)

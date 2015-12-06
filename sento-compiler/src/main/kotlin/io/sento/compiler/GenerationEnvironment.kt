@@ -1,8 +1,12 @@
 package io.sento.compiler
 
+import io.sento.compiler.common.Naming
 import org.objectweb.asm.ClassWriter
 
-internal class GenerationEnvironment(public val registry: ClassRegistry) {
+internal class GenerationEnvironment(
+    public val registry: ClassRegistry,
+    public val naming: Naming
+) {
   public fun newClassWriter(): ClassWriter {
     return ClassRegistryAwareClassWriter(registry)
   }

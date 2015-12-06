@@ -4,7 +4,6 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Methods
-import io.sento.compiler.common.Naming
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.newMethod
 import io.sento.compiler.reflection.ClassSpec
@@ -45,10 +44,10 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Cla
           getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
           push(it.type)
 
-          newInstance(Naming.getSentoBindingType(it.type))
+          newInstance(environment.naming.getSentoBindingType(it.type))
           dup()
 
-          invokeConstructor(Naming.getSentoBindingType(it.type), Methods.getConstructor())
+          invokeConstructor(environment.naming.getSentoBindingType(it.type), Methods.getConstructor())
           invokeInterface(Types.MAP, Methods.get("put", Types.OBJECT, Types.OBJECT, Types.OBJECT))
           pop()
         }

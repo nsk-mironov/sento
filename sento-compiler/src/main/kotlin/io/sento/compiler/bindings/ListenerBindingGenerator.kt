@@ -4,7 +4,6 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.Methods
-import io.sento.compiler.common.Naming
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
@@ -27,14 +26,14 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
     context.adapter.dup()
     context.adapter.loadLocal(context.variable("target"))
     context.adapter.invokeConstructor(context.binding.type, Methods.getConstructor(context.binding.target.clazz.type))
-    context.adapter.putField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
+    context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
 
   public fun bindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
     context.binding.target.annotation.ids.forEach {
       context.adapter.newLabel().apply {
         val view = ViewSpec(it, context.binding.target.optional, "method '${context.binding.target.method.name}'")
-        val name = Naming.getSyntheticFieldNameForViewTarget(view)
+        val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
         if (context.binding.target.optional) {
           context.adapter.loadLocal(context.variable("target"))
@@ -50,7 +49,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         }
 
         context.adapter.loadLocal(context.variable("target"))
-        context.adapter.getField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
+        context.adapter.getField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
 
         context.adapter.invokeVirtual(spec.owner, spec.setter)
         context.adapter.mark(this)
@@ -62,14 +61,14 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
     context.adapter.loadLocal(context.variables["target"]!!)
     context.adapter.pushNull()
 
-    context.adapter.putField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
+    context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
 
   public fun unbindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
     context.binding.target.annotation.ids.forEach {
       context.adapter.newLabel().apply {
         val view = ViewSpec(it, context.binding.target.optional, "method '${context.binding.target.method.name}'")
-        val name = Naming.getSyntheticFieldNameForViewTarget(view)
+        val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
         if (context.binding.target.optional) {
           context.adapter.loadLocal(context.variable("target"))
@@ -86,7 +85,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
 
         if (context.binding.descriptor.setter != context.binding.descriptor.unsetter) {
           context.adapter.loadLocal(context.variable("target"))
-          context.adapter.getField(context.binding.target.clazz, Naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
+          context.adapter.getField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
         }
 
         if (context.binding.descriptor.setter == context.binding.descriptor.unsetter) {
@@ -130,7 +129,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         }
 
         if (listener.target.method.access.isPrivate) {
-          invokeStatic(listener.target.clazz, Naming.getSyntheticAccessor(listener.target.clazz.type, listener.target.method))
+          invokeStatic(listener.target.clazz, environment.naming.getSyntheticAccessor(listener.target.clazz.type, listener.target.method))
         } else {
           invokeVirtual(listener.target.clazz, listener.target.method)
         }
