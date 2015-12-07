@@ -71,7 +71,7 @@ internal class SentoBindingContentGenerator(
   private val bindableViewTargetsForFields by lazy(LazyThreadSafetyMode.NONE) {
     bindableFieldTargets.flatMap { field ->
       field.annotation.ids.map { id ->
-        ViewSpec(id, field.optional, "field '${field.field.name}'")
+        ViewSpec(id, field.optional, clazz, "field '${field.field.name}'")
       }
     }
   }
@@ -79,7 +79,7 @@ internal class SentoBindingContentGenerator(
   private val bindableViewTargetsForMethods by lazy(LazyThreadSafetyMode.NONE) {
     bindableMethodTargets.flatMap { method ->
       method.annotation.ids.map { id ->
-        ViewSpec(id, method.optional, "method '${method.method.name}'")
+        ViewSpec(id, method.optional, clazz, "method '${method.method.name}'")
       }
     }
   }
@@ -179,18 +179,13 @@ internal class SentoBindingContentGenerator(
 
         loadLocal(variables["view${it.id}"]!!)
         loadArg(ARGUMENT_SOURCE)
-        push(it.owner)
+        push(it.description)
 
         invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
       }
 
-      bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
-        loadLocal(variables["target"]!!)
-        loadLocal(variables["view${it.id}"]!!)
-        putField(clazz, environment.naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
-      }
-
       ViewBinder().bind(bindableFieldTargets, VariablesContext(variables), this, environment)
+      ShadowBinder().bind(bindableViewTargetsForMethods, VariablesContext(variables), this, environment)
       ListenerBinder().bind(listeners, VariablesContext(variables), this, environment)
     }
   }
@@ -204,13 +199,8 @@ internal class SentoBindingContentGenerator(
       })
 
       ListenerBinder().unbind(listeners, VariablesContext(variables), this, environment)
+      ShadowBinder().unbind(bindableViewTargetsForMethods, VariablesContext(variables), this, environment)
       ViewBinder().unbind(bindableFieldTargets, VariablesContext(variables), this, environment)
-
-      bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
-        loadLocal(variables["target"]!!)
-        pushNull()
-        putField(clazz, environment.naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
-      }
     }
   }
 

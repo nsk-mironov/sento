@@ -31,7 +31,7 @@ internal class ListenerBinder() {
     for (target in targets) {
       for (id in target.annotation.ids) {
         adapter.newLabel().apply {
-          val view = ViewSpec(id, target.optional, "method '${target.method.name}'")
+          val view = ViewSpec(id, target.optional, target.clazz, "method '${target.method.name}'")
           val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
           if (target.optional) {
@@ -61,7 +61,7 @@ internal class ListenerBinder() {
     for (target in targets) {
       for (id in target.annotation.ids) {
         adapter.newLabel().apply {
-          val view = ViewSpec(id, target.optional, "method '${target.method.name}'")
+          val view = ViewSpec(id, target.optional, target.clazz, "method '${target.method.name}'")
           val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
           if (target.optional) {
