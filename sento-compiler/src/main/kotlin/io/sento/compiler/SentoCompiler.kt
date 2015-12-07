@@ -41,7 +41,7 @@ public class SentoCompiler() {
     }
 
     registry.inputs.forEach {
-      factory.createBinding(registry.resolve(it, false)).generate(environment).forEach {
+      factory.createBinding(registry.resolve(it, false)).generate().forEach {
         logger.info("Writing generated class {}", File(options.output, it.path))
 
         if (it.has(SentoBindingContentGenerator.EXTRA_BINDING_SPEC)) {
@@ -52,7 +52,7 @@ public class SentoCompiler() {
       }
     }
 
-    factory.createFactory(bindings).generate(environment).forEach {
+    factory.createFactory(bindings).generate().forEach {
       logger.info("Writing generated class - {}", File(options.output, it.path))
       FileUtils.writeByteArrayToFile(File(options.output, it.path), it.content)
     }

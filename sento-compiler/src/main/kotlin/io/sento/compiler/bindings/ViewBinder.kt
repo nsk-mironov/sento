@@ -14,39 +14,43 @@ import org.slf4j.LoggerFactory
 internal class ViewBinder {
   private val logger = LoggerFactory.getLogger(ViewBinder::class.java)
 
-  public fun bind(target: BindTargetSpec, variables: VariablesContext, adapter: GeneratorAdapter, environment: GenerationEnvironment) {
-    logger.info("Generating @{} binder for '{}' field",
-        target.annotation.type.simpleName, target.field.name)
+  public fun bind(targets: Collection<BindTargetSpec>, variables: VariablesContext, adapter: GeneratorAdapter, environment: GenerationEnvironment) {
+    targets.forEach {
+      logger.info("Generating @{} binder for '{}' field",
+          it.annotation.type.simpleName, it.field.name)
 
-    if (target.field.type.sort == Type.ARRAY) {
-      throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - arrays are not supported, but ''{3}'' was found.",
-          target.annotation.type.simpleName, target.clazz.type.className, target.field.name, target.field.type.className)
+      if (it.field.type.sort == Type.ARRAY) {
+        throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - arrays are not supported, but ''{3}'' was found.",
+            it.annotation.type.simpleName, it.clazz.type.className, it.field.name, it.field.type.className)
+      }
+
+      val isView = environment.registry.isSubclassOf(it.field.type, Types.VIEW)
+      val isInterface = environment.registry.reference(it.field.type).access.isInterface
+
+      if (!isInterface && !isView) {
+        throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - it must be a subclass of ''{3}'' or an interface, but ''{4}'' was found.",
+            it.annotation.type.simpleName, it.clazz.type.className, it.field.name, Types.VIEW.className, it.field.type.className)
+      }
+
+      adapter.loadLocal(variables.target())
+      adapter.loadLocal(variables.view(it.annotation.id))
+
+      if (it.field.type != Types.VIEW) {
+        adapter.checkCast(it.field.type)
+      }
+
+      adapter.putField(it.clazz, it.field)
     }
-
-    val isView = environment.registry.isSubclassOf(target.field.type, Types.VIEW)
-    val isInterface = environment.registry.reference(target.field.type).access.isInterface
-
-    if (!isInterface && !isView) {
-      throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - it must be a subclass of ''{3}'' or an interface, but ''{4}'' was found.",
-          target.annotation.type.simpleName, target.clazz.type.className, target.field.name, Types.VIEW.className, target.field.type.className)
-    }
-
-    adapter.loadLocal(variables.target())
-    adapter.loadLocal(variables.view(target.annotation.id))
-
-    if (target.field.type != Types.VIEW) {
-      adapter.checkCast(target.field.type)
-    }
-
-    adapter.putField(target.clazz, target.field)
   }
 
-  public fun unbind(target: BindTargetSpec, variables: VariablesContext, adapter: GeneratorAdapter, environment: GenerationEnvironment) {
-    logger.info("Generating @{} unbinder for '{}' field",
-        target.annotation.type.simpleName, target.field.name)
+  public fun unbind(targets: Collection<BindTargetSpec>, variables: VariablesContext, adapter: GeneratorAdapter, environment: GenerationEnvironment) {
+    targets.forEach {
+      logger.info("Generating @{} unbinder for '{}' field",
+          it.annotation.type.simpleName, it.field.name)
 
-    adapter.loadLocal(variables.target())
-    adapter.pushNull()
-    adapter.putField(target.clazz, target.field)
+      adapter.loadLocal(variables.target())
+      adapter.pushNull()
+      adapter.putField(it.clazz, it.field)
+    }
   }
 }

@@ -3,14 +3,14 @@ package io.sento.compiler.bindings
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.ids
+import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.newMethod
-import io.sento.compiler.model.ListenerBindingSpec
-import io.sento.compiler.model.ListenerClassSpec
+import io.sento.compiler.model.ListenerTargetSpec
 import io.sento.compiler.model.ViewSpec
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
@@ -18,105 +18,109 @@ import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.V1_6
 
-internal class ListenerBinder(public val spec: ListenerClassSpec) {
-  public fun bindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    context.adapter.loadLocal(context.variables.target())
-    context.adapter.newInstance(context.binding.type, Methods.getConstructor(context.binding.target.clazz)) {
-      context.adapter.loadLocal(context.variables.target())
+internal class ListenerBinder() {
+  public fun bind(targets: Collection<ListenerTargetSpec>, variables: VariablesContext, adapter: GeneratorAdapter, environment: GenerationEnvironment) {
+    for (target in targets) {
+      adapter.loadLocal(variables.target())
+      adapter.newInstance(target.type, Methods.getConstructor(target.clazz)) {
+        adapter.loadLocal(variables.target())
+      }
+      adapter.putField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
     }
-    context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
-  }
 
-  public fun bindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    context.binding.target.annotation.ids.forEach {
-      context.adapter.newLabel().apply {
-        val view = ViewSpec(it, context.binding.target.optional, "method '${context.binding.target.method.name}'")
-        val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
+    for (target in targets) {
+      for (id in target.annotation.ids) {
+        adapter.newLabel().apply {
+          val view = ViewSpec(id, target.optional, "method '${target.method.name}'")
+          val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
-        if (context.binding.target.optional) {
-          context.adapter.loadLocal(context.variables.target())
-          context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
-          context.adapter.ifNull(this)
+          if (target.optional) {
+            adapter.loadLocal(variables.target())
+            adapter.getField(target.clazz, name, Types.VIEW)
+            adapter.ifNull(this)
+          }
+
+          adapter.loadLocal(variables.target())
+          adapter.getField(target.clazz, name, Types.VIEW)
+
+          if (target.listener.owner.type != Types.VIEW) {
+            adapter.checkCast(target.listener.owner)
+          }
+
+          adapter.loadLocal(variables.target())
+          adapter.getField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
+
+          adapter.invokeVirtual(target.listener.owner, target.listener.setter)
+          adapter.mark(this)
         }
-
-        context.adapter.loadLocal(context.variables.target())
-        context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
-
-        if (spec.owner.type != Types.VIEW) {
-          context.adapter.checkCast(spec.owner)
-        }
-
-        context.adapter.loadLocal(context.variables.target())
-        context.adapter.getField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
-
-        context.adapter.invokeVirtual(spec.owner, spec.setter)
-        context.adapter.mark(this)
       }
     }
   }
 
-  public fun unbindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    context.adapter.loadLocal(context.variables.target())
-    context.adapter.pushNull()
-    context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
-  }
+  public fun unbind(targets: Collection<ListenerTargetSpec>, variables: VariablesContext, adapter: GeneratorAdapter, environment: GenerationEnvironment) {
+    for (target in targets) {
+      for (id in target.annotation.ids) {
+        adapter.newLabel().apply {
+          val view = ViewSpec(id, target.optional, "method '${target.method.name}'")
+          val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
-  public fun unbindListeners(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    context.binding.target.annotation.ids.forEach {
-      context.adapter.newLabel().apply {
-        val view = ViewSpec(it, context.binding.target.optional, "method '${context.binding.target.method.name}'")
-        val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
+          if (target.optional) {
+            adapter.loadLocal(variables.target())
+            adapter.getField(target.clazz, name, Types.VIEW)
+            adapter.ifNull(this)
+          }
 
-        if (context.binding.target.optional) {
-          context.adapter.loadLocal(context.variables.target())
-          context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
-          context.adapter.ifNull(this)
+          adapter.loadLocal(variables.target())
+          adapter.getField(target.clazz, name, Types.VIEW)
+
+          if (target.listener.owner.type != Types.VIEW) {
+            adapter.checkCast(target.listener.owner)
+          }
+
+          if (target.listener.setter != target.listener.unsetter) {
+            adapter.loadLocal(variables.target())
+            adapter.getField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
+          }
+
+          if (target.listener.setter == target.listener.unsetter) {
+            adapter.pushNull()
+          }
+
+          adapter.invokeVirtual(target.listener.owner, target.listener.unsetter)
+          adapter.mark(this)
         }
-
-        context.adapter.loadLocal(context.variables.target())
-        context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
-
-        if (spec.owner.type != Types.VIEW) {
-          context.adapter.checkCast(spec.owner)
-        }
-
-        if (context.binding.descriptor.setter != context.binding.descriptor.unsetter) {
-          context.adapter.loadLocal(context.variables.target())
-          context.adapter.getField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
-        }
-
-        if (context.binding.descriptor.setter == context.binding.descriptor.unsetter) {
-          context.adapter.pushNull()
-        }
-
-        context.adapter.invokeVirtual(spec.owner, spec.unsetter)
-        context.adapter.mark(this)
       }
+    }
+
+    for (target in targets) {
+      adapter.loadLocal(variables.target())
+      adapter.pushNull()
+      adapter.putField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
     }
   }
 
-  public fun generate(listener: ListenerBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    return listOf(GeneratedContent(Types.getClassFilePath(listener.type), environment.newClass {
-      val parent = if (spec.listener.access.isInterface) Types.OBJECT else spec.listener.type
-      val interfaces = if (spec.listener.access.isInterface) arrayOf(spec.listener.type) else emptyArray()
+  public fun generate(target: ListenerTargetSpec, environment: GenerationEnvironment): List<GeneratedContent> {
+    return listOf(GeneratedContent(Types.getClassFilePath(target.type), environment.newClass {
+      val parent = if (target.listener.listener.access.isInterface) Types.OBJECT else target.listener.listener.type
+      val interfaces = if (target.listener.listener.access.isInterface) arrayOf(target.listener.listener.type) else emptyArray()
 
-      visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, parent.internalName, interfaces.map { it.internalName }.toTypedArray())
-      visitField(ACC_PRIVATE + ACC_FINAL, "target", listener.target.clazz.type.descriptor, null, null)
+      visit(V1_6, ACC_PUBLIC + ACC_SUPER, target.type.internalName, null, parent.internalName, interfaces.map { it.internalName }.toTypedArray())
+      visitField(ACC_PRIVATE + ACC_FINAL, "target", target.clazz.type.descriptor, null, null)
 
-      newMethod(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz)) {
+      newMethod(ACC_PUBLIC, Methods.getConstructor(target.clazz)) {
         loadThis()
         invokeConstructor(parent, Methods.getConstructor())
 
         loadThis()
         loadArg(0)
-        putField(listener.type, "target", listener.target.clazz.type)
+        putField(target.type, "target", target.clazz.type)
       }
 
-      newMethod(ACC_PUBLIC, listener.descriptor.callback) {
+      newMethod(ACC_PUBLIC, target.listener.callback) {
         loadThis()
-        getField(listener.type, "target", listener.target.clazz.type)
+        getField(target.type, "target", target.clazz.type)
 
-        listener.args.forEach {
+        target.arguments.forEach {
           loadArg(it.index).apply {
             if (!Types.isPrimitive(it.type)) {
               checkCast(it.type)
@@ -124,19 +128,19 @@ internal class ListenerBinder(public val spec: ListenerClassSpec) {
           }
         }
 
-        if (listener.target.method.access.isPrivate) {
-          invokeStatic(listener.target.clazz, environment.naming.getSyntheticAccessor(listener.target.clazz, listener.target.method))
+        if (target.method.access.isPrivate) {
+          invokeStatic(target.clazz, environment.naming.getSyntheticAccessor(target.clazz, target.method))
         } else {
-          invokeVirtual(listener.target.clazz, listener.target.method)
+          invokeVirtual(target.clazz, target.method)
         }
 
-        if (listener.descriptor.callback.returns == Types.BOOLEAN && listener.target.method.returns == Types.VOID) {
+        if (target.listener.callback.returns == Types.BOOLEAN && target.method.returns == Types.VOID) {
           push(false)
         }
       }
 
-      environment.registry.listPublicMethods(spec.listener).filter {
-        it.access.isAbstract && !Methods.equalsByJavaDeclaration(it, listener.descriptor.callback)
+      environment.registry.listPublicMethods(target.listener.listener).filter {
+        it.access.isAbstract && !Methods.equalsByJavaDeclaration(it, target.listener.callback)
       }.forEach {
         newMethod(ACC_PUBLIC, it) {
           if (it.returns == Types.BOOLEAN) {

@@ -5,7 +5,7 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.commons.Method
 
 internal fun ClassWriter.newMethod(access: Int, method: Method, signature: String? = null, body: GeneratorAdapter.() -> Unit) {
-  GeneratorAdapter(this, access, method).apply {
+  GeneratorAdapter(this, access, method, signature).apply {
     body().apply {
       returnValue()
       endMethod()
@@ -14,7 +14,7 @@ internal fun ClassWriter.newMethod(access: Int, method: Method, signature: Strin
 }
 
 internal fun ClassWriter.newMethod(access: Int, method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
-  GeneratorAdapter(this, access, Methods.get(method)).apply {
+  GeneratorAdapter(this, access, Methods.get(method), method.signature).apply {
     body().apply {
       returnValue()
       endMethod()

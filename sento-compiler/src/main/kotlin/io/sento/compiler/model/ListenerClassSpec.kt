@@ -1,6 +1,6 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.ClassRegistry
 import io.sento.compiler.SentoException
 import io.sento.compiler.annotations.ListenerClass
 import io.sento.compiler.common.Methods
@@ -22,7 +22,7 @@ internal data class ListenerClassSpec private constructor(
     public val callback: MethodSpec
 ) {
   public companion object {
-    public fun create(annotation: ClassSpec, binding: ListenerClass, environment: GenerationEnvironment): ListenerClassSpec {
+    public fun create(annotation: ClassSpec, binding: ListenerClass, registry: ClassRegistry): ListenerClassSpec {
       val ownerType = Types.getClassType(binding.owner())
       val listenerType = Types.getClassType(binding.listener())
 
@@ -36,7 +36,7 @@ internal data class ListenerClassSpec private constructor(
             annotation.type.simpleName, ownerType.className)
       }
 
-      if (!environment.registry.contains(ownerType)) {
+      if (!registry.contains(ownerType)) {
         throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' wasn''t found.",
             annotation.type.simpleName, ownerType.className)
       }
@@ -51,13 +51,13 @@ internal data class ListenerClassSpec private constructor(
             annotation.type.simpleName, listenerType.className)
       }
 
-      if (!environment.registry.contains(listenerType)) {
+      if (!registry.contains(listenerType)) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' wasn''t found.",
             annotation.type.simpleName, listenerType.className)
       }
 
-      val ownerSpec = environment.registry.resolve(ownerType)
-      val listenerSpec = environment.registry.resolve(listenerType)
+      val ownerSpec = registry.resolve(ownerType)
+      val listenerSpec = registry.resolve(listenerType)
 
       if (!ownerSpec.access.isPublic) {
         throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must be public.",
@@ -74,8 +74,8 @@ internal data class ListenerClassSpec private constructor(
         it.name == binding.callback()
       }
 
-      val listenerSetter = resolveListenerSetterSpec(binding.setter(), annotation, binding, environment)
-      val listenerUnsetter = resolveListenerSetterSpec(binding.unsetter() ?: binding.setter(), annotation, binding, environment)
+      val listenerSetter = resolveListenerSetterSpec(binding.setter(), annotation, binding, registry)
+      val listenerUnsetter = resolveListenerSetterSpec(binding.unsetter() ?: binding.setter(), annotation, binding, registry)
 
       if (!listenerSpec.access.isInterface && (listenerConstructor == null || listenerConstructor.access.isPrivate)) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have a zero-arg constructor with public or protected visibility.",
@@ -102,12 +102,12 @@ internal data class ListenerClassSpec private constructor(
       return ListenerClassSpec(ownerSpec, listenerSpec, listenerSetter, listenerUnsetter, listenerCallbacks[0])
     }
 
-    private fun resolveListenerSetterSpec(name: String, annotation: ClassSpec, binding: ListenerClass, environment: GenerationEnvironment): MethodSpec {
+    private fun resolveListenerSetterSpec(name: String, annotation: ClassSpec, binding: ListenerClass, registry: ClassRegistry): MethodSpec {
       val ownerType = Types.getClassType(binding.owner())
       val listenerType = Types.getClassType(binding.listener())
 
-      val ownerSpec = environment.registry.resolve(ownerType)
-      val listenerSpec = environment.registry.resolve(listenerType)
+      val ownerSpec = registry.resolve(ownerType)
+      val listenerSpec = registry.resolve(listenerType)
 
       val listenerSetters = ownerSpec.methods.filter {
         it.name == name && it.arguments.size == 1
@@ -123,12 +123,12 @@ internal data class ListenerClassSpec private constructor(
             annotation.type.simpleName, ownerType.className, name, listenerSetters.size, listenerSetters.map { Methods.asJavaDeclaration(it) })
       }
 
-      if (!environment.registry.isSubclassOf(listenerSpec.type, listenerSetters[0].arguments[0])) {
+      if (!registry.isSubclassOf(listenerSpec.type, listenerSetters[0].arguments[0])) {
         throw SentoException("Unable to process @{0} annotation - method ''{1}'' doesn''t accept ''{2}'' as an argument. Only subclasses of ''{3}'' are allowed.",
             annotation.type.simpleName, listenerSetters[0].name, listenerSpec.type.className, listenerSetters[0].arguments[0].className)
       }
 
-      environment.registry.resolve(listenerSetters[0].arguments[0]).methods.forEach {
+      registry.resolve(listenerSetters[0].arguments[0]).methods.forEach {
         if (it.access.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
           throw SentoException("Unable to process @{0} annotation - method ''{1}'' returns ''{2}'', but only {3} are supported.",
               annotation.type.simpleName, it.name, it.returns.className, listOf(Types.VOID.className, Types.BOOLEAN.className))

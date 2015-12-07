@@ -1,7 +1,10 @@
 package io.sento.compiler
 
+import io.sento.compiler.annotations.ListenerClass
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isPublic
+import io.sento.compiler.model.ListenerClassSpec
+import io.sento.compiler.reflection.AnnotationSpec
 import io.sento.compiler.reflection.ClassReference
 import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.MethodSpec
@@ -18,6 +21,7 @@ internal class ClassRegistry(
     throw SentoException("Unable to find a class \"${it.className}\". Make sure it is present in application classpath.")
   }
 
+  private val listeners = HashMap<Type, ListenerClassSpec>()
   private val specs = HashMap<Type, ClassSpec>()
 
   init {
@@ -69,6 +73,19 @@ internal class ClassRegistry(
       specs.getOrElse(type) {
         refs.getOrImplicitDefault(type).resolve()
       }
+    }
+  }
+
+  public fun resolveListenerClassSpec(annotation: AnnotationSpec): ListenerClassSpec {
+    return listeners.getOrPut(annotation.type) {
+      val spec = resolve(annotation.type)
+      val listener = spec.getAnnotation<ListenerClass>()
+
+      if (listener == null) {
+        throw UnsupportedOperationException()
+      }
+
+      ListenerClassSpec.create(spec, listener, this)
     }
   }
 

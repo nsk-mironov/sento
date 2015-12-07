@@ -8,7 +8,7 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.Method
 
-internal class GeneratorAdapter(visitor: ClassVisitor, access: Int, method: Method) : org.objectweb.asm.commons.GeneratorAdapter(Opcodes.ASM5, visitor.visitMethod(access, method.name, method.descriptor, null, null), access, method.name, method.descriptor) {
+internal class GeneratorAdapter(visitor: ClassVisitor, access: Int, method: Method, signature: String?) : org.objectweb.asm.commons.GeneratorAdapter(Opcodes.ASM5, visitor.visitMethod(access, method.name, method.descriptor, signature, null), access, method.name, method.descriptor) {
   public fun pushNull() {
     visitInsn(Opcodes.ACONST_NULL)
   }
