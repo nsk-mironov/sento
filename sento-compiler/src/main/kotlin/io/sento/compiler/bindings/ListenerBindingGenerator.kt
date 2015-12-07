@@ -17,7 +17,6 @@ import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.V1_6
-import org.objectweb.asm.Type
 
 internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
   public fun bindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
@@ -98,12 +97,15 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
 
   public fun generate(listener: ListenerBindingSpec, environment: GenerationEnvironment): List<GeneratedContent> {
     return listOf(GeneratedContent(Types.getClassFilePath(listener.type), environment.newClass {
-      visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, spec.listenerParent.internalName, spec.listenerInterfaces.map { it.internalName }.toTypedArray())
+      val parent = if (spec.listener.access.isInterface) Types.OBJECT else spec.listener.type
+      val interfaces = if (spec.listener.access.isInterface) arrayOf(spec.listener.type) else emptyArray()
+
+      visit(V1_6, ACC_PUBLIC + ACC_SUPER, listener.type.internalName, null, parent.internalName, interfaces.map { it.internalName }.toTypedArray())
       visitField(ACC_PRIVATE + ACC_FINAL, "target", listener.target.clazz.type.descriptor, null, null)
 
       newMethod(ACC_PUBLIC, Methods.getConstructor(listener.target.clazz)) {
         loadThis()
-        invokeConstructor(spec.listenerParent, Methods.getConstructor())
+        invokeConstructor(parent, Methods.getConstructor())
 
         loadThis()
         loadArg(0)
@@ -144,10 +146,4 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
       }
     }))
   }
-
-  private val ListenerClassSpec.listenerParent: Type
-    get() = if (listener.access.isInterface) Types.OBJECT else listener.type
-
-  private val ListenerClassSpec.listenerInterfaces: Array<Type>
-    get() = if (listener.access.isInterface) arrayOf(listener.type) else emptyArray()
 }
