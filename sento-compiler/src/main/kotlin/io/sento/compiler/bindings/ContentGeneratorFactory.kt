@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory
 import java.util.HashMap
 
 internal class ContentGeneratorFactory private constructor(
-    private val fields: Map<Type, ViewBindingGenerator>,
-    private val methods: Map<Type, ListenerBindingGenerator>
+    private val fields: Map<Type, ViewBinder>,
+    private val methods: Map<Type, ListenerBinder>
 ) {
   public companion object {
     private val logger = LoggerFactory.getLogger(ContentGeneratorFactory::class.java)
@@ -24,14 +24,14 @@ internal class ContentGeneratorFactory private constructor(
       return ContentGeneratorFactory(createViewBindings(environment), createMethodBindings(environment))
     }
 
-    private fun createViewBindings(environment: GenerationEnvironment): Map<Type, ViewBindingGenerator> {
-      return HashMap<Type, ViewBindingGenerator>().apply {
-        put(Types.getAnnotationType(Bind::class.java), ViewBindingGenerator())
+    private fun createViewBindings(environment: GenerationEnvironment): Map<Type, ViewBinder> {
+      return HashMap<Type, ViewBinder>().apply {
+        put(Types.getAnnotationType(Bind::class.java), ViewBinder())
       }
     }
 
-    private fun createMethodBindings(environment: GenerationEnvironment): Map<Type, ListenerBindingGenerator> {
-      return HashMap<Type, ListenerBindingGenerator>().apply {
+    private fun createMethodBindings(environment: GenerationEnvironment): Map<Type, ListenerBinder> {
+      return HashMap<Type, ListenerBinder>().apply {
         environment.registry.references.forEach {
           if (it.access.isAnnotation && !Types.isSystemClass(it.type)) {
             val spec = environment.registry.resolve(it)
@@ -41,7 +41,7 @@ internal class ContentGeneratorFactory private constructor(
               logger.info("New ListenerBinding found - @{} with listener {}", spec.type.simpleName, listener)
               logger.info("Creating a ListenerBindingGenerator for @{}", spec.type.simpleName)
 
-              put(it.type, ListenerBindingGenerator(ListenerClassSpec.create(spec, listener, environment)))
+              put(it.type, ListenerBinder(ListenerClassSpec.create(spec, listener, environment)))
             }
           }
         }

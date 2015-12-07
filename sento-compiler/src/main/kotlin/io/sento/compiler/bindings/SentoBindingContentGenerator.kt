@@ -37,8 +37,8 @@ import java.util.ArrayList
 import java.util.HashMap
 
 internal class SentoBindingContentGenerator(
-    private val views: Map<Type, ViewBindingGenerator>,
-    private val listeners: Map<Type, ListenerBindingGenerator>,
+    private val views: Map<Type, ViewBinder>,
+    private val listeners: Map<Type, ListenerBinder>,
     private val clazz: ClassSpec
 ) : ContentGenerator {
   public companion object {
@@ -194,7 +194,7 @@ internal class SentoBindingContentGenerator(
       }
 
       bindableFieldTargets.forEach {
-        it.generator.bind(ViewBindingContext(it, this, variables), environment)
+        it.generator.bind(it, VariablesContext(variables), this, environment)
       }
 
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
@@ -204,11 +204,11 @@ internal class SentoBindingContentGenerator(
       }
 
       listeners.forEach {
-        it.target.generator.bindFields(ListenerBindingContext(it, this, variables), environment)
+        it.target.generator.bindFields(ListenerBindingContext(it, this, VariablesContext(variables)), environment)
       }
 
       listeners.forEach {
-        it.target.generator.bindListeners(ListenerBindingContext(it, this, variables), environment)
+        it.target.generator.bindListeners(ListenerBindingContext(it, this, VariablesContext(variables)), environment)
       }
     }
   }
@@ -222,11 +222,11 @@ internal class SentoBindingContentGenerator(
       })
 
       listeners.forEach {
-        it.target.generator.unbindListeners(ListenerBindingContext(it, this, variables), environment)
+        it.target.generator.unbindListeners(ListenerBindingContext(it, this, VariablesContext(variables)), environment)
       }
 
       listeners.forEach {
-        it.target.generator.unbindFields(ListenerBindingContext(it, this, variables), environment)
+        it.target.generator.unbindFields(ListenerBindingContext(it, this, VariablesContext(variables)), environment)
       }
 
       bindableViewTargetsForMethods.distinctBy { it.id }.forEach {
@@ -236,7 +236,7 @@ internal class SentoBindingContentGenerator(
       }
 
       bindableFieldTargets.forEach {
-        it.generator.unbind(ViewBindingContext(it, this, variables), environment)
+        it.generator.unbind(it, VariablesContext(variables), this, environment)
       }
     }
   }

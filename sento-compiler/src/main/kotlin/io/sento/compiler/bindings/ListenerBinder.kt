@@ -18,11 +18,11 @@ import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.V1_6
 
-internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
+internal class ListenerBinder(public val spec: ListenerClassSpec) {
   public fun bindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    context.adapter.loadLocal(context.variable("target"))
+    context.adapter.loadLocal(context.variables.target())
     context.adapter.newInstance(context.binding.type, Methods.getConstructor(context.binding.target.clazz)) {
-      context.adapter.loadLocal(context.variable("target"))
+      context.adapter.loadLocal(context.variables.target())
     }
     context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
@@ -34,19 +34,19 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
         if (context.binding.target.optional) {
-          context.adapter.loadLocal(context.variable("target"))
+          context.adapter.loadLocal(context.variables.target())
           context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
           context.adapter.ifNull(this)
         }
 
-        context.adapter.loadLocal(context.variable("target"))
+        context.adapter.loadLocal(context.variables.target())
         context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
 
         if (spec.owner.type != Types.VIEW) {
           context.adapter.checkCast(spec.owner)
         }
 
-        context.adapter.loadLocal(context.variable("target"))
+        context.adapter.loadLocal(context.variables.target())
         context.adapter.getField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
 
         context.adapter.invokeVirtual(spec.owner, spec.setter)
@@ -56,7 +56,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
   }
 
   public fun unbindFields(context: ListenerBindingContext, environment: GenerationEnvironment) {
-    context.adapter.loadLocal(context.variables["target"]!!)
+    context.adapter.loadLocal(context.variables.target())
     context.adapter.pushNull()
     context.adapter.putField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
   }
@@ -68,12 +68,12 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
         if (context.binding.target.optional) {
-          context.adapter.loadLocal(context.variable("target"))
+          context.adapter.loadLocal(context.variables.target())
           context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
           context.adapter.ifNull(this)
         }
 
-        context.adapter.loadLocal(context.variable("target"))
+        context.adapter.loadLocal(context.variables.target())
         context.adapter.getField(context.binding.target.clazz, name, Types.VIEW)
 
         if (spec.owner.type != Types.VIEW) {
@@ -81,7 +81,7 @@ internal class ListenerBindingGenerator(public val spec: ListenerClassSpec) {
         }
 
         if (context.binding.descriptor.setter != context.binding.descriptor.unsetter) {
-          context.adapter.loadLocal(context.variable("target"))
+          context.adapter.loadLocal(context.variables.target())
           context.adapter.getField(context.binding.target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(context.binding.target), spec.listener)
         }
 
