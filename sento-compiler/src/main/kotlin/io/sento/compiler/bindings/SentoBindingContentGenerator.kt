@@ -50,7 +50,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       result.add(onCreatePatchedClassGeneratedContent(binding, environment))
 
       binding.listeners.flatMapTo(result) {
-        ListenerBinder().generate(it, environment)
+        ListenerBindingContentGenerator(it).generate(environment)
       }
     }
 
