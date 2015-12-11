@@ -1,4 +1,4 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.model
 
 import org.objectweb.asm.Type
 

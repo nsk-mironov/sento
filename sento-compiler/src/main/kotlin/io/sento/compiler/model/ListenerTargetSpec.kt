@@ -2,7 +2,6 @@ package io.sento.compiler.model
 
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.SentoException
-import io.sento.compiler.bindings.ArgumentSpec
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.reflection.AnnotationSpec
@@ -23,7 +22,7 @@ internal data class ListenerTargetSpec private constructor(
 ) {
   public companion object {
     public fun create(clazz: ClassSpec, method: MethodSpec, annotation: AnnotationSpec, optional: Boolean, environment: GenerationEnvironment): ListenerTargetSpec {
-      val listener = environment.registry.resolveListenerClassSpec(annotation)
+      val listener = environment.registry.resolveListenerClassSpec(annotation)!!
       val type = environment.naming.getAnonymousType(environment.naming.getSentoBindingType(clazz))
       val arguments = remapMethodArguments(clazz, method, annotation, listener, environment)
 

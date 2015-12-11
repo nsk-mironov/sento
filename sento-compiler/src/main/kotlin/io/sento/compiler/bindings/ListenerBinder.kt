@@ -11,6 +11,7 @@ import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.newMethod
 import io.sento.compiler.model.ListenerTargetSpec
+import io.sento.compiler.model.ViewOwner
 import io.sento.compiler.model.ViewSpec
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
@@ -31,7 +32,7 @@ internal class ListenerBinder() {
     for (target in targets) {
       for (id in target.annotation.ids) {
         adapter.newLabel().apply {
-          val view = ViewSpec(id, target.optional, target.clazz, "method '${target.method.name}'")
+          val view = ViewSpec(id, target.optional, target.clazz, ViewOwner.Method(target.method))
           val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
           if (target.optional) {
@@ -61,7 +62,7 @@ internal class ListenerBinder() {
     for (target in targets) {
       for (id in target.annotation.ids) {
         adapter.newLabel().apply {
-          val view = ViewSpec(id, target.optional, target.clazz, "method '${target.method.name}'")
+          val view = ViewSpec(id, target.optional, target.clazz, ViewOwner.Method(target.method))
           val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
 
           if (target.optional) {

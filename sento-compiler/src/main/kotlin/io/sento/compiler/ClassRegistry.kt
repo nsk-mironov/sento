@@ -21,7 +21,7 @@ internal class ClassRegistry(
     throw SentoException("Unable to find a class \"${it.className}\". Make sure it is present in application classpath.")
   }
 
-  private val listeners = HashMap<Type, ListenerClassSpec>()
+  private val listeners = HashMap<Type, ListenerClassSpec?>()
   private val specs = HashMap<Type, ClassSpec>()
 
   init {
@@ -76,16 +76,14 @@ internal class ClassRegistry(
     }
   }
 
-  public fun resolveListenerClassSpec(annotation: AnnotationSpec): ListenerClassSpec {
+  public fun resolveListenerClassSpec(annotation: AnnotationSpec): ListenerClassSpec? {
     return listeners.getOrPut(annotation.type) {
       val spec = resolve(annotation.type)
-      val listener = spec.getAnnotation<ListenerClass>()
+      val listener = resolve(annotation.type).getAnnotation<ListenerClass>()
 
-      if (listener == null) {
-        throw UnsupportedOperationException()
+      listener?.let {
+        ListenerClassSpec.create(spec, it, this)
       }
-
-      ListenerClassSpec.create(spec, listener, this)
     }
   }
 
