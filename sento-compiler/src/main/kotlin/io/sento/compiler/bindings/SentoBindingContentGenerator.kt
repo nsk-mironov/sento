@@ -87,16 +87,16 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
     val signature = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
 
     newMethod(ACC_PUBLIC, descriptor, signature) {
-      val variables = HashMap<String, Int>()
+      val variables = VariablesContext()
 
-      variables.put("target", newLocal(clazz.type).apply {
+      variables.variable("target", newLocal(clazz.type).apply {
         loadArg(ARGUMENT_TARGET)
         checkCast(clazz.type)
         storeLocal(this)
       })
 
       binding.views.distinctBy { it.id }.forEach {
-        variables.put("view${it.id}", newLocal(Types.VIEW).apply {
+        variables.variable("view${it.id}", newLocal(Types.VIEW).apply {
           loadArg(ARGUMENT_FINDER)
           push(it.id)
 
@@ -111,30 +111,32 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
         loadArg(ARGUMENT_FINDER)
         push(it.id)
 
-        loadLocal(variables["view${it.id}"]!!)
+        loadLocal(variables.view(it.id))
         loadArg(ARGUMENT_SOURCE)
         push(it.owner.name)
 
         invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
       }
 
-      ViewBinder().bind(binding.bindings, VariablesContext(variables), this, environment)
-      ShadowBinder().bind(binding.views.filter { it.owner is ViewOwner.Method }, VariablesContext(variables), this, environment)
-      ListenerBinder().bind(binding.listeners, VariablesContext(variables), this, environment)
+      ViewBinder().bind(binding.bindings, variables, this, environment)
+      ShadowBinder().bind(binding.views.filter { it.owner is ViewOwner.Method }, variables, this, environment)
+      ListenerBinder().bind(binding.listeners, variables, this, environment)
     }
   }
 
   private fun ClassWriter.visitUnbindMethod(binding: BindingSpec, environment: GenerationEnvironment) {
     newMethod(ACC_PUBLIC, Methods.get("unbind", Types.VOID, Types.OBJECT)) {
-      val variables = mapOf("target" to newLocal(clazz.type).apply {
+      val variables = VariablesContext()
+
+      variables.variable("target", newLocal(clazz.type).apply {
         loadArg(ARGUMENT_TARGET)
         checkCast(clazz.type)
         storeLocal(this)
       })
 
-      ListenerBinder().unbind(binding.listeners, VariablesContext(variables), this, environment)
-      ShadowBinder().unbind(binding.views.filter { it.owner is ViewOwner.Method }, VariablesContext(variables), this, environment)
-      ViewBinder().unbind(binding.bindings, VariablesContext(variables), this, environment)
+      ListenerBinder().unbind(binding.listeners, variables, this, environment)
+      ShadowBinder().unbind(binding.views.filter { it.owner is ViewOwner.Method }, variables, this, environment)
+      ViewBinder().unbind(binding.bindings, variables, this, environment)
     }
   }
 
