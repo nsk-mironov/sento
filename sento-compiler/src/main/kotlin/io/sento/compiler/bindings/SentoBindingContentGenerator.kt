@@ -27,10 +27,7 @@ import org.slf4j.LoggerFactory
 import java.util.ArrayList
 import java.util.HashMap
 
-internal class SentoBindingContentGenerator(
-    private val environment: GenerationEnvironment,
-    private val clazz: ClassSpec
-) : ContentGenerator {
+internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : ContentGenerator {
   public companion object {
     private val logger = LoggerFactory.getLogger(SentoBindingContentGenerator::class.java)
 
@@ -41,7 +38,7 @@ internal class SentoBindingContentGenerator(
     public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
   }
 
-  override fun generate(): Collection<GeneratedContent> {
+  override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     val binding = BindingSpec.from(clazz, environment)
     val result = ArrayList<GeneratedContent>()
 

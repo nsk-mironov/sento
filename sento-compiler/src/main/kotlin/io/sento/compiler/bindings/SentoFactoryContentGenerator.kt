@@ -14,11 +14,8 @@ import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.V1_6
 
-internal class SentoFactoryContentGenerator(
-    private val environment: GenerationEnvironment,
-    private val bindings: Collection<ClassSpec>
-) : ContentGenerator {
-  override fun generate(): Collection<GeneratedContent> {
+internal class SentoFactoryContentGenerator(private val bindings: Collection<ClassSpec>) : ContentGenerator {
+  override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     return listOf(GeneratedContent(Types.getClassFilePath(Types.FACTORY), environment.newClass {
       visit(V1_6, ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.FACTORY.internalName, null, Types.OBJECT.internalName, null)
       visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", Types.MAP.descriptor, "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;", null)
