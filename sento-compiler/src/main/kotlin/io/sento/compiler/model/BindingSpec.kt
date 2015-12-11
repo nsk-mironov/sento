@@ -34,7 +34,7 @@ internal data class BindingSpec private constructor(
     private fun createBindingTargets(clazz: ClassSpec, optional: OptionalAware, environment: GenerationEnvironment): Collection<BindTargetSpec> {
       return clazz.fields.flatMap { field ->
         field.annotations.filter { it.type == Types.BIND }.map { annotation ->
-          BindTargetSpec(clazz, field, annotation, optional.isOptional(field))
+          BindTargetSpec.create(clazz, field, annotation, optional.isOptional(field), environment)
         }
       }
     }
