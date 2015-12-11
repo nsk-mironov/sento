@@ -72,10 +72,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) = apply {
-    val name = environment.naming.getBindingType(clazz)
-    val signature = "Ljava/lang/Object;L${Types.BINDING.internalName}<Ljava/lang/Object;>;"
-
-    visit(ACC_PUBLIC + ACC_SUPER, name, signature, Types.OBJECT, arrayOf(Types.BINDING))
+    visit(ACC_PUBLIC + ACC_SUPER, environment.naming.getBindingType(clazz), null, Types.OBJECT, arrayOf(Types.BINDING))
   }
 
   private fun ClassWriter.visitConstructor(environment: GenerationEnvironment) {

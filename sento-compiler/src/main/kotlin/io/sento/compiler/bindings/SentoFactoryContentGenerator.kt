@@ -24,7 +24,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Cla
         invokeConstructor(Types.OBJECT, Methods.getConstructor())
       }
 
-      newMethod(ACC_PUBLIC + ACC_STATIC, Methods.get("createBinding", Types.BINDING, Types.CLASS), "(Ljava/lang/Class<*>;)Lio/sento/Binding<Ljava/lang/Object;>;") {
+      newMethod(ACC_PUBLIC + ACC_STATIC, Methods.get("createBinding", Types.BINDING, Types.CLASS), "(Ljava/lang/Class<*>;)Lio/sento/Binding;") {
         getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
         loadArg(0)
 

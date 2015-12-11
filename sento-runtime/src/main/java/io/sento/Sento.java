@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Sento {
-  private static final Map<Class<?>, Binding<Object>> BINDINGS = new IdentityHashMap<>();
+  private static final Map<Class<?>, Binding> BINDINGS = new IdentityHashMap<>();
 
   public static void bind(final Object target, final Activity activity) {
     findOrCreateBinding(target.getClass()).bind(target, activity, ACTIVITY_FINDER);
@@ -28,8 +28,7 @@ public final class Sento {
     findOrCreateBinding(target.getClass()).unbind(target);
   }
 
-  @SuppressWarnings("unchecked")
-  private static Binding<Object> findOrCreateBinding(final Class<?> clazz) {
+  private static Binding findOrCreateBinding(final Class<?> clazz) {
     if (isSystemClass(clazz)) {
       return DEFAULT_BINDING;
     }
@@ -41,12 +40,11 @@ public final class Sento {
     return BINDINGS.get(clazz);
   }
 
-  @SuppressWarnings("unchecked")
-  private static Binding<Object> createBinding(final Class<?> clazz) {
-    final List<Binding<Object>> bindings = new ArrayList<>();
+  private static Binding createBinding(final Class<?> clazz) {
+    final List<Binding> bindings = new ArrayList<>();
 
     for (Class current = clazz; current != null && !isSystemClass(current); current = current.getSuperclass()) {
-      final Binding<Object> binding = SentoFactory.createBinding(current);
+      final Binding binding = SentoFactory.createBinding(current);
 
       if (binding != null) {
         bindings.add(binding);
@@ -61,7 +59,7 @@ public final class Sento {
       return bindings.get(0);
     }
 
-    return new CompositeBinding<>(bindings);
+    return new CompositeBinding(bindings);
   }
 
   private static boolean isSystemClass(final Class<?> clazz) {
@@ -72,29 +70,29 @@ public final class Sento {
     return "R." + resources.getResourceTypeName(id) + "." + resources.getResourceEntryName(id);
   }
 
-  private static final class CompositeBinding<T> implements Binding<T> {
-    private final List<Binding<T>> bindings;
+  private static final class CompositeBinding implements Binding {
+    private final List<Binding> bindings;
 
-    private CompositeBinding(final List<Binding<T>> bindings) {
+    private CompositeBinding(final List<Binding> bindings) {
       this.bindings = bindings;
     }
 
     @Override
-    public <S> void bind(final T target, final S source, final Finder<? super S> finder) {
+    public <S> void bind(final Object target, final S source, final Finder<? super S> finder) {
       for (int i = 0, size = bindings.size(); i < size; i++) {
         bindings.get(i).bind(target, source, finder);
       }
     }
 
     @Override
-    public void unbind(final T target) {
+    public void unbind(final Object target) {
       for (int i = 0, size = bindings.size(); i < size; i++) {
         bindings.get(i).unbind(target);
       }
     }
   }
 
-  private static final Binding<Object> DEFAULT_BINDING = new Binding<Object>() {
+  private static final Binding DEFAULT_BINDING = new Binding() {
     @Override
     public <S> void bind(final Object target, final S source, final Finder<? super S> finder) {
       // nothing to do
