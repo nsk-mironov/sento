@@ -1,5 +1,6 @@
 package io.sento.compiler.bindings
 
+import io.sento.compiler.ClassWriter
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
@@ -12,7 +13,6 @@ import io.sento.compiler.model.ViewOwner
 import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
@@ -22,7 +22,6 @@ import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.ASM5
-import org.objectweb.asm.Opcodes.V1_6
 import org.slf4j.LoggerFactory
 import java.util.ArrayList
 import java.util.HashMap
@@ -53,9 +52,15 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
         visitUnbindMethod(binding, environment)
       }
 
-      result.add(GeneratedContent(Types.getClassFilePath(clazz.type), AccessibilityPatcher(environment, binding).patch(clazz)))
-      result.add(GeneratedContent(Types.getClassFilePath(environment.naming.getSentoBindingType(clazz)), bytes, HashMap<String, Any>().apply {
+      result.add(GeneratedContent(Types.getClassFilePath(environment.naming.getBindingType(clazz)), bytes, HashMap<String, Any>().apply {
         put(EXTRA_BINDING_SPEC, clazz)
+      }))
+
+      result.add(GeneratedContent(Types.getClassFilePath(clazz.type), environment.newClass {
+        onCreatePatchedClassForBinding(this, binding, environment)
+        onCreateSyntheticFieldsForListeners(this, binding, environment)
+        onCreateSyntheticFieldsForViews(this, binding, environment)
+        onCreateSyntheticMethodsForListeners(this, binding, environment)
       }))
 
       binding.listeners.flatMapTo(result) {
@@ -67,12 +72,10 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun ClassWriter.visitHeader(environment: GenerationEnvironment) = apply {
-    val name = environment.naming.getSentoBindingType(clazz).internalName
-    val signature = "L${Types.OBJECT.internalName};L${Types.BINDING.internalName}<L${Types.OBJECT.internalName};>;"
-    val superName = Types.OBJECT.internalName
-    val interfaces = arrayOf(Types.BINDING.internalName)
+    val name = environment.naming.getBindingType(clazz)
+    val signature = "Ljava/lang/Object;L${Types.BINDING.internalName}<Ljava/lang/Object;>;"
 
-    visit(V1_6, ACC_PUBLIC + ACC_SUPER, name, signature, superName, interfaces)
+    visit(ACC_PUBLIC + ACC_SUPER, name, signature, Types.OBJECT, arrayOf(Types.BINDING))
   }
 
   private fun ClassWriter.visitConstructor(environment: GenerationEnvironment) {
@@ -140,42 +143,43 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
     }
   }
 
-  private inner class AccessibilityPatcher(val environment: GenerationEnvironment, val binding: BindingSpec) {
-    public fun patch(spec: ClassSpec): ByteArray {
-      val fields = binding.bindings.map { it.field.name }.toHashSet()
-      val writer = environment.newClassWriter()
+  private fun onCreatePatchedClassForBinding(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
+    ClassReader(clazz.opener.open()).accept(object : ClassVisitor(ASM5, writer) {
+      override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
+        return super.visitField(onPatchFieldAccessFlags(binding, access, name), name, desc, signature, value)
+      }
+    }, ClassReader.SKIP_FRAMES)
+  }
 
-      val bytes = spec.opener.open()
-      val reader = ClassReader(bytes)
+  private fun onCreateSyntheticFieldsForViews(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
+    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
+      writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, environment.naming.getSyntheticFieldName(it), Types.VIEW)
+    }
+  }
 
-      reader.accept(object : ClassVisitor(ASM5, writer) {
-        override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
-          return super.visitField(if (fields.contains(name)) {
-            access and ACC_PRIVATE.inv() and ACC_FINAL.inv() or ACC_PROTECTED
-          } else {
-            access
-          }, name, desc, signature, value)
+  private fun onCreateSyntheticFieldsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
+    binding.listeners.distinctBy { it.method.name to it.annotation.type }.forEach {
+      writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, environment.naming.getSyntheticFieldName(it), it.listener.listener.type)
+    }
+  }
+
+  private fun onCreateSyntheticMethodsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
+    binding.listeners.filter { it.method.access.isPrivate }.forEach {
+      writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(clazz, it.method)) {
+        val args = it.method.arguments
+
+        for (count in 0..args.size) {
+          loadArg(count)
         }
-      }, ClassReader.SKIP_FRAMES)
 
-      binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
-        writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, environment.naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW.descriptor, null, null)
+        invokeVirtual(clazz, it.method)
       }
+    }
+  }
 
-      binding.listeners.distinctBy { it.method.name to it.annotation.type }.forEach {
-        writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, environment.naming.getSyntheticFieldNameForMethodTarget(it), it.listener.listener.type.descriptor, null, null)
-      }
-
-      binding.listeners.filter { it.method.access.isPrivate }.forEach {
-        writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(spec, it.method)) {
-          for (count in 0..it.method.arguments.size) {
-            loadArg(count)
-          }
-          invokeVirtual(spec, it.method)
-        }
-      }
-
-      return writer.toByteArray()
+  private fun onPatchFieldAccessFlags(binding: BindingSpec, access: Int, name: String): Int {
+    return if (!binding.bindings.any { it.field.name == name }) access else {
+      access and ACC_PRIVATE.inv() and ACC_FINAL.inv() or ACC_PROTECTED
     }
   }
 }

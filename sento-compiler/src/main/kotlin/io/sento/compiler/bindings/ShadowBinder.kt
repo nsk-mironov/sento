@@ -10,7 +10,7 @@ internal class ShadowBinder {
     targets.distinctBy { it.id }.forEach {
       adapter.loadLocal(variables.target())
       adapter.loadLocal(variables.view(it.id))
-      adapter.putField(it.clazz, environment.naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
+      adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
     }
   }
 
@@ -18,7 +18,7 @@ internal class ShadowBinder {
     targets.distinctBy { it.id }.forEach {
       adapter.loadLocal(variables.target())
       adapter.pushNull()
-      adapter.putField(it.clazz, environment.naming.getSyntheticFieldNameForViewTarget(it), Types.VIEW)
+      adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
     }
   }
 }

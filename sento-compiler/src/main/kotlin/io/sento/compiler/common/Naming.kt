@@ -16,7 +16,7 @@ internal class Naming {
     return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner.type, *method.arguments))
   }
 
-  public fun getSentoBindingType(spec: ClassSpec): Type {
+  public fun getBindingType(spec: ClassSpec): Type {
     return Type.getObjectType("${spec.type.internalName}\$\$SentoBinding");
   }
 
@@ -24,11 +24,11 @@ internal class Naming {
     return Type.getObjectType("${type.internalName}\$\$${anonymous.getOrPut(type) { AtomicInteger() }.andIncrement}")
   }
 
-  public fun getSyntheticFieldNameForViewTarget(target: ViewSpec): String {
+  public fun getSyntheticFieldName(target: ViewSpec): String {
     return "sento\$view\$id_${target.id}"
   }
 
-  public fun getSyntheticFieldNameForMethodTarget(target: ListenerTargetSpec): String {
+  public fun getSyntheticFieldName(target: ListenerTargetSpec): String {
     return "sento\$listener\$${target.method.name}\$${target.annotation.type.simpleName}"
   }
 }

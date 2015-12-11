@@ -17,7 +17,6 @@ import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
-import org.objectweb.asm.Opcodes.V1_6
 
 internal class ListenerBinder() {
   public fun bind(targets: Collection<ListenerTargetSpec>, variables: VariablesContext, adapter: GeneratorAdapter, environment: GenerationEnvironment) {
@@ -26,14 +25,14 @@ internal class ListenerBinder() {
       adapter.newInstance(target.type, Methods.getConstructor(target.clazz)) {
         adapter.loadLocal(variables.target())
       }
-      adapter.putField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
+      adapter.putField(target.clazz, environment.naming.getSyntheticFieldName(target), target.listener.listener)
     }
 
     for (target in targets) {
       for (id in target.annotation.ids) {
         adapter.newLabel().apply {
           val view = ViewSpec(id, target.optional, target.clazz, ViewOwner.Method(target.method))
-          val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
+          val name = environment.naming.getSyntheticFieldName(view)
 
           if (target.optional) {
             adapter.loadLocal(variables.target())
@@ -49,7 +48,7 @@ internal class ListenerBinder() {
           }
 
           adapter.loadLocal(variables.target())
-          adapter.getField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
+          adapter.getField(target.clazz, environment.naming.getSyntheticFieldName(target), target.listener.listener)
 
           adapter.invokeVirtual(target.listener.owner, target.listener.setter)
           adapter.mark(this)
@@ -63,7 +62,7 @@ internal class ListenerBinder() {
       for (id in target.annotation.ids) {
         adapter.newLabel().apply {
           val view = ViewSpec(id, target.optional, target.clazz, ViewOwner.Method(target.method))
-          val name = environment.naming.getSyntheticFieldNameForViewTarget(view)
+          val name = environment.naming.getSyntheticFieldName(view)
 
           if (target.optional) {
             adapter.loadLocal(variables.target())
@@ -80,7 +79,7 @@ internal class ListenerBinder() {
 
           if (target.listener.setter != target.listener.unsetter) {
             adapter.loadLocal(variables.target())
-            adapter.getField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
+            adapter.getField(target.clazz, environment.naming.getSyntheticFieldName(target), target.listener.listener)
           }
 
           if (target.listener.setter == target.listener.unsetter) {
@@ -96,7 +95,7 @@ internal class ListenerBinder() {
     for (target in targets) {
       adapter.loadLocal(variables.target())
       adapter.pushNull()
-      adapter.putField(target.clazz, environment.naming.getSyntheticFieldNameForMethodTarget(target), target.listener.listener)
+      adapter.putField(target.clazz, environment.naming.getSyntheticFieldName(target), target.listener.listener)
     }
   }
 
@@ -105,8 +104,8 @@ internal class ListenerBinder() {
       val parent = if (target.listener.listener.access.isInterface) Types.OBJECT else target.listener.listener.type
       val interfaces = if (target.listener.listener.access.isInterface) arrayOf(target.listener.listener.type) else emptyArray()
 
-      visit(V1_6, ACC_PUBLIC + ACC_SUPER, target.type.internalName, null, parent.internalName, interfaces.map { it.internalName }.toTypedArray())
-      visitField(ACC_PRIVATE + ACC_FINAL, "target", target.clazz.type.descriptor, null, null)
+      visit(ACC_PUBLIC + ACC_SUPER, target.type, null, parent, interfaces)
+      visitField(ACC_PRIVATE + ACC_FINAL, "target", target.clazz.type)
 
       newMethod(ACC_PUBLIC, Methods.getConstructor(target.clazz)) {
         loadThis()
