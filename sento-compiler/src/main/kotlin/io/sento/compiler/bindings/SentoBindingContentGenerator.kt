@@ -4,6 +4,7 @@ import io.sento.compiler.ClassWriter
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.annotations.id
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
@@ -114,7 +115,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
         invokeInterface(Types.FINDER, Methods.get("require", Types.VOID, Types.INT, Types.VIEW, Types.OBJECT, Types.STRING))
       }
 
-      ViewBinder().bind(binding.bindings, variables, this, environment)
+      onBindViewTargetFields(this, binding, variables, environment)
       onBindSyntheticViewFields(this, binding, variables, environment)
       ListenerBinder().bind(binding.listeners, variables, this, environment)
     }
@@ -132,7 +133,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
       ListenerBinder().unbind(binding.listeners, variables, this, environment)
       onUnbindSyntheticViewFields(this, binding, variables, environment)
-      ViewBinder().unbind(binding.bindings, variables, this, environment)
+      onUnbindViewTargetFields(this, binding, variables, environment)
     }
   }
 
@@ -149,6 +150,27 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       adapter.loadLocal(variables.target())
       adapter.pushNull()
       adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
+    }
+  }
+
+  private fun onBindViewTargetFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.bindings.forEach {
+      adapter.loadLocal(variables.target())
+      adapter.loadLocal(variables.view(it.annotation.id))
+
+      if (it.field.type != Types.VIEW) {
+        adapter.checkCast(it.field.type)
+      }
+
+      adapter.putField(it.clazz, it.field)
+    }
+  }
+
+  private fun onUnbindViewTargetFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.bindings.forEach {
+      adapter.loadLocal(variables.target())
+      adapter.pushNull()
+      adapter.putField(it.clazz, it.field)
     }
   }
 
