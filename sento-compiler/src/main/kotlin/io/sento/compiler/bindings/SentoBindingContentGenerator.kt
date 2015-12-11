@@ -4,6 +4,7 @@ import io.sento.compiler.ClassWriter
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
+import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isPrivate
@@ -114,7 +115,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       }
 
       ViewBinder().bind(binding.bindings, variables, this, environment)
-      ShadowBinder().bind(binding.views.filter { it.owner is ViewOwner.Method }, variables, this, environment)
+      onBindSyntheticViewFields(this, binding, variables, environment)
       ListenerBinder().bind(binding.listeners, variables, this, environment)
     }
   }
@@ -130,8 +131,24 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       })
 
       ListenerBinder().unbind(binding.listeners, variables, this, environment)
-      ShadowBinder().unbind(binding.views.filter { it.owner is ViewOwner.Method }, variables, this, environment)
+      onUnbindSyntheticViewFields(this, binding, variables, environment)
       ViewBinder().unbind(binding.bindings, variables, this, environment)
+    }
+  }
+
+  private fun onBindSyntheticViewFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
+      adapter.loadLocal(variables.target())
+      adapter.loadLocal(variables.view(it.id))
+      adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
+    }
+  }
+
+  private fun onUnbindSyntheticViewFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
+      adapter.loadLocal(variables.target())
+      adapter.pushNull()
+      adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
     }
   }
 
