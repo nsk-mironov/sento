@@ -100,7 +100,7 @@ internal class ListenerBinder() {
   }
 
   public fun generate(target: ListenerTargetSpec, environment: GenerationEnvironment): List<GeneratedContent> {
-    return listOf(GeneratedContent(Types.getClassFilePath(target.type), environment.newClass {
+    return listOf(GeneratedContent.from(target.type, mapOf(), environment.newClass {
       val parent = if (target.listener.listener.access.isInterface) Types.OBJECT else target.listener.listener.type
       val interfaces = if (target.listener.listener.access.isInterface) arrayOf(target.listener.listener.type) else emptyArray()
 

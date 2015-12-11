@@ -24,7 +24,6 @@ import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.ASM5
 import org.slf4j.LoggerFactory
 import java.util.ArrayList
-import java.util.HashMap
 
 internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : ContentGenerator {
   public companion object {
@@ -44,19 +43,15 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
     if (!binding.bindings.isEmpty() || !binding.listeners.isEmpty()) {
       logger.info("Generating SentoBinding for '{}' class:", clazz.type.className)
 
-      val bytes = environment.newClass {
+      result.add(GeneratedContent.from(environment.naming.getBindingType(clazz), mapOf(EXTRA_BINDING_SPEC to clazz), environment.newClass {
         visitHeader(environment)
         visitConstructor(environment)
 
         visitBindMethod(binding, environment)
         visitUnbindMethod(binding, environment)
-      }
-
-      result.add(GeneratedContent(Types.getClassFilePath(environment.naming.getBindingType(clazz)), bytes, HashMap<String, Any>().apply {
-        put(EXTRA_BINDING_SPEC, clazz)
       }))
 
-      result.add(GeneratedContent(Types.getClassFilePath(clazz.type), environment.newClass {
+      result.add(GeneratedContent.from(clazz.type, mapOf(), environment.newClass {
         onCreatePatchedClassForBinding(this, binding, environment)
         onCreateSyntheticFieldsForListeners(this, binding, environment)
         onCreateSyntheticFieldsForViews(this, binding, environment)
