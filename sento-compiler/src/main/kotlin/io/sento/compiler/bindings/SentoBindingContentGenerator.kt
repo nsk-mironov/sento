@@ -5,6 +5,7 @@ import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.id
+import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
@@ -12,6 +13,7 @@ import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.newMethod
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
+import io.sento.compiler.model.ViewSpec
 import io.sento.compiler.reflection.ClassSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
@@ -67,26 +69,29 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       }
 
       newMethod(ACC_PUBLIC, METHOD_BIND_DESCRIPTOR, METHOD_BIND_SIGNATURE) {
-        val variables = VariablesContext()
-        val method = this
+        VariablesContext().apply {
+          onCreateLocalVariablesFromArgs(this@newMethod, binding, this, environment)
+          onCreateLocalVariablesForViews(this@newMethod, binding, this, environment)
+          onEnforceRequiredViewTargets(this@newMethod, binding, this, environment)
 
-        onCreateLocalVariablesFromArgs(method, binding, variables, environment)
-        onCreateLocalVariablesForViews(method, binding, variables, environment)
-        onEnforceRequiredViewTargets(method, binding, variables, environment)
+          onBindViewTargetFields(this@newMethod, binding, this, environment)
+          onBindSyntheticViewFields(this@newMethod, binding, this, environment)
 
-        onBindViewTargetFields(method, binding, variables, environment)
-        onBindSyntheticViewFields(method, binding, variables, environment)
-        ListenerBinder().bind(binding.listeners, variables, method, environment)
+          onBindSyntheticListenerFields(this@newMethod, binding, this, environment)
+          onBindSyntheticListenerTargets(this@newMethod, binding, this, environment)
+        }
       }
 
       newMethod(ACC_PUBLIC, METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE) {
-        val variables = VariablesContext()
-        val method = this
+        VariablesContext().apply {
+          onCreateLocalVariablesFromArgs(this@newMethod, binding, this, environment)
 
-        onCreateLocalVariablesFromArgs(method, binding, variables, environment)
-        ListenerBinder().unbind(binding.listeners, variables, method, environment)
-        onUnbindSyntheticViewFields(method, binding, variables, environment)
-        onUnbindViewTargetFields(method, binding, variables, environment)
+          onUnbindSyntheticListenerTargets(this@newMethod, binding, this, environment)
+          onUnbindSyntheticListenerFields(this@newMethod, binding, this, environment)
+
+          onUnbindSyntheticViewFields(this@newMethod, binding, this, environment)
+          onUnbindViewTargetFields(this@newMethod, binding, this, environment)
+        }
       }
     })
   }
@@ -148,6 +153,90 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       adapter.loadLocal(variables.target())
       adapter.pushNull()
       adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
+    }
+  }
+
+  private fun onBindSyntheticListenerFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.listeners.forEach {
+      adapter.loadLocal(variables.target())
+      adapter.newInstance(it.type, Methods.getConstructor(it.clazz)) {
+        adapter.loadLocal(variables.target())
+      }
+      adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
+    }
+  }
+
+  private fun onUnbindSyntheticListenerFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.listeners.forEach {
+      adapter.loadLocal(variables.target())
+      adapter.pushNull()
+      adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
+    }
+  }
+
+  private fun onBindSyntheticListenerTargets(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.listeners.forEach {
+      for (id in it.annotation.ids) {
+        adapter.newLabel().apply {
+          val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
+          val name = environment.naming.getSyntheticFieldName(view)
+
+          if (it.optional) {
+            adapter.loadLocal(variables.target())
+            adapter.getField(it.clazz, name, Types.VIEW)
+            adapter.ifNull(this)
+          }
+
+          adapter.loadLocal(variables.target())
+          adapter.getField(it.clazz, name, Types.VIEW)
+
+          if (it.listener.owner.type != Types.VIEW) {
+            adapter.checkCast(it.listener.owner)
+          }
+
+          adapter.loadLocal(variables.target())
+          adapter.getField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
+
+          adapter.invokeVirtual(it.listener.owner, it.listener.setter)
+          adapter.mark(this)
+        }
+      }
+    }
+  }
+
+  private fun onUnbindSyntheticListenerTargets(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
+    binding.listeners.forEach {
+      for (id in it.annotation.ids) {
+        adapter.newLabel().apply {
+          val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
+          val name = environment.naming.getSyntheticFieldName(view)
+
+          if (it.optional) {
+            adapter.loadLocal(variables.target())
+            adapter.getField(it.clazz, name, Types.VIEW)
+            adapter.ifNull(this)
+          }
+
+          adapter.loadLocal(variables.target())
+          adapter.getField(it.clazz, name, Types.VIEW)
+
+          if (it.listener.owner.type != Types.VIEW) {
+            adapter.checkCast(it.listener.owner)
+          }
+
+          if (it.listener.setter != it.listener.unsetter) {
+            adapter.loadLocal(variables.target())
+            adapter.getField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
+          }
+
+          if (it.listener.setter == it.listener.unsetter) {
+            adapter.pushNull()
+          }
+
+          adapter.invokeVirtual(it.listener.owner, it.listener.unsetter)
+          adapter.mark(this)
+        }
+      }
     }
   }
 
