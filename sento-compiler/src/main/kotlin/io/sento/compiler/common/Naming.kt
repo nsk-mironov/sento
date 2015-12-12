@@ -21,7 +21,15 @@ internal class Naming {
   }
 
   public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec): Method {
-    return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner.type, *method.arguments))
+    return getSyntheticAccessor(owner, method, getSyntheticAccessorName(owner, method))
+  }
+
+  public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec, name: String): Method {
+    return Methods.get(name, method.returns, *arrayOf(owner.type, *method.arguments))
+  }
+
+  public fun getSyntheticAccessorName(owner: ClassSpec, method: MethodSpec): String {
+    return "sento\$accessor\$${method.name}"
   }
 
   public fun getSyntheticFieldName(target: ViewSpec): String {

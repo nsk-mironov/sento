@@ -7,7 +7,7 @@ internal class GenerationEnvironment(
     public val naming: Naming
 ) {
   public fun newClassWriter(): ClassWriter {
-    return ClassWriter(registry)
+    return ClassWriter(this)
   }
 
   public fun newClass(visitor: ClassWriter.() -> Unit): ByteArray {

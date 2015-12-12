@@ -21,7 +21,6 @@ import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PROTECTED
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
-import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.ASM5
@@ -282,15 +281,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
   private fun onCreateSyntheticMethodsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
     binding.listeners.filter { it.method.access.isPrivate }.forEach {
-      writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(clazz, it.method)) {
-        val args = it.method.arguments
-
-        for (count in 0..args.size) {
-          loadArg(count)
-        }
-
-        invokeVirtual(clazz, it.method)
-      }
+      writer.newSyntheticAccessor(clazz, it.method, environment.naming.getSyntheticAccessorName(clazz, it.method))
     }
   }
 
