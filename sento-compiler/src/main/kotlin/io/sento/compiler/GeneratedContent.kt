@@ -14,6 +14,7 @@ internal class GeneratedContent(
       return GeneratedContent(Types.getClassFilePath(type), extras, content)
     }
   }
+
   public inline fun <reified T> extra(name: String): T {
     return extras[name] as T ?: throw NoSuchElementException(name)
   }

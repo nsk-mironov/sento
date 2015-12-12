@@ -3,13 +3,9 @@ package io.sento.compiler
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
-import org.objectweb.asm.Opcodes.ACC_PUBLIC
-import org.objectweb.asm.Opcodes.ACC_STATIC
-import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.Method
@@ -47,17 +43,5 @@ internal class ClassWriter(private val environment: GenerationEnvironment) : org
 
   public fun newMethod(method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
     newMethod(method.access, method, body)
-  }
-
-  public fun newSyntheticAccessor(owner: ClassSpec, method: MethodSpec, name: String) {
-    newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(owner, method, name)) {
-      val args = method.arguments
-
-      for (index in 0..args.size) {
-        loadArg(index)
-      }
-
-      invokeVirtual(owner, method)
-    }
   }
 }
