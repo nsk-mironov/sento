@@ -1,10 +1,14 @@
 package io.sento.compiler
 
+import io.sento.compiler.common.GeneratorAdapter
+import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
+import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes.V1_6
 import org.objectweb.asm.Type
+import org.objectweb.asm.commons.Method
 
 internal class ClassWriter : org.objectweb.asm.ClassWriter {
   constructor(registry: ClassRegistry) : super(COMPUTE_FRAMES + COMPUTE_MAXS)
@@ -20,5 +24,23 @@ internal class ClassWriter : org.objectweb.asm.ClassWriter {
 
   public fun visitField(access: Int, name: String, type: Type, signature: String? = null): FieldVisitor {
     return visitField(access, name, type.descriptor, signature, null)
+  }
+
+  public fun newMethod(access: Int, method: Method, signature: String? = null, body: GeneratorAdapter.() -> Unit) {
+    GeneratorAdapter(this, access, method, signature).apply {
+      body().apply {
+        returnValue()
+        endMethod()
+      }
+    }
+  }
+
+  public fun newMethod(access: Int, method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
+    GeneratorAdapter(this, access, Methods.get(method), method.signature).apply {
+      body().apply {
+        returnValue()
+        endMethod()
+      }
+    }
   }
 }

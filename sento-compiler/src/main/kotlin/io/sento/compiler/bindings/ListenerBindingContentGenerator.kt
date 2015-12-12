@@ -8,7 +8,6 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.isPrivate
-import io.sento.compiler.common.newMethod
 import io.sento.compiler.model.ListenerTargetSpec
 import org.objectweb.asm.Opcodes
 

@@ -12,16 +12,16 @@ import java.util.concurrent.atomic.AtomicInteger
 internal class Naming {
   private val anonymous = HashMap<Type, AtomicInteger>()
 
-  public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec): Method {
-    return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner.type, *method.arguments))
-  }
-
   public fun getBindingType(spec: ClassSpec): Type {
     return Type.getObjectType("${spec.type.internalName}\$\$SentoBinding");
   }
 
   public fun getAnonymousType(type: Type): Type {
     return Type.getObjectType("${type.internalName}\$\$${anonymous.getOrPut(type) { AtomicInteger() }.andIncrement}")
+  }
+
+  public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec): Method {
+    return Methods.get("sento\$accessor\$${method.name}", method.returns, *arrayOf(owner.type, *method.arguments))
   }
 
   public fun getSyntheticFieldName(target: ViewSpec): String {

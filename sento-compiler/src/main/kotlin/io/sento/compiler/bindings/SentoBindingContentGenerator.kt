@@ -10,7 +10,6 @@ import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isPrivate
-import io.sento.compiler.common.newMethod
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
 import io.sento.compiler.model.ViewSpec
