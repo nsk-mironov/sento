@@ -60,7 +60,36 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
         invokeConstructor(Types.OBJECT, Methods.getConstructor())
       }
 
-      newMethod(ACC_PUBLIC, environment.naming.getBindMethodSpec()) {
+      newMethod(environment.naming.getBindMethodSpec()) {
+        val method = environment.naming.getSyntheticBindMethodSpec()
+
+        for (index in 0..method.arguments.size - 1) {
+          loadArg(index)
+        }
+
+        invokeStatic(clazz, method)
+      }
+
+      newMethod(environment.naming.getUnbindMethodSpec()) {
+        val method = environment.naming.getSyntheticUnbindMethodSpec()
+
+        for (index in 0..method.arguments.size - 1) {
+          loadArg(index)
+        }
+
+        invokeStatic(clazz, method)
+      }
+    })
+  }
+
+  private fun onCreatePatchedClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
+    return GeneratedContent.from(clazz.type, mapOf(), environment.newClass {
+      onCreatePatchedClassForBinding(this, binding, environment)
+      onCreateSyntheticFieldsForListeners(this, binding, environment)
+      onCreateSyntheticFieldsForViews(this, binding, environment)
+      onCreateSyntheticMethodsForListeners(this, binding, environment)
+
+      newMethod(environment.naming.getSyntheticBindMethodSpec()) {
         VariablesContext().apply {
           onCreateLocalVariablesFromArgs(this@newMethod, binding, this, environment)
           onCreateLocalVariablesForViews(this@newMethod, binding, this, environment)
@@ -74,7 +103,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
         }
       }
 
-      newMethod(ACC_PUBLIC, environment.naming.getUnbindMethodSpec()) {
+      newMethod(environment.naming.getSyntheticUnbindMethodSpec()) {
         VariablesContext().apply {
           onCreateLocalVariablesFromArgs(this@newMethod, binding, this, environment)
 
@@ -85,15 +114,6 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
           onUnbindViewTargetFields(this@newMethod, binding, this, environment)
         }
       }
-    })
-  }
-
-  private fun onCreatePatchedClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent.from(clazz.type, mapOf(), environment.newClass {
-      onCreatePatchedClassForBinding(this, binding, environment)
-      onCreateSyntheticFieldsForListeners(this, binding, environment)
-      onCreateSyntheticFieldsForViews(this, binding, environment)
-      onCreateSyntheticMethodsForListeners(this, binding, environment)
     })
   }
 

@@ -5,6 +5,8 @@ import io.sento.compiler.model.ViewSpec
 import io.sento.compiler.reflection.ClassSpec
 import io.sento.compiler.reflection.MethodSpec
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
+import org.objectweb.asm.Opcodes.ACC_STATIC
+import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.Method
 import java.util.HashMap
@@ -16,10 +18,14 @@ internal class Naming {
   private companion object {
     private val METHOD_BIND_DESCRIPTOR = Type.getMethodType(Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
     private val METHOD_BIND_SIGNATURE = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
+
+    private val METHOD_BIND_SYNTHETIC_SPEC = MethodSpec(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, "sento\$bind", METHOD_BIND_DESCRIPTOR, METHOD_BIND_SIGNATURE, emptyList())
     private val METHOD_BIND_SPEC = MethodSpec(ACC_PUBLIC, "bind", METHOD_BIND_DESCRIPTOR, METHOD_BIND_SIGNATURE, emptyList())
 
     private val METHOD_UNBIND_DESCRIPTOR = Type.getMethodType(Types.VOID, Types.OBJECT)
     private val METHOD_UNBIND_SIGNATURE = null
+
+    private val METHOD_UNBIND_SYNTHETIC_SPEC = MethodSpec(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, "sento\$bind", METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE, emptyList())
     private val METHOD_UNBIND_SPEC = MethodSpec(ACC_PUBLIC, "bind", METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE, emptyList())
   }
 
@@ -49,6 +55,14 @@ internal class Naming {
 
   public fun getUnbindMethodSpec(): MethodSpec {
     return METHOD_UNBIND_SPEC
+  }
+
+  public fun getSyntheticBindMethodSpec(): MethodSpec {
+    return METHOD_BIND_SYNTHETIC_SPEC
+  }
+
+  public fun getSyntheticUnbindMethodSpec(): MethodSpec {
+    return METHOD_UNBIND_SYNTHETIC_SPEC
   }
 
   public fun getSyntheticFieldName(target: ViewSpec): String {

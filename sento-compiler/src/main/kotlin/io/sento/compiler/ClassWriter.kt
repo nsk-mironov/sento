@@ -45,12 +45,16 @@ internal class ClassWriter(private val environment: GenerationEnvironment) : org
     }
   }
 
+  public fun newMethod(method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
+    newMethod(method.access, method, body)
+  }
+
   public fun newSyntheticAccessor(owner: ClassSpec, method: MethodSpec, name: String) {
     newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(owner, method, name)) {
       val args = method.arguments
 
-      for (count in 0..args.size) {
-        loadArg(count)
+      for (index in 0..args.size) {
+        loadArg(index)
       }
 
       invokeVirtual(owner, method)
