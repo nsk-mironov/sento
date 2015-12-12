@@ -25,8 +25,8 @@ internal class Naming {
     private val METHOD_UNBIND_DESCRIPTOR = Type.getMethodType(Types.VOID, Types.OBJECT)
     private val METHOD_UNBIND_SIGNATURE = null
 
-    private val METHOD_UNBIND_SYNTHETIC_SPEC = MethodSpec(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, "sento\$bind", METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE, emptyList())
-    private val METHOD_UNBIND_SPEC = MethodSpec(ACC_PUBLIC, "bind", METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE, emptyList())
+    private val METHOD_UNBIND_SYNTHETIC_SPEC = MethodSpec(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, "sento\$unbind", METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE, emptyList())
+    private val METHOD_UNBIND_SPEC = MethodSpec(ACC_PUBLIC, "unbind", METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE, emptyList())
   }
 
   public fun getBindingType(spec: ClassSpec): Type {
