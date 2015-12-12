@@ -9,7 +9,7 @@ import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.isPrivate
+import io.sento.compiler.common.isPublic
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
 import io.sento.compiler.model.ViewSpec
@@ -18,7 +18,6 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes.ACC_FINAL
-import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PROTECTED
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
@@ -294,14 +293,14 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun onCreateSyntheticMethodsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
-    binding.listeners.filter { it.method.access.isPrivate }.forEach {
+    binding.listeners.filter { !it.method.access.isPublic }.forEach {
       writer.newSyntheticAccessor(clazz, it.method, environment.naming.getSyntheticAccessorName(clazz, it.method))
     }
   }
 
   private fun onPatchFieldAccessFlags(binding: BindingSpec, access: Int, name: String): Int {
     return if (!binding.bindings.any { it.field.name == name }) access else {
-      access and ACC_PRIVATE.inv() and ACC_FINAL.inv() or ACC_PROTECTED
+      access and ACC_FINAL.inv()
     }
   }
 }
