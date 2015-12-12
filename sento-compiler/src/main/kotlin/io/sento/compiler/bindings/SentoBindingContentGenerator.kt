@@ -33,12 +33,6 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
     private const val ARGUMENT_TARGET = 0
     private const val ARGUMENT_SOURCE = 1
     private const val ARGUMENT_FINDER = 2
-
-    private val METHOD_BIND_DESCRIPTOR = Methods.get("bind", Types.VOID, Types.OBJECT, Types.OBJECT, Types.FINDER)
-    private val METHOD_BIND_SIGNATURE = "<S:Ljava/lang/Object;>(Ljava/lang/Object;TS;Lio/sento/Finder<-TS;>;)V"
-
-    private val METHOD_UNBIND_DESCRIPTOR = Methods.get("unbind", Types.VOID, Types.OBJECT)
-    private val METHOD_UNBIND_SIGNATURE = null
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
@@ -66,7 +60,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
         invokeConstructor(Types.OBJECT, Methods.getConstructor())
       }
 
-      newMethod(ACC_PUBLIC, METHOD_BIND_DESCRIPTOR, METHOD_BIND_SIGNATURE) {
+      newMethod(ACC_PUBLIC, environment.naming.getBindMethodSpec()) {
         VariablesContext().apply {
           onCreateLocalVariablesFromArgs(this@newMethod, binding, this, environment)
           onCreateLocalVariablesForViews(this@newMethod, binding, this, environment)
@@ -80,7 +74,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
         }
       }
 
-      newMethod(ACC_PUBLIC, METHOD_UNBIND_DESCRIPTOR, METHOD_UNBIND_SIGNATURE) {
+      newMethod(ACC_PUBLIC, environment.naming.getUnbindMethodSpec()) {
         VariablesContext().apply {
           onCreateLocalVariablesFromArgs(this@newMethod, binding, this, environment)
 
