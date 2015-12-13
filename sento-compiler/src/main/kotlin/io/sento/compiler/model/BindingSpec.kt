@@ -8,6 +8,7 @@ import io.sento.compiler.reflect.ClassSpec
 import java.util.ArrayList
 
 internal data class BindingSpec private constructor(
+    public val clazz: ClassSpec,
     public val bindings: Collection<BindTargetSpec>,
     public val listeners: Collection<ListenerTargetSpec>,
     public val views: Collection<ViewSpec>
@@ -28,7 +29,7 @@ internal data class BindingSpec private constructor(
         createViewSpecsForListenerTarget(it)
       }
 
-      return BindingSpec(bindings, listeners, views)
+      return BindingSpec(clazz, bindings, listeners, views)
     }
 
     private fun createBindingTargets(clazz: ClassSpec, optional: OptionalAware, environment: GenerationEnvironment): Collection<BindTargetSpec> {

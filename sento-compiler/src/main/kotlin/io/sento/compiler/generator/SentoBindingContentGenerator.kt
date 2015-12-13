@@ -52,8 +52,8 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun onCreateBindingClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent.from(environment.naming.getBindingType(clazz), mapOf(EXTRA_BINDING_SPEC to clazz), environment.newClass {
-      visit(ACC_PUBLIC + ACC_SUPER, environment.naming.getBindingType(clazz), null, Types.OBJECT, arrayOf(Types.BINDING))
+    return GeneratedContent.from(environment.naming.getBindingType(binding.clazz), mapOf(EXTRA_BINDING_SPEC to binding.clazz), environment.newClass {
+      visit(ACC_PUBLIC + ACC_SUPER, environment.naming.getBindingType(binding.clazz), null, Types.OBJECT, arrayOf(Types.BINDING))
 
       newMethod(ACC_PUBLIC, Methods.getConstructor()) {
         loadThis()
@@ -61,7 +61,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       }
 
       newMethod(environment.naming.getBindMethodSpec()) {
-        invokeStatic(clazz, environment.naming.getSyntheticBindMethodSpec().apply {
+        invokeStatic(binding.clazz, environment.naming.getSyntheticBindMethodSpec().apply {
           for (index in 0..arguments.size - 1) {
             loadArg(index)
           }
@@ -69,7 +69,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
       }
 
       newMethod(environment.naming.getUnbindMethodSpec()) {
-        invokeStatic(clazz, environment.naming.getSyntheticUnbindMethodSpec().apply {
+        invokeStatic(binding.clazz, environment.naming.getSyntheticUnbindMethodSpec().apply {
           for (index in 0..arguments.size - 1) {
             loadArg(index)
           }
@@ -79,7 +79,7 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun onCreatePatchedClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent.from(clazz.type, mapOf(), environment.newClass {
+    return GeneratedContent.from(binding.clazz.type, mapOf(), environment.newClass {
       onCreatePatchedClassForBinding(this, binding, environment)
       onCreateSyntheticFieldsForListeners(this, binding, environment)
       onCreateSyntheticFieldsForViews(this, binding, environment)
@@ -114,9 +114,9 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun onCreateLocalVariablesFromArgs(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
-    variables.variable("target", adapter.newLocal(clazz.type).apply {
+    variables.variable("target", adapter.newLocal(binding.clazz.type).apply {
       adapter.loadArg(ARGUMENT_TARGET)
-      adapter.checkCast(clazz.type)
+      adapter.checkCast(binding.clazz.type)
       adapter.storeLocal(this)
     })
   }
@@ -270,8 +270,8 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
   }
 
   private fun onCreatePatchedClassForBinding(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
-    ClassReader(clazz.opener.open()).accept(object : ClassVisitor(ASM5, writer) {
-      override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor? {
+    ClassReader(binding.clazz.opener.open()).accept(object : ClassVisitor(ASM5, writer) {
+      override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor {
         return super.visitField(onPatchFieldAccessFlags(binding, access, name), name, desc, signature, value)
       }
     }, ClassReader.SKIP_FRAMES)
@@ -291,8 +291,8 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
   private fun onCreateSyntheticMethodsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
     binding.listeners.filter { !it.method.access.isPublic }.forEach {
-      writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(clazz, it.method)) {
-        invokeVirtual(clazz, it.method.apply {
+      writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(binding.clazz, it.method)) {
+        invokeVirtual(binding.clazz, it.method.apply {
           for (index in 0..arguments.size) {
             loadArg(index)
           }
