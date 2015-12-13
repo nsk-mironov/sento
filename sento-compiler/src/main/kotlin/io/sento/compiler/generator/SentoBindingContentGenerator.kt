@@ -1,4 +1,4 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.generator
 
 import io.sento.compiler.ClassWriter
 import io.sento.compiler.ContentGenerator
@@ -13,7 +13,7 @@ import io.sento.compiler.common.isPublic
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
 import io.sento.compiler.model.ViewSpec
-import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflect.ClassSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor

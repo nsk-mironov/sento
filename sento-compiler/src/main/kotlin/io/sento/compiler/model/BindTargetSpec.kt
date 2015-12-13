@@ -5,9 +5,9 @@ import io.sento.compiler.SentoException
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isInterface
 import io.sento.compiler.common.simpleName
-import io.sento.compiler.reflection.AnnotationSpec
-import io.sento.compiler.reflection.ClassSpec
-import io.sento.compiler.reflection.FieldSpec
+import io.sento.compiler.reflect.AnnotationSpec
+import io.sento.compiler.reflect.ClassSpec
+import io.sento.compiler.reflect.FieldSpec
 import org.objectweb.asm.Type
 
 internal data class BindTargetSpec private constructor(

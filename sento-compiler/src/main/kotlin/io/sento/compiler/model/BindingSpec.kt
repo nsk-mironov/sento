@@ -4,7 +4,7 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.OptionalAware
 import io.sento.compiler.common.Types
-import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflect.ClassSpec
 import java.util.ArrayList
 
 internal data class BindingSpec private constructor(

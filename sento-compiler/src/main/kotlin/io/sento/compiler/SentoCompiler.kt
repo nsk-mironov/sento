@@ -1,9 +1,9 @@
 package io.sento.compiler
 
-import io.sento.compiler.bindings.ContentGeneratorFactory
-import io.sento.compiler.bindings.SentoBindingContentGenerator
+import io.sento.compiler.generator.ContentGeneratorFactory
+import io.sento.compiler.generator.SentoBindingContentGenerator
 import io.sento.compiler.common.Naming
-import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflect.ClassSpec
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 import java.io.File

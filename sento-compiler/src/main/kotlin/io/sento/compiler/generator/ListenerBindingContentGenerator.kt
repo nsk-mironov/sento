@@ -1,4 +1,4 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.generator
 
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent

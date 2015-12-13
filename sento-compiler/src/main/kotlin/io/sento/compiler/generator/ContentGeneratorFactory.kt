@@ -1,8 +1,8 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.generator
 
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GenerationEnvironment
-import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflect.ClassSpec
 
 internal class ContentGeneratorFactory private constructor() {
   public companion object {

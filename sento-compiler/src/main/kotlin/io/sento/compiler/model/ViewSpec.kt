@@ -1,6 +1,6 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflect.ClassSpec
 
 internal data class ViewSpec(
     public val id: Int,

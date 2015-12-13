@@ -1,11 +1,11 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.generator
 
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import io.sento.compiler.reflection.ClassSpec
+import io.sento.compiler.reflect.ClassSpec
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC

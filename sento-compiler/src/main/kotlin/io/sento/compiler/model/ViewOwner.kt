@@ -1,7 +1,7 @@
 package io.sento.compiler.model
 
-import io.sento.compiler.reflection.FieldSpec
-import io.sento.compiler.reflection.MethodSpec
+import io.sento.compiler.reflect.FieldSpec
+import io.sento.compiler.reflect.MethodSpec
 
 internal sealed class ViewOwner(val name: String) {
   class Field(field: FieldSpec) : ViewOwner("field '${field.name}'")

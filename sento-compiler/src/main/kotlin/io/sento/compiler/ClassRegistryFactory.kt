@@ -4,7 +4,7 @@ import io.sento.compiler.common.FileOpener
 import io.sento.compiler.common.JarOpener
 import io.sento.compiler.common.Opener
 import io.sento.compiler.common.Types
-import io.sento.compiler.reflection.ClassReference
+import io.sento.compiler.reflect.ClassReference
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils

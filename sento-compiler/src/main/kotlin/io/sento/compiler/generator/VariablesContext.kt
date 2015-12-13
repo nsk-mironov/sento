@@ -1,4 +1,4 @@
-package io.sento.compiler.bindings
+package io.sento.compiler.generator
 
 import java.util.HashMap
 import java.util.NoSuchElementException

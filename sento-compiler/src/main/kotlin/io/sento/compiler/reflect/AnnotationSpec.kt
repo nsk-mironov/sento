@@ -1,4 +1,4 @@
-package io.sento.compiler.reflection
+package io.sento.compiler.reflect
 
 import org.objectweb.asm.Type
 import java.util.LinkedHashMap

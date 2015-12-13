@@ -1,9 +1,9 @@
 package io.sento.compiler.common
 
-import io.sento.compiler.reflection.AnnotationSpec
-import io.sento.compiler.reflection.ClassSpec
-import io.sento.compiler.reflection.FieldSpec
-import io.sento.compiler.reflection.MethodSpec
+import io.sento.compiler.reflect.AnnotationSpec
+import io.sento.compiler.reflect.ClassSpec
+import io.sento.compiler.reflect.FieldSpec
+import io.sento.compiler.reflect.MethodSpec
 import kotlin.jvm.internal.KotlinClass
 import kotlin.reflect.jvm.internal.impl.serialization.ClassData
 import kotlin.reflect.jvm.internal.impl.serialization.jvm.JvmProtoBufUtil

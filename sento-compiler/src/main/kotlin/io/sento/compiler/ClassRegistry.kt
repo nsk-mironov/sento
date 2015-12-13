@@ -4,10 +4,10 @@ import io.sento.compiler.annotations.ListenerClass
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.model.ListenerClassSpec
-import io.sento.compiler.reflection.AnnotationSpec
-import io.sento.compiler.reflection.ClassReference
-import io.sento.compiler.reflection.ClassSpec
-import io.sento.compiler.reflection.MethodSpec
+import io.sento.compiler.reflect.AnnotationSpec
+import io.sento.compiler.reflect.ClassReference
+import io.sento.compiler.reflect.ClassSpec
+import io.sento.compiler.reflect.MethodSpec
 import org.objectweb.asm.Type
 import java.util.ArrayList
 import java.util.HashMap

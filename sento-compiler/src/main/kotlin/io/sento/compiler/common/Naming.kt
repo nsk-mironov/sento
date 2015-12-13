@@ -2,8 +2,8 @@ package io.sento.compiler.common
 
 import io.sento.compiler.model.ListenerTargetSpec
 import io.sento.compiler.model.ViewSpec
-import io.sento.compiler.reflection.ClassSpec
-import io.sento.compiler.reflection.MethodSpec
+import io.sento.compiler.reflect.ClassSpec
+import io.sento.compiler.reflect.MethodSpec
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SYNTHETIC

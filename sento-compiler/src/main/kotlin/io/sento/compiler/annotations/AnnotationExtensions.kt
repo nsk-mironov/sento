@@ -1,6 +1,6 @@
 package io.sento.compiler.annotations
 
-import io.sento.compiler.reflection.AnnotationSpec
+import io.sento.compiler.reflect.AnnotationSpec
 import java.util.NoSuchElementException
 
 internal val AnnotationSpec.id: Int

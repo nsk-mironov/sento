@@ -1,4 +1,4 @@
-package io.sento.compiler.reflection
+package io.sento.compiler.reflect
 
 import io.sento.compiler.common.Opener
 import org.objectweb.asm.ClassReader

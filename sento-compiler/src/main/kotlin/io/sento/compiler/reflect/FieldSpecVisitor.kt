@@ -1,19 +1,18 @@
-package io.sento.compiler.reflection
+package io.sento.compiler.reflect
 
 import io.sento.compiler.common.Types
 import org.objectweb.asm.AnnotationVisitor
-import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-internal class MethodSpecVisitor(
+internal class FieldSpecVisitor(
     private val access: Int,
     private val name: String,
     private val type: Type,
-    private val signature: String?,
-    private val action: (MethodSpec) -> Unit
-) : MethodVisitor(Opcodes.ASM5) {
-  private val builder = MethodSpec.Builder(access, name, type, signature)
+    private val action: (FieldSpec) -> Unit
+) : FieldVisitor(Opcodes.ASM5) {
+  private val builder = FieldSpec.Builder(access, name, type)
 
   override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
     return if (Types.isSystemClass(Type.getType(desc))) null else {

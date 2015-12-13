@@ -3,7 +3,7 @@ package io.sento.compiler
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import io.sento.compiler.reflection.MethodSpec
+import io.sento.compiler.reflect.MethodSpec
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes.V1_6
