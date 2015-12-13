@@ -5,14 +5,14 @@ import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import io.sento.compiler.reflect.ClassSpec
+import io.sento.compiler.model.BindingSpec
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 
-internal class SentoFactoryContentGenerator(private val bindings: Collection<ClassSpec>) : ContentGenerator {
+internal class SentoFactoryContentGenerator(private val bindings: Collection<BindingSpec>) : ContentGenerator {
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     return listOf(GeneratedContent.from(Types.FACTORY, mapOf(), environment.newClass {
       visit(ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.FACTORY)
@@ -37,9 +37,9 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Cla
 
         bindings.forEach {
           getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
-          push(it.type)
+          push(it.clazz.type)
 
-          newInstance(environment.naming.getBindingType(it), Methods.getConstructor())
+          newInstance(environment.naming.getBindingType(it.clazz), Methods.getConstructor())
           invokeInterface(Types.MAP, Methods.get("put", Types.OBJECT, Types.OBJECT, Types.OBJECT))
           pop()
         }

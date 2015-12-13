@@ -13,7 +13,6 @@ import io.sento.compiler.common.isPublic
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
 import io.sento.compiler.model.ViewSpec
-import io.sento.compiler.reflect.ClassSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
@@ -26,33 +25,28 @@ import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.ASM5
 import java.util.ArrayList
 
-internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : ContentGenerator {
+internal class SentoBindingContentGenerator(private val binding: BindingSpec) : ContentGenerator {
   public companion object {
-    public const val EXTRA_BINDING_SPEC = "EXTRA_BINDING_SPEC"
-
     private const val ARGUMENT_TARGET = 0
     private const val ARGUMENT_SOURCE = 1
     private const val ARGUMENT_FINDER = 2
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
-    val binding = BindingSpec.from(clazz, environment)
     val result = ArrayList<GeneratedContent>()
 
-    if (!binding.bindings.isEmpty() || !binding.listeners.isEmpty()) {
       result.add(onCreateBindingClassGeneratedContent(binding, environment))
       result.add(onCreatePatchedClassGeneratedContent(binding, environment))
 
       binding.listeners.flatMapTo(result) {
         ListenerBindingContentGenerator(it).generate(environment)
       }
-    }
 
     return result
   }
 
   private fun onCreateBindingClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent.from(environment.naming.getBindingType(binding.clazz), mapOf(EXTRA_BINDING_SPEC to binding.clazz), environment.newClass {
+    return GeneratedContent.from(environment.naming.getBindingType(binding.clazz), mapOf(), environment.newClass {
       visit(ACC_PUBLIC + ACC_SUPER, environment.naming.getBindingType(binding.clazz), null, Types.OBJECT, arrayOf(Types.BINDING))
 
       newMethod(ACC_PUBLIC, Methods.getConstructor()) {
