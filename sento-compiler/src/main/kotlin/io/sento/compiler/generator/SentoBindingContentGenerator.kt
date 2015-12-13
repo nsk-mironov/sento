@@ -18,7 +18,7 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes.ACC_FINAL
-import org.objectweb.asm.Opcodes.ACC_PROTECTED
+import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
@@ -279,13 +279,13 @@ internal class SentoBindingContentGenerator(private val clazz: ClassSpec) : Cont
 
   private fun onCreateSyntheticFieldsForViews(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
     binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
-      writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, environment.naming.getSyntheticFieldName(it), Types.VIEW)
+      writer.visitField(ACC_PRIVATE + ACC_SYNTHETIC, environment.naming.getSyntheticFieldName(it), Types.VIEW)
     }
   }
 
   private fun onCreateSyntheticFieldsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
     binding.listeners.distinctBy { it.method.name to it.annotation.type }.forEach {
-      writer.visitField(ACC_PROTECTED + ACC_SYNTHETIC, environment.naming.getSyntheticFieldName(it), it.listener.listener.type)
+      writer.visitField(ACC_PRIVATE + ACC_SYNTHETIC, environment.naming.getSyntheticFieldName(it), it.listener.listener.type)
     }
   }
 
