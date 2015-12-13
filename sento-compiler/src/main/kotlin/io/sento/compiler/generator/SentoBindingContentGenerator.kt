@@ -33,16 +33,14 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
-    val result = ArrayList<GeneratedContent>()
+    return ArrayList<GeneratedContent>().apply {
+      add(onCreateBindingClassGeneratedContent(binding, environment))
+      add(onCreatePatchedClassGeneratedContent(binding, environment))
 
-      result.add(onCreateBindingClassGeneratedContent(binding, environment))
-      result.add(onCreatePatchedClassGeneratedContent(binding, environment))
-
-      binding.listeners.flatMapTo(result) {
+      binding.listeners.flatMapTo(this) {
         ListenerBindingContentGenerator(it).generate(environment)
       }
-
-    return result
+    }
   }
 
   private fun onCreateBindingClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
@@ -108,7 +106,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onCreateLocalVariablesFromArgs(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
-    variables.variable("target", adapter.newLocal(binding.clazz.type).apply {
+    variables.target(adapter.newLocal(binding.clazz.type).apply {
       adapter.loadArg(ARGUMENT_TARGET)
       adapter.checkCast(binding.clazz.type)
       adapter.storeLocal(this)
@@ -117,7 +115,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
 
   private fun onCreateLocalVariablesForViews(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
     binding.views.distinctBy { it.id }.forEach {
-      variables.variable("view${it.id}", adapter.newLocal(Types.VIEW).apply {
+      variables.view(it.id, adapter.newLocal(Types.VIEW).apply {
         adapter.loadArg(ARGUMENT_FINDER)
         adapter.push(it.id)
 
@@ -179,29 +177,28 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   private fun onBindSyntheticListenerTargets(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
     binding.listeners.forEach {
       for (id in it.annotation.ids) {
-        adapter.newLabel().apply {
-          val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
-          val name = environment.naming.getSyntheticFieldName(view)
+        val label = adapter.newLabel()
+        val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
+        val name = environment.naming.getSyntheticFieldName(view)
 
-          if (it.optional) {
-            adapter.loadLocal(variables.target())
-            adapter.getField(it.clazz, name, Types.VIEW)
-            adapter.ifNull(this)
-          }
-
+        if (it.optional) {
           adapter.loadLocal(variables.target())
           adapter.getField(it.clazz, name, Types.VIEW)
-
-          if (it.listener.owner.type != Types.VIEW) {
-            adapter.checkCast(it.listener.owner)
-          }
-
-          adapter.loadLocal(variables.target())
-          adapter.getField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
-
-          adapter.invokeVirtual(it.listener.owner, it.listener.setter)
-          adapter.mark(this)
+          adapter.ifNull(label)
         }
+
+        adapter.loadLocal(variables.target())
+        adapter.getField(it.clazz, name, Types.VIEW)
+
+        if (it.listener.owner.type != Types.VIEW) {
+          adapter.checkCast(it.listener.owner)
+        }
+
+        adapter.loadLocal(variables.target())
+        adapter.getField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
+
+        adapter.invokeVirtual(it.listener.owner, it.listener.setter)
+        adapter.mark(label)
       }
     }
   }
@@ -209,35 +206,34 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   private fun onUnbindSyntheticListenerTargets(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
     binding.listeners.forEach {
       for (id in it.annotation.ids) {
-        adapter.newLabel().apply {
-          val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
-          val name = environment.naming.getSyntheticFieldName(view)
+        val label = adapter.newLabel()
+        val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
+        val name = environment.naming.getSyntheticFieldName(view)
 
-          if (it.optional) {
-            adapter.loadLocal(variables.target())
-            adapter.getField(it.clazz, name, Types.VIEW)
-            adapter.ifNull(this)
-          }
-
+        if (it.optional) {
           adapter.loadLocal(variables.target())
           adapter.getField(it.clazz, name, Types.VIEW)
-
-          if (it.listener.owner.type != Types.VIEW) {
-            adapter.checkCast(it.listener.owner)
-          }
-
-          if (it.listener.setter != it.listener.unsetter) {
-            adapter.loadLocal(variables.target())
-            adapter.getField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
-          }
-
-          if (it.listener.setter == it.listener.unsetter) {
-            adapter.pushNull()
-          }
-
-          adapter.invokeVirtual(it.listener.owner, it.listener.unsetter)
-          adapter.mark(this)
+          adapter.ifNull(label)
         }
+
+        adapter.loadLocal(variables.target())
+        adapter.getField(it.clazz, name, Types.VIEW)
+
+        if (it.listener.owner.type != Types.VIEW) {
+          adapter.checkCast(it.listener.owner)
+        }
+
+        if (it.listener.setter != it.listener.unsetter) {
+          adapter.loadLocal(variables.target())
+          adapter.getField(it.clazz, environment.naming.getSyntheticFieldName(it), it.listener.listener)
+        }
+
+        if (it.listener.setter == it.listener.unsetter) {
+          adapter.pushNull()
+        }
+
+        adapter.invokeVirtual(it.listener.owner, it.listener.unsetter)
+        adapter.mark(label)
       }
     }
   }

@@ -14,8 +14,16 @@ internal class VariablesContext() {
     return names[name] ?: throw NoSuchElementException("Unknown variable \"$name\"")
   }
 
+  public fun target(index: Int) {
+    variable("target", index)
+  }
+
   public fun target(): Int {
     return variable("target")
+  }
+
+  public fun view(id: Int, index: Int) {
+    variable("view$id", index)
   }
 
   public fun view(id: Int): Int {
