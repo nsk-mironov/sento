@@ -54,7 +54,6 @@ internal object Types {
   public val FINDER = Type.getObjectType("io/sento/Finder")
   public val FACTORY = Type.getObjectType("io/sento/SentoFactory")
   public val OPTIONAL = Type.getObjectType("io/sento/annotations/Optional")
-  public val LISTENER = Type.getObjectType("io/sento/annotations/ListenerClass")
   public val BIND = Type.getObjectType("io/sento/annotations/Bind")
 
   public fun getClassType(name: String): Type {

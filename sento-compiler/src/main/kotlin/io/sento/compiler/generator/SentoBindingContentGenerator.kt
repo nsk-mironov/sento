@@ -20,10 +20,8 @@ import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_STATIC
-import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.ASM5
-import java.util.ArrayList
 
 internal class SentoBindingContentGenerator(private val binding: BindingSpec) : ContentGenerator {
   public companion object {
@@ -33,41 +31,9 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
-    return ArrayList<GeneratedContent>().apply {
-      add(onCreateBindingClassGeneratedContent(binding, environment))
-      add(onCreatePatchedClassGeneratedContent(binding, environment))
-
-      binding.listeners.flatMapTo(this) {
-        ListenerBindingContentGenerator(it).generate(environment)
-      }
+    return listOf(onCreatePatchedClassGeneratedContent(binding, environment)) + binding.listeners.flatMap {
+      ListenerBindingContentGenerator(it).generate(environment)
     }
-  }
-
-  private fun onCreateBindingClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
-    return GeneratedContent.from(environment.naming.getBindingType(binding.clazz), mapOf(), environment.newClass {
-      visit(ACC_PUBLIC + ACC_SUPER, environment.naming.getBindingType(binding.clazz), null, Types.OBJECT, arrayOf(Types.BINDING))
-
-      newMethod(ACC_PUBLIC, Methods.getConstructor()) {
-        loadThis()
-        invokeConstructor(Types.OBJECT, Methods.getConstructor())
-      }
-
-      newMethod(environment.naming.getBindMethodSpec()) {
-        invokeStatic(binding.clazz, environment.naming.getSyntheticBindMethodSpec().apply {
-          for (index in 0..arguments.size - 1) {
-            loadArg(index)
-          }
-        })
-      }
-
-      newMethod(environment.naming.getUnbindMethodSpec()) {
-        invokeStatic(binding.clazz, environment.naming.getSyntheticUnbindMethodSpec().apply {
-          for (index in 0..arguments.size - 1) {
-            loadArg(index)
-          }
-        })
-      }
-    })
   }
 
   private fun onCreatePatchedClassGeneratedContent(binding: BindingSpec, environment: GenerationEnvironment): GeneratedContent {
