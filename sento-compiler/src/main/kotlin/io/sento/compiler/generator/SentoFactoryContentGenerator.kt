@@ -6,12 +6,15 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.model.BindingSpec
+import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SUPER
 import org.objectweb.asm.Type
+import org.objectweb.asm.commons.GeneratorAdapter
+import org.objectweb.asm.commons.TableSwitchGenerator
 
 internal class SentoFactoryContentGenerator(private val bindings: Collection<BindingSpec>) : ContentGenerator {
   private companion object {
@@ -74,11 +77,46 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Bin
       }
 
       newMethod(environment.naming.getBindMethodSpec()) {
-        // empty for now
+        switch(bindings.toList()) {
+          invokeStatic(it.clazz, environment.naming.getSyntheticBindMethodSpec().apply {
+            for (index in 0..arguments.size - 1) {
+              loadArg(index)
+            }
+          })
+        }
       }
 
       newMethod(environment.naming.getUnbindMethodSpec()) {
-        // empty for now
+        switch(bindings.toList()) {
+          invokeStatic(it.clazz, environment.naming.getSyntheticUnbindMethodSpec().apply {
+            for (index in 0..arguments.size - 1) {
+              loadArg(index)
+            }
+          })
+        }
+      }
+    })
+  }
+
+  private fun GeneratorAdapter.switch(bindings: List<BindingSpec>, generator: GeneratorAdapter.(BindingSpec) -> Unit) {
+    val keys = IntArray(bindings.size).apply {
+      for (index in 0..size - 1) {
+        this[index] = index
+      }
+    }
+
+    loadThis()
+    getField(BINDING, "handle", Types.INT)
+
+    tableSwitch(keys, object : TableSwitchGenerator {
+      override fun generateCase(key: Int, end: Label) {
+        generator(bindings[key]).apply {
+          goTo(end)
+        }
+      }
+
+      override fun generateDefault() {
+        // do nothing
       }
     })
   }
