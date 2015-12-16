@@ -30,11 +30,6 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Bin
       visit(ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.FACTORY)
       visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", Types.MAP, "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;")
 
-      newMethod(ACC_PRIVATE, Methods.getConstructor()) {
-        loadThis()
-        invokeConstructor(Types.OBJECT, Methods.getConstructor())
-      }
-
       newMethod(ACC_PUBLIC + ACC_STATIC, Methods.get("createBinding", Types.BINDING, Types.CLASS), "(Ljava/lang/Class<*>;)Lio/sento/Binding;") {
         getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
         loadArg(0)
