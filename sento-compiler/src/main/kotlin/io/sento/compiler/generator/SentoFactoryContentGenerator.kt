@@ -111,7 +111,7 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Bin
       }
 
       override fun generateDefault() {
-        // do nothing
+        throwException(Type.getType(IllegalArgumentException::class.java), "Unknown handle")
       }
     })
   }
