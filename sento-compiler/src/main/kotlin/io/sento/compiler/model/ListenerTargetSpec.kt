@@ -23,7 +23,9 @@ internal data class ListenerTargetSpec private constructor(
   public companion object {
     public fun create(clazz: ClassSpec, method: MethodSpec, annotation: AnnotationSpec, optional: Boolean, environment: GenerationEnvironment): ListenerTargetSpec {
       val listener = environment.registry.resolveListenerClassSpec(annotation)!!
-      val type = environment.naming.getAnonymousType(environment.naming.getBindingType(clazz))
+      val binding = environment.naming.getBindingType(clazz)
+
+      val type = environment.naming.getAnonymousType(Type.getObjectType("${binding.internalName}\$${method.name}"))
       val arguments = remapMethodArguments(clazz, method, annotation, listener, environment)
 
       if (method.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
