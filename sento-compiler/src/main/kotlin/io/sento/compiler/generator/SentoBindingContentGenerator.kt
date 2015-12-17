@@ -18,6 +18,7 @@ import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
+import org.objectweb.asm.Opcodes.ACC_PROTECTED
 import org.objectweb.asm.Opcodes.ACC_PUBLIC
 import org.objectweb.asm.Opcodes.ACC_STATIC
 import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
@@ -227,8 +228,22 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
 
   private fun onCreatePatchedClassForBinding(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
     ClassReader(binding.clazz.opener.open()).accept(object : ClassVisitor(ASM5, writer) {
+      override fun visit(version: Int, access: Int, name: String, signature: String?, superName: String?, interfaces: Array<out String>?) {
+        super.visit(version, onPatchClassAccessFlags(binding, access), name, signature, superName, interfaces)
+      }
+
       override fun visitField(access: Int, name: String, desc: String, signature: String?, value: Any?): FieldVisitor {
         return super.visitField(onPatchFieldAccessFlags(binding, access, name), name, desc, signature, value)
+      }
+
+      private fun onPatchFieldAccessFlags(binding: BindingSpec, access: Int, name: String): Int {
+        return if (!binding.bindings.any { it.field.name == name }) access else {
+          access and ACC_FINAL.inv()
+        }
+      }
+
+      private fun onPatchClassAccessFlags(binding: BindingSpec, access: Int): Int {
+        return access and ACC_PRIVATE.inv() and ACC_PROTECTED.inv() or ACC_PUBLIC
       }
     }, ClassReader.SKIP_FRAMES)
   }
@@ -254,12 +269,6 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
           }
         })
       }
-    }
-  }
-
-  private fun onPatchFieldAccessFlags(binding: BindingSpec, access: Int, name: String): Int {
-    return if (!binding.bindings.any { it.field.name == name }) access else {
-      access and ACC_FINAL.inv()
     }
   }
 }
