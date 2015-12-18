@@ -148,10 +148,8 @@ internal class ClassRegistry(
       })
     }
 
-    result.addAll(clazz.methods.filter {
-      it.access.isPublic
-    })
-
-    return result
+    return clazz.methods.filterTo(result) {
+      it.isPublic
+    }
   }
 }

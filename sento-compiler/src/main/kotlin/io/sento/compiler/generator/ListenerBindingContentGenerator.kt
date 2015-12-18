@@ -17,8 +17,8 @@ import org.objectweb.asm.Opcodes.ACC_SUPER
 internal class ListenerBindingContentGenerator(private val target: ListenerTargetSpec) : ContentGenerator {
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {
     return listOf(GeneratedContent.from(target.type, mapOf(), environment.newClass {
-      val parent = if (target.listener.listener.access.isInterface) Types.OBJECT else target.listener.listener.type
-      val interfaces = if (target.listener.listener.access.isInterface) arrayOf(target.listener.listener.type) else emptyArray()
+      val parent = if (target.listener.listener.isInterface) Types.OBJECT else target.listener.listener.type
+      val interfaces = if (target.listener.listener.isInterface) arrayOf(target.listener.listener.type) else emptyArray()
 
       visit(ACC_PUBLIC + ACC_SUPER, target.type, null, parent, interfaces)
       visitField(ACC_PRIVATE + ACC_FINAL, "target", target.clazz.type)
@@ -44,7 +44,7 @@ internal class ListenerBindingContentGenerator(private val target: ListenerTarge
           }
         }
 
-        if (!target.method.access.isPublic) {
+        if (!target.method.isPublic) {
           invokeStatic(target.clazz, environment.naming.getSyntheticAccessor(target.clazz, target.method))
         } else {
           invokeVirtual(target.clazz, target.method)
@@ -56,7 +56,7 @@ internal class ListenerBindingContentGenerator(private val target: ListenerTarge
       }
 
       environment.registry.listPublicMethods(target.listener.listener).filter {
-        it.access.isAbstract && !Methods.equalsByJavaDeclaration(it, target.listener.callback)
+        it.isAbstract && !Methods.equalsByJavaDeclaration(it, target.listener.callback)
       }.forEach {
         newMethod(ACC_PUBLIC, it) {
           if (it.returns == Types.BOOLEAN) {

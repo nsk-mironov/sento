@@ -24,7 +24,7 @@ internal data class BindTargetSpec private constructor(
       }
 
       val isView = environment.registry.isSubclassOf(field.type, Types.VIEW)
-      val isInterface = environment.registry.reference(field.type).access.isInterface
+      val isInterface = environment.registry.reference(field.type).isInterface
 
       if (!isInterface && !isView) {
         throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - it must be a subclass of ''{3}'' or an interface, but ''{4}'' was found.",

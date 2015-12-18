@@ -59,12 +59,12 @@ internal data class ListenerClassSpec private constructor(
       val ownerSpec = registry.resolve(ownerType)
       val listenerSpec = registry.resolve(listenerType)
 
-      if (!ownerSpec.access.isPublic) {
+      if (!ownerSpec.isPublic) {
         throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must be public.",
             annotation.type.simpleName, ownerType.className)
       }
 
-      if (!listenerSpec.access.isPublic) {
+      if (!listenerSpec.isPublic) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must be public.",
             annotation.type.simpleName, listenerType.className)
       }
@@ -77,7 +77,7 @@ internal data class ListenerClassSpec private constructor(
       val listenerSetter = resolveListenerSetterSpec(binding.setter(), annotation, binding, registry)
       val listenerUnsetter = resolveListenerSetterSpec(binding.unsetter() ?: binding.setter(), annotation, binding, registry)
 
-      if (!listenerSpec.access.isInterface && (listenerConstructor == null || listenerConstructor.access.isPrivate)) {
+      if (!listenerSpec.isInterface && (listenerConstructor == null || listenerConstructor.isPrivate)) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have a zero-arg constructor with public or protected visibility.",
             annotation.type.simpleName, listenerType.className)
       }
@@ -93,7 +93,7 @@ internal data class ListenerClassSpec private constructor(
       }
 
       listenerSpec.methods.forEach {
-        if (it.access.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
+        if (it.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
           throw SentoException("Unable to process @{0} annotation - listener method ''{1}'' returns ''{2}'', but only {3} are supported.",
               annotation.type.simpleName, it.name, it.returns.className, listOf(Types.VOID.className, Types.BOOLEAN.className))
         }
@@ -129,7 +129,7 @@ internal data class ListenerClassSpec private constructor(
       }
 
       registry.resolve(listenerSetters[0].arguments[0]).methods.forEach {
-        if (it.access.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
+        if (it.isAbstract && it.returns !in listOf(Types.VOID, Types.BOOLEAN)) {
           throw SentoException("Unable to process @{0} annotation - method ''{1}'' returns ''{2}'', but only {3} are supported.",
               annotation.type.simpleName, it.name, it.returns.className, listOf(Types.VOID.className, Types.BOOLEAN.className))
         }

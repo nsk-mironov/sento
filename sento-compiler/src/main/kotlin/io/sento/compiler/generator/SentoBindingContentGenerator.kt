@@ -261,7 +261,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onCreateSyntheticMethodsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
-    binding.listeners.filter { !it.method.access.isPublic }.forEach {
+    binding.listeners.filter { !it.method.isPublic }.forEach {
       writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(binding.clazz, it.method)) {
         invokeVirtual(binding.clazz, it.method.apply {
           for (index in 0..arguments.size) {
