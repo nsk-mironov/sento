@@ -4,7 +4,6 @@ import io.sento.compiler.ClassWriter
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
-import io.sento.compiler.annotations.id
 import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
@@ -208,7 +207,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   private fun onBindViewTargetFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
     binding.bindings.forEach {
       adapter.loadLocal(variables.target())
-      adapter.loadLocal(variables.view(it.annotation.id))
+      adapter.loadLocal(variables.view(it.annotation.ids.first()))
 
       if (it.field.type != Types.VIEW) {
         adapter.checkCast(it.field.type)

@@ -1,10 +1,6 @@
 package io.sento.compiler.annotations
 
 import io.sento.compiler.reflect.AnnotationSpec
-import java.util.NoSuchElementException
-
-internal val AnnotationSpec.id: Int
-  get() = value("value") ?: throw NoSuchElementException("value")
 
 internal val AnnotationSpec.ids: IntArray
   get() {
