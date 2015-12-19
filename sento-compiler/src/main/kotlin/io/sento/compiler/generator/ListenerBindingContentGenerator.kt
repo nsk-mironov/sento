@@ -53,6 +53,10 @@ internal class ListenerBindingContentGenerator(private val target: ListenerTarge
         if (target.listener.callback.returns == Types.BOOLEAN && target.method.returns == Types.VOID) {
           push(false)
         }
+
+        if (target.listener.callback.returns == Types.VOID && target.method.returns == Types.BOOLEAN) {
+          pop()
+        }
       }
 
       environment.registry.listPublicMethods(target.listener.listener).filter {
