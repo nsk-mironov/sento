@@ -7,7 +7,6 @@ import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
-import io.sento.compiler.common.isPrivate
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.common.simpleName
 import io.sento.compiler.reflect.ClassSpec
@@ -23,73 +22,30 @@ internal data class ListenerClassSpec private constructor(
 ) {
   public companion object {
     public fun create(annotation: ClassSpec, binding: ListenerClass, registry: ClassRegistry): ListenerClassSpec {
-      val ownerType = Types.getClassType(binding.owner())
-      val listenerType = Types.getClassType(binding.listener())
-
-      if (ownerType.sort == Type.ARRAY) {
-        throw SentoException("Unable to process @{0} annotation - owner type mustn''t be an array, but ''{1}'' was found.",
-            annotation.type.simpleName, ownerType.className)
-      }
-
-      if (Types.isPrimitive(ownerType)) {
-        throw SentoException("Unable to process @{0} annotation - owner type mustn''t be a primitive one, but ''{1}'' was found.",
-            annotation.type.simpleName, ownerType.className)
-      }
-
-      if (!registry.contains(ownerType)) {
-        throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' wasn''t found.",
-            annotation.type.simpleName, ownerType.className)
-      }
-
-      if (listenerType.sort == Type.ARRAY) {
-        throw SentoException("Unable to process @{0} annotation - listener type mustn''t be an array, but ''{1}'' was found.",
-            annotation.type.simpleName, listenerType.className)
-      }
-
-      if (Types.isPrimitive(listenerType)) {
-        throw SentoException("Unable to process @{0} annotation - listener type mustn''t be a primitive one, but ''{1}'' was found.",
-            annotation.type.simpleName, listenerType.className)
-      }
-
-      if (!registry.contains(listenerType)) {
-        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' wasn''t found.",
-            annotation.type.simpleName, listenerType.className)
-      }
-
-      val ownerSpec = registry.resolve(ownerType)
-      val listenerSpec = registry.resolve(listenerType)
-
-      if (!ownerSpec.isPublic) {
-        throw SentoException("Unable to process @{0} annotation - owner type ''{1}'' must be public.",
-            annotation.type.simpleName, ownerType.className)
-      }
-
-      if (!listenerSpec.isPublic) {
-        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must be public.",
-            annotation.type.simpleName, listenerType.className)
-      }
+      val ownerSpec = resolveClassSpec(binding.owner(), "owner", annotation, registry)
+      val listenerSpec = resolveClassSpec(binding.listener(), "listener", annotation, registry)
 
       val listenerConstructor = listenerSpec.getConstructor()
       val listenerCallbacks = listenerSpec.methods.filter {
         it.name == binding.callback()
       }
 
-      val listenerSetter = resolveListenerSetterSpec(binding.setter(), annotation, binding, registry)
-      val listenerUnsetter = resolveListenerSetterSpec(binding.unsetter() ?: binding.setter(), annotation, binding, registry)
+      val listenerSetter = resolveMethodSpec(binding.setter(), annotation, binding, registry)
+      val listenerUnsetter = resolveMethodSpec(binding.unsetter() ?: binding.setter(), annotation, binding, registry)
 
-      if (!listenerSpec.isInterface && (listenerConstructor == null || listenerConstructor.isPrivate)) {
-        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have a zero-arg constructor with public or protected visibility.",
-            annotation.type.simpleName, listenerType.className)
+      if (!listenerSpec.isInterface && (listenerConstructor == null || !listenerConstructor.isPublic)) {
+        throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have a zero-arg constructor with public visibility.",
+            annotation.type.simpleName, listenerSpec.type.className)
       }
 
       if (listenerCallbacks.size == 0) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have exactly one abstract method named ''{2}'', but none was found.",
-            annotation.type.simpleName, listenerType.className, binding.callback())
+            annotation.type.simpleName, listenerSpec.type.className, binding.callback())
       }
 
       if (listenerCallbacks.size > 1) {
         throw SentoException("Unable to process @{0} annotation - listener type ''{1}'' must have exactly one abstract method named ''{2}'', but {3} were found {4}.",
-            annotation.type.simpleName, listenerType.className, binding.callback(), listenerCallbacks.size, listenerCallbacks.map { Methods.asJavaDeclaration(it) })
+            annotation.type.simpleName, listenerSpec.type.className, binding.callback(), listenerCallbacks.size, listenerCallbacks.map { Methods.asJavaDeclaration(it) })
       }
 
       listenerSpec.methods.forEach {
@@ -102,7 +58,33 @@ internal data class ListenerClassSpec private constructor(
       return ListenerClassSpec(ownerSpec, listenerSpec, listenerSetter, listenerUnsetter, listenerCallbacks[0])
     }
 
-    private fun resolveListenerSetterSpec(name: String, annotation: ClassSpec, binding: ListenerClass, registry: ClassRegistry): MethodSpec {
+    private fun resolveClassSpec(name: String, kind: String, annotation: ClassSpec, registry: ClassRegistry): ClassSpec {
+      val type = Types.getClassType(name)
+
+      if (type.sort == Type.ARRAY) {
+        throw SentoException("Unable to process @{0} annotation - $kind type mustn''t be an array, but ''{1}'' was found.",
+            annotation.type.simpleName, type.className)
+      }
+
+      if (Types.isPrimitive(type)) {
+        throw SentoException("Unable to process @{0} annotation - $kind type mustn''t be a primitive one, but ''{1}'' was found.",
+            annotation.type.simpleName, type.className)
+      }
+
+      if (!registry.contains(type)) {
+        throw SentoException("Unable to process @{0} annotation - $kind type ''{1}'' wasn''t found.",
+            annotation.type.simpleName, type.className)
+      }
+
+      return registry.resolve(type).apply {
+        if (!isPublic) {
+          throw SentoException("Unable to process @{0} annotation - $kind type ''{1}'' must be public.",
+              annotation.type.simpleName, type.className)
+        }
+      }
+    }
+
+    private fun resolveMethodSpec(name: String, annotation: ClassSpec, binding: ListenerClass, registry: ClassRegistry): MethodSpec {
       val ownerType = Types.getClassType(binding.owner())
       val listenerType = Types.getClassType(binding.listener())
 
