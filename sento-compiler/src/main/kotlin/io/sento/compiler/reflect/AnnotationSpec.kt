@@ -19,7 +19,7 @@ internal data class AnnotationSpec(
     }
   }
 
-  public inline fun <reified V : Any> value(name: String): V? {
-    return values[name] as? V
+  public inline fun <reified V : Any> value(name: String): V {
+    return values[name] as V
   }
 }

@@ -4,14 +4,12 @@ import io.sento.compiler.ClassWriter
 import io.sento.compiler.ContentGenerator
 import io.sento.compiler.GeneratedContent
 import io.sento.compiler.GenerationEnvironment
-import io.sento.compiler.annotations.ids
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
-import io.sento.compiler.model.ViewSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
@@ -142,12 +140,11 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
 
   private fun onBindSyntheticListenerTargets(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
     binding.listeners.forEach {
-      for (id in it.annotation.ids) {
+      for (view in it.views) {
         val label = adapter.newLabel()
-        val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
         val name = environment.naming.getSyntheticFieldName(view)
 
-        if (it.optional) {
+        if (view.optional) {
           adapter.loadLocal(variables.target())
           adapter.getField(it.clazz, name, Types.VIEW)
           adapter.ifNull(label)
@@ -171,12 +168,11 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
 
   private fun onUnbindSyntheticListenerTargets(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
     binding.listeners.forEach {
-      for (id in it.annotation.ids) {
+      for (view in it.views) {
         val label = adapter.newLabel()
-        val view = ViewSpec(id, it.optional, it.clazz, ViewOwner.Method(it.method))
         val name = environment.naming.getSyntheticFieldName(view)
 
-        if (it.optional) {
+        if (view.optional) {
           adapter.loadLocal(variables.target())
           adapter.getField(it.clazz, name, Types.VIEW)
           adapter.ifNull(label)
@@ -207,7 +203,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   private fun onBindViewTargetFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
     binding.bindings.forEach {
       adapter.loadLocal(variables.target())
-      adapter.loadLocal(variables.view(it.annotation.ids.first()))
+      adapter.loadLocal(variables.view(it.views.first().id))
 
       if (it.field.type != Types.VIEW) {
         adapter.checkCast(it.field.type)

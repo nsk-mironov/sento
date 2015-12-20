@@ -14,7 +14,7 @@ internal data class BindTargetSpec private constructor(
     public val clazz: ClassSpec,
     public val field: FieldSpec,
     public val annotation: AnnotationSpec,
-    public val optional: Boolean
+    public val views: Collection<ViewSpec>
 ) {
   public companion object {
     public fun create(clazz: ClassSpec, field: FieldSpec, annotation: AnnotationSpec, optional: Boolean, environment: GenerationEnvironment) : BindTargetSpec {
@@ -31,7 +31,9 @@ internal data class BindTargetSpec private constructor(
             annotation.type.simpleName, clazz.type.className, field.name, Types.VIEW.className, field.type.className)
       }
 
-      return BindTargetSpec(clazz, field, annotation, optional)
+      return BindTargetSpec(clazz, field, annotation, listOf(annotation.value<Int>("value")).map {
+        ViewSpec(it, optional, clazz, ViewOwner.from(field))
+      })
     }
   }
 }
