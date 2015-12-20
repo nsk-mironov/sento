@@ -11,6 +11,10 @@ internal object AnnotationProxy {
     return clazz.cast(Proxy.newProxyInstance(clazz.classLoader, arrayOf(clazz), object : AbstractInvocationHandler() {
       private val cache = HashMap<String, Any?>()
 
+      private val string by lazy(LazyThreadSafetyMode.NONE) {
+        cache.map { "${it.key}=${it.value}" }.joinToString(", ")
+      }
+
       init {
         for ((key, value) in spec.values) {
           if (value != null) {
@@ -24,7 +28,7 @@ internal object AnnotationProxy {
       }
 
       override fun toString(): String {
-        return "@${clazz.canonicalName}(${cache.map { "${it.key}=${it.value}" }.joinToString(", ")})"
+        return "@${clazz.canonicalName}($string)"
       }
     }))
   }
