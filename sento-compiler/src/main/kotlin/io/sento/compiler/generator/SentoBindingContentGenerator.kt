@@ -10,6 +10,7 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.common.isPublic
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
+import io.sento.compiler.model.ViewSpec
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
@@ -78,7 +79,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onCreateLocalVariablesForViews(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
-    binding.views.distinctBy { it.id }.forEach {
+    binding.views.distinctBy(ViewSpec::id).forEach {
       variables.view(it.id, adapter.newLocal(Types.VIEW).apply {
         adapter.loadArg(ARGUMENT_FINDER)
         adapter.push(it.id)
@@ -92,7 +93,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onEnforceRequiredViewTargets(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
-    binding.views.filter { !it.optional }.distinctBy { it.id }.forEach {
+    binding.views.filterNot(ViewSpec::optional).distinctBy(ViewSpec::id).forEach {
       adapter.loadArg(ARGUMENT_FINDER)
       adapter.push(it.id)
 
@@ -105,7 +106,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onBindSyntheticViewFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
-    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
+    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy(ViewSpec::id).forEach {
       adapter.loadLocal(variables.target())
       adapter.loadLocal(variables.view(it.id))
       adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
@@ -113,7 +114,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onUnbindSyntheticViewFields(adapter: GeneratorAdapter, binding: BindingSpec, variables: VariablesContext, environment: GenerationEnvironment) {
-    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
+    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy(ViewSpec::id).forEach {
       adapter.loadLocal(variables.target())
       adapter.pushNull()
       adapter.putField(it.clazz, environment.naming.getSyntheticFieldName(it), Types.VIEW)
@@ -244,7 +245,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onCreateSyntheticFieldsForViews(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
-    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy { it.id }.forEach {
+    binding.views.filter { it.owner is ViewOwner.Method }.distinctBy(ViewSpec::id).forEach {
       writer.visitField(ACC_PRIVATE + ACC_SYNTHETIC, environment.naming.getSyntheticFieldName(it), Types.VIEW)
     }
   }

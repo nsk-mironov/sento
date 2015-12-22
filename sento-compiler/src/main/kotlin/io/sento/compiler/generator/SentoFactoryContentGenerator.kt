@@ -94,16 +94,10 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Bin
   }
 
   private fun GeneratorAdapter.switch(bindings: List<BindingSpec>, generator: GeneratorAdapter.(BindingSpec) -> Unit) {
-    val keys = IntArray(bindings.size).apply {
-      for (index in 0..size - 1) {
-        this[index] = index
-      }
-    }
-
     loadThis()
     getField(BINDING, "handle", Types.INT)
 
-    tableSwitch(keys, object : TableSwitchGenerator {
+    tableSwitch(IntArray(bindings.size) { it }, object : TableSwitchGenerator {
       override fun generateCase(key: Int, end: Label) {
         generator(bindings[key]).apply {
           goTo(end)
