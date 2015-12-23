@@ -7,7 +7,7 @@ import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
 import io.sento.compiler.common.isAbstract
 import io.sento.compiler.common.isInterface
-import io.sento.compiler.common.isPublic
+import io.sento.compiler.common.isPrivate
 import io.sento.compiler.model.ListenerTargetSpec
 import org.objectweb.asm.Opcodes.ACC_FINAL
 import org.objectweb.asm.Opcodes.ACC_PRIVATE
@@ -44,7 +44,7 @@ internal class ListenerBindingContentGenerator(private val target: ListenerTarge
           }
         }
 
-        if (!target.method.isPublic) {
+        if (target.method.isPrivate) {
           invokeStatic(target.clazz, environment.naming.getSyntheticAccessor(target.clazz, target.method))
         } else {
           invokeVirtual(target.clazz, target.method)

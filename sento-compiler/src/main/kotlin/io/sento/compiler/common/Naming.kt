@@ -30,11 +30,11 @@ internal class Naming {
   }
 
   public fun getBindingType(spec: ClassSpec): Type {
-    return Type.getObjectType("${spec.type.internalName}\$\$SentoBinding");
+    return Type.getObjectType("${spec.type.internalName}\$SentoBinding");
   }
 
   public fun getAnonymousType(type: Type): Type {
-    return Type.getObjectType("${type.internalName}\$\$${anonymous.getOrPut(type) { AtomicInteger() }.andIncrement}")
+    return Type.getObjectType("${type.internalName}\$${anonymous.getOrPut(type) { AtomicInteger() }.andIncrement}")
   }
 
   public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec): Method {

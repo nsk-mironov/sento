@@ -7,7 +7,7 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.common.GeneratorAdapter
 import io.sento.compiler.common.Methods
 import io.sento.compiler.common.Types
-import io.sento.compiler.common.isPublic
+import io.sento.compiler.common.isPrivate
 import io.sento.compiler.model.BindingSpec
 import io.sento.compiler.model.ViewOwner
 import io.sento.compiler.model.ViewSpec
@@ -257,7 +257,7 @@ internal class SentoBindingContentGenerator(private val binding: BindingSpec) : 
   }
 
   private fun onCreateSyntheticMethodsForListeners(writer: ClassWriter, binding: BindingSpec, environment: GenerationEnvironment) {
-    binding.listeners.filter { !it.method.isPublic }.forEach {
+    binding.listeners.filter { it.method.isPrivate }.forEach {
       writer.newMethod(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, environment.naming.getSyntheticAccessor(binding.clazz, it.method)) {
         invokeVirtual(binding.clazz, it.method.apply {
           for (index in 0..arguments.size) {
