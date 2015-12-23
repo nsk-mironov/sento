@@ -9,8 +9,8 @@ internal data class MethodSpec(
     public val access: Int,
     public val name: String,
     public val type: Type,
-    public val signature: String?,
-    public val annotations: Collection<AnnotationSpec>
+    public val signature: String? = null,
+    public val annotations: Collection<AnnotationSpec> = emptyList()
 ) {
   internal class Builder(val access: Int, val name: String, val type: Type, val signature: String?) {
     private val annotations = ArrayList<AnnotationSpec>()

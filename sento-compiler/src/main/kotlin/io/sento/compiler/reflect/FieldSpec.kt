@@ -9,7 +9,7 @@ internal data class FieldSpec(
     public val access: Int,
     public val name: String,
     public val type: Type,
-    public val annotations: Collection<AnnotationSpec>
+    public val annotations: Collection<AnnotationSpec> = emptyList()
 ) {
   internal class Builder(val access: Int, val name: String, val type: Type) {
     private val annotations = ArrayList<AnnotationSpec>()

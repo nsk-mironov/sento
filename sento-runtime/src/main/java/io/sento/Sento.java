@@ -20,7 +20,7 @@ public final class Sento {
     findOrCreateBinding(target.getClass()).bind(target, view, VIEW_FINDER);
   }
 
-  public static <S> void bind(final Object target, final S source, final Finder<? super S> finder) {
+  public static void bind(final Object target, final Object source, final Finder finder) {
     findOrCreateBinding(target.getClass()).bind(target, source, finder);
   }
 
@@ -78,7 +78,7 @@ public final class Sento {
     }
 
     @Override
-    public <S> void bind(final Object target, final S source, final Finder<? super S> finder) {
+    public void bind(final Object target, final Object source, final Finder finder) {
       for (int i = 0, size = bindings.size(); i < size; i++) {
         bindings.get(i).bind(target, source, finder);
       }
@@ -94,7 +94,7 @@ public final class Sento {
 
   private static final Binding DEFAULT_BINDING = new Binding() {
     @Override
-    public <S> void bind(final Object target, final S source, final Finder<? super S> finder) {
+    public void bind(final Object target, final Object source, final Finder finder) {
       // nothing to do
     }
 
@@ -104,41 +104,41 @@ public final class Sento {
     }
   };
 
-  private static final Finder<Activity> ACTIVITY_FINDER = new Finder<Activity>() {
+  private static final Finder ACTIVITY_FINDER = new Finder() {
     @Override
-    public View find(final int id, final Activity source) {
-      return source.findViewById(id);
+    public View find(final int id, final Object source) {
+      return ((Activity) source).findViewById(id);
     }
 
     @Override
-    public void require(final int id, final View view, final Activity source, final String message) {
+    public void require(final int id, final View view, final Object source, final String message) {
       if (view == null) {
         throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)) + " for " + message);
       }
     }
 
     @Override
-    public Resources resources(final Activity source) {
-      return source.getResources();
+    public Resources resources(final Object source) {
+      return ((Activity) source).getResources();
     }
   };
 
-  private static final Finder<View> VIEW_FINDER = new Finder<View>() {
+  private static final Finder VIEW_FINDER = new Finder() {
     @Override
-    public View find(final int id, final View source) {
-      return source.findViewById(id);
+    public View find(final int id, final Object source) {
+      return ((View) source).findViewById(id);
     }
 
     @Override
-    public void require(final int id, final View view, final View source, final String message) {
+    public void require(final int id, final View view, final Object source, final String message) {
       if (view == null) {
         throw new IllegalStateException("Unable to find a required view with id " + asResourceName(id, resources(source)) + " for " + message);
       }
     }
 
     @Override
-    public Resources resources(final View source) {
-      return source.getResources();
+    public Resources resources(final Object source) {
+      return ((View) source).getResources();
     }
   };
 }
