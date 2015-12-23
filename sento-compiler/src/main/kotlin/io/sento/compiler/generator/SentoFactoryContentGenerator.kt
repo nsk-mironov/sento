@@ -28,9 +28,9 @@ internal class SentoFactoryContentGenerator(private val bindings: Collection<Bin
   private fun onCreateFactoryGeneratedContent(environment: GenerationEnvironment): GeneratedContent {
     return GeneratedContent.from(Types.FACTORY, mapOf(), environment.newClass {
       visit(ACC_PUBLIC + ACC_FINAL + ACC_SUPER, Types.FACTORY)
-      visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", Types.MAP, "Ljava/util/Map<Ljava/lang/Class;Lio/sento/Binding;>;")
+      visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "BINDINGS", Types.MAP, null)
 
-      newMethod(ACC_PUBLIC + ACC_STATIC, Methods.get("createBinding", Types.BINDING, Types.CLASS), "(Ljava/lang/Class<*>;)Lio/sento/Binding;") {
+      newMethod(ACC_PUBLIC + ACC_STATIC, Methods.get("createBinding", Types.BINDING, Types.CLASS), null) {
         getStatic(Types.FACTORY, "BINDINGS", Types.MAP)
         loadArg(0)
 
