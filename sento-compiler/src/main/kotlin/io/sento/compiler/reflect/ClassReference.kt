@@ -13,12 +13,14 @@ internal data class ClassReference(
     public val opener: Opener
 ) {
   public fun resolve(): ClassSpec {
+    val flags = ClassReader.SKIP_CODE + ClassReader.SKIP_DEBUG + ClassReader.SKIP_FRAMES
+
     val reader = ClassReader(opener.open())
     val result = AtomicReference<ClassSpec>()
 
     reader.accept(ClassSpecVisitor(access, type, parent, interfaces, opener) {
       result.set(it)
-    }, 0)
+    }, flags)
 
     return result.get()
   }
