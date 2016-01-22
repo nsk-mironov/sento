@@ -2,13 +2,11 @@ buildscript {
   dependencies {
     classpath "com.android.tools.build:gradle:$androidToolsVersion"
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-    classpath "net.rdrei.android.buildtimetracker:gradle-plugin:0.5.0"
     classpath "io.sento:sento-plugin:$POM_VERSION_NAME"
   }
 }
 
 apply plugin: "com.android.application"
-apply plugin: "build-time-tracker"
 apply plugin: "kotlin-android"
 apply plugin: "io.sento"
 
@@ -24,24 +22,4 @@ android {
 
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-}
-
-buildtimetracker {
-  reporters {
-    csv {
-      output "build/times.csv"
-      append true
-      header false
-    }
-
-    summary {
-      ordered false
-      threshold 50
-      barstyle "unicode"
-    }
-
-    csvSummary {
-      csv "build/times.csv"
-    }
-  }
 }
