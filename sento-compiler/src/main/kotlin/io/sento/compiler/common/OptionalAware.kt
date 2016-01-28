@@ -27,7 +27,7 @@ internal class OptionalAware(private val spec: ClassSpec) {
     createKotlinMetaData()
   }
 
-  public fun isOptional(field: FieldSpec): Boolean {
+  fun isOptional(field: FieldSpec): Boolean {
     if (field.annotations.any(IS_ANNOTATION_NOT_NULL)) {
       return false
     }
@@ -48,7 +48,7 @@ internal class OptionalAware(private val spec: ClassSpec) {
     }
   }
 
-  public fun isOptional(method: MethodSpec): Boolean {
+  fun isOptional(method: MethodSpec): Boolean {
     return method.annotations.any(IS_ANNOTATION_OPTIONAL)
   }
 

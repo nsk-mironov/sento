@@ -6,7 +6,7 @@ import java.io.File
 import java.util.zip.ZipFile
 
 internal interface Opener {
-  public fun open(): ByteArray
+  fun open(): ByteArray
 }
 
 internal class FileOpener(private val file: File) : Opener {

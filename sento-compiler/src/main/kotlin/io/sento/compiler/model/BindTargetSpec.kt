@@ -11,13 +11,13 @@ import io.sento.compiler.reflect.FieldSpec
 import org.objectweb.asm.Type
 
 internal data class BindTargetSpec private constructor(
-    public val clazz: ClassSpec,
-    public val field: FieldSpec,
-    public val annotation: AnnotationSpec,
-    public val views: Collection<ViewSpec>
+    val clazz: ClassSpec,
+    val field: FieldSpec,
+    val annotation: AnnotationSpec,
+    val views: Collection<ViewSpec>
 ) {
-  public companion object {
-    public fun create(clazz: ClassSpec, field: FieldSpec, annotation: AnnotationSpec, optional: Boolean, environment: GenerationEnvironment) : BindTargetSpec {
+  companion object {
+    fun create(clazz: ClassSpec, field: FieldSpec, annotation: AnnotationSpec, optional: Boolean, environment: GenerationEnvironment) : BindTargetSpec {
       if (field.type.sort == Type.ARRAY) {
         throw SentoException("Unable to generate @{0} binding for ''{1}#{2}\'' field - arrays are not supported, but ''{3}'' was found.",
             annotation.type.simpleName, clazz.type.className, field.name, field.type.className)

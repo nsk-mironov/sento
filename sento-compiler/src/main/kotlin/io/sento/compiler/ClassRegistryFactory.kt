@@ -21,7 +21,7 @@ internal object ClassRegistryFactory {
   private const val EXTENSION_CLASS = "class"
   private const val EXTENSION_JAR = "jar"
 
-  public fun create(options: SentoOptions): ClassRegistry {
+  fun create(options: SentoOptions): ClassRegistry {
     return ClassRegistry.Builder()
         .inputs(createClassReferences(options.inputs))
         .references(createClassReferences(options.libs))

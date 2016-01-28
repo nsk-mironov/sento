@@ -14,14 +14,14 @@ import io.sento.compiler.reflect.MethodSpec
 import org.objectweb.asm.Type
 
 internal data class ListenerClassSpec private constructor(
-    public val owner: ClassSpec,
-    public val listener: ClassSpec,
-    public val setter: MethodSpec,
-    public val unsetter: MethodSpec,
-    public val callback: MethodSpec
+    val owner: ClassSpec,
+    val listener: ClassSpec,
+    val setter: MethodSpec,
+    val unsetter: MethodSpec,
+    val callback: MethodSpec
 ) {
-  public companion object {
-    public fun create(annotation: ClassSpec, binding: ListenerClass, registry: ClassRegistry): ListenerClassSpec {
+  companion object {
+    fun create(annotation: ClassSpec, binding: ListenerClass, registry: ClassRegistry): ListenerClassSpec {
       val ownerSpec = resolveClassSpec(binding.owner(), "owner", annotation, registry)
       val listenerSpec = resolveClassSpec(binding.listener(), "listener", annotation, registry)
 

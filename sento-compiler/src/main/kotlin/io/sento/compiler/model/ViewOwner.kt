@@ -4,12 +4,12 @@ import io.sento.compiler.reflect.FieldSpec
 import io.sento.compiler.reflect.MethodSpec
 
 internal sealed class ViewOwner(val name: String) {
-  public companion object {
-    public fun from(field: FieldSpec): ViewOwner {
+  companion object {
+    fun from(field: FieldSpec): ViewOwner {
       return ViewOwner.Field(field)
     }
 
-    public fun from(method: MethodSpec): ViewOwner {
+    fun from(method: MethodSpec): ViewOwner {
       return ViewOwner.Method(method)
     }
   }

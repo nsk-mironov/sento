@@ -14,8 +14,8 @@ import java.util.HashMap
 import java.util.LinkedHashSet
 
 internal class ClassRegistry(
-    public val references: Collection<ClassReference>,
-    public val inputs: Collection<ClassReference>
+    val references: Collection<ClassReference>,
+    val inputs: Collection<ClassReference>
 ) {
   private val refs = HashMap<Type, ClassReference>(references.size)
   private val listeners = HashMap<Type, ListenerClassSpec?>()
@@ -35,33 +35,33 @@ internal class ClassRegistry(
     private val references = LinkedHashSet<ClassReference>()
     private val inputs = LinkedHashSet<ClassReference>()
 
-    public fun references(values: Collection<ClassReference>): Builder = apply {
+    fun references(values: Collection<ClassReference>): Builder = apply {
       references.addAll(values)
     }
 
-    public fun inputs(values: Collection<ClassReference>): Builder = apply {
+    fun inputs(values: Collection<ClassReference>): Builder = apply {
       references.addAll(values)
       inputs.addAll(values)
     }
 
-    public fun build(): ClassRegistry {
+    fun build(): ClassRegistry {
       return ClassRegistry(references, inputs)
     }
   }
 
-  public fun contains(type: Type): Boolean {
+  fun contains(type: Type): Boolean {
     return type in refs
   }
 
-  public fun reference(type: Type): ClassReference {
+  fun reference(type: Type): ClassReference {
     return refs[type] ?: throw SentoException("Unable to find a class \"${type.className}\". Make sure it is present in application classpath.")
   }
 
-  public fun resolve(reference: ClassReference, cacheable: Boolean = true): ClassSpec {
+  fun resolve(reference: ClassReference, cacheable: Boolean = true): ClassSpec {
     return resolve(reference.type, cacheable)
   }
 
-  public fun resolve(type: Type, cacheable: Boolean = true): ClassSpec {
+  fun resolve(type: Type, cacheable: Boolean = true): ClassSpec {
     return if (cacheable) {
       specs.getOrPut(type) {
         reference(type).resolve()
@@ -73,7 +73,7 @@ internal class ClassRegistry(
     }
   }
 
-  public fun resolveListenerClassSpec(annotation: AnnotationSpec): ListenerClassSpec? {
+  fun resolveListenerClassSpec(annotation: AnnotationSpec): ListenerClassSpec? {
     return listeners.getOrPut(annotation.type) {
       val spec = resolve(annotation.type)
       val listener = resolve(annotation.type).getAnnotation<ListenerClass>()
@@ -84,7 +84,7 @@ internal class ClassRegistry(
     }
   }
 
-  public fun isSubclassOf(type: Type, parent: Type): Boolean {
+  fun isSubclassOf(type: Type, parent: Type): Boolean {
     if (type.sort == Type.METHOD) {
       throw SentoException("Invalid argument type = $type. Types with ''sort'' == Type.METHOD are not allowed.")
     }
@@ -126,11 +126,11 @@ internal class ClassRegistry(
     return isSubclassOf(reference(type).parent, parent)
   }
 
-  public fun isCastableFromTo(type: Type, target: Type): Boolean {
+  fun isCastableFromTo(type: Type, target: Type): Boolean {
     return isSubclassOf(type, target) || isSubclassOf(target, type)
   }
 
-  public fun listPublicMethods(clazz: ClassSpec): Collection<MethodSpec> {
+  fun listPublicMethods(clazz: ClassSpec): Collection<MethodSpec> {
     val result = ArrayList<MethodSpec>()
 
     clazz.interfaces.forEach {

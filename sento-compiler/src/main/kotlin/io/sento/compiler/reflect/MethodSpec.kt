@@ -6,37 +6,37 @@ import org.objectweb.asm.Type
 import java.util.ArrayList
 
 internal data class MethodSpec(
-    public val access: Int,
-    public val name: String,
-    public val type: Type,
-    public val signature: String? = null,
-    public val annotations: Collection<AnnotationSpec> = emptyList()
+    val access: Int,
+    val name: String,
+    val type: Type,
+    val signature: String? = null,
+    val annotations: Collection<AnnotationSpec> = emptyList()
 ) {
   internal class Builder(val access: Int, val name: String, val type: Type, val signature: String?) {
     private val annotations = ArrayList<AnnotationSpec>()
 
-    public fun annotation(annotation: AnnotationSpec): Builder = apply {
+    fun annotation(annotation: AnnotationSpec): Builder = apply {
       annotations.add(annotation)
     }
 
-    public fun build(): MethodSpec {
+    fun build(): MethodSpec {
       return MethodSpec(access, name, type, signature, annotations)
     }
   }
 
-  public val returns by lazy(LazyThreadSafetyMode.NONE) {
+  val returns by lazy(LazyThreadSafetyMode.NONE) {
     type.returnType
   }
 
-  public val arguments by lazy(LazyThreadSafetyMode.NONE) {
+  val arguments by lazy(LazyThreadSafetyMode.NONE) {
     type.argumentTypes.orEmpty()
   }
 
-  public inline fun <reified A : Any> getAnnotation(): A? {
+  inline fun <reified A : Any> getAnnotation(): A? {
     return getAnnotation(A::class.java)
   }
 
-  public fun <A> getAnnotation(annotation: Class<A>): A? {
+  fun <A> getAnnotation(annotation: Class<A>): A? {
     return AnnotationProxy.create(annotation, annotations.firstOrNull {
       it.type == Types.getAnnotationType(annotation)
     } ?: return null)

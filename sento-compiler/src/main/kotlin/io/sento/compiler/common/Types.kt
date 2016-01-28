@@ -32,31 +32,31 @@ internal object Types {
     put("void", "V")
   }
 
-  public val OBJECT = Type.getType(Any::class.java)
-  public val CLASS = Type.getType(Class::class.java)
+  val OBJECT = Type.getType(Any::class.java)
+  val CLASS = Type.getType(Class::class.java)
 
-  public val BYTE = Type.BYTE_TYPE
-  public val CHAR = Type.CHAR_TYPE
-  public val DOUBLE = Type.DOUBLE_TYPE
-  public val FLOAT = Type.FLOAT_TYPE
-  public val INT = Type.INT_TYPE
-  public val LONG = Type.LONG_TYPE
-  public val SHORT = Type.SHORT_TYPE
-  public val BOOLEAN = Type.BOOLEAN_TYPE
-  public val STRING = Type.getType(String::class.java)
-  public val VOID = Type.VOID_TYPE
+  val BYTE = Type.BYTE_TYPE
+  val CHAR = Type.CHAR_TYPE
+  val DOUBLE = Type.DOUBLE_TYPE
+  val FLOAT = Type.FLOAT_TYPE
+  val INT = Type.INT_TYPE
+  val LONG = Type.LONG_TYPE
+  val SHORT = Type.SHORT_TYPE
+  val BOOLEAN = Type.BOOLEAN_TYPE
+  val STRING = Type.getType(String::class.java)
+  val VOID = Type.VOID_TYPE
 
-  public val MAP = Type.getType(Map::class.java)
-  public val IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
-  public val VIEW = Type.getObjectType("android/view/View")
+  val MAP = Type.getType(Map::class.java)
+  val IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
+  val VIEW = Type.getObjectType("android/view/View")
 
-  public val BINDING = Type.getObjectType("io/sento/Binding")
-  public val FINDER = Type.getObjectType("io/sento/Finder")
-  public val FACTORY = Type.getObjectType("io/sento/SentoFactory")
-  public val OPTIONAL = Type.getObjectType("io/sento/annotations/Optional")
-  public val BIND = Type.getObjectType("io/sento/annotations/Bind")
+  val BINDING = Type.getObjectType("io/sento/Binding")
+  val FINDER = Type.getObjectType("io/sento/Finder")
+  val FACTORY = Type.getObjectType("io/sento/SentoFactory")
+  val OPTIONAL = Type.getObjectType("io/sento/annotations/Optional")
+  val BIND = Type.getObjectType("io/sento/annotations/Bind")
 
-  public fun getClassType(name: String): Type {
+  fun getClassType(name: String): Type {
     return if (!name.endsWith("[]")) {
       Type.getType("${PRIMITIVES[name.replace('.', '/')] ?: "L${name.replace('.', '/')};"}")
     } else {
@@ -64,21 +64,21 @@ internal object Types {
     }
   }
 
-  public fun getArrayType(type: Type): Type {
+  fun getArrayType(type: Type): Type {
     return Type.getType("[${type.descriptor}")
   }
 
-  public fun getAnnotationType(clazz: Class<*>): Type {
+  fun getAnnotationType(clazz: Class<*>): Type {
     return clazz.getAnnotation(AnnotationDelegate::class.java)?.run {
       Type.getObjectType(value.replace('.', '/'))
     } ?: Type.getType(clazz)
   }
 
-  public fun getClassFilePath(type: Type): String {
+  fun getClassFilePath(type: Type): String {
     return "${type.internalName}.class"
   }
 
-  public fun isSystemClass(type: Type): Boolean {
+  fun isSystemClass(type: Type): Boolean {
     val name = type.className
 
     if (name.endsWith(".Nullable")) {
@@ -98,7 +98,7 @@ internal object Types {
     }
   }
 
-  public fun isPrimitive(type: Type): Boolean {
+  fun isPrimitive(type: Type): Boolean {
     return type in PRIMITIVE_TYPES
   }
 }

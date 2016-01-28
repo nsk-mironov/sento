@@ -15,15 +15,15 @@ internal class ClassWriter(private val environment: GenerationEnvironment) : org
     return Types.OBJECT.internalName
   }
 
-  public fun visit(access: Int, name: Type, signature: String? = null, parent: Type = Types.OBJECT, interfaces: Array<out Type> = emptyArray()) {
+  fun visit(access: Int, name: Type, signature: String? = null, parent: Type = Types.OBJECT, interfaces: Array<out Type> = emptyArray()) {
     visit(V1_6, access, name.internalName, signature, parent.internalName, interfaces.map { it.internalName }.toTypedArray())
   }
 
-  public fun visitField(access: Int, name: String, type: Type, signature: String? = null): FieldVisitor {
+  fun visitField(access: Int, name: String, type: Type, signature: String? = null): FieldVisitor {
     return visitField(access, name, type.descriptor, signature, null)
   }
 
-  public fun newMethod(access: Int, method: Method, signature: String? = null, body: GeneratorAdapter.() -> Unit) {
+  fun newMethod(access: Int, method: Method, signature: String? = null, body: GeneratorAdapter.() -> Unit) {
     GeneratorAdapter(this, access, method, signature).apply {
       body().apply {
         returnValue()
@@ -32,7 +32,7 @@ internal class ClassWriter(private val environment: GenerationEnvironment) : org
     }
   }
 
-  public fun newMethod(access: Int, method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
+  fun newMethod(access: Int, method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
     GeneratorAdapter(this, access, Methods.get(method), method.signature).apply {
       body().apply {
         returnValue()
@@ -41,7 +41,7 @@ internal class ClassWriter(private val environment: GenerationEnvironment) : org
     }
   }
 
-  public fun newMethod(method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
+  fun newMethod(method: MethodSpec, body: GeneratorAdapter.() -> Unit) {
     newMethod(method.access, method, body)
   }
 }

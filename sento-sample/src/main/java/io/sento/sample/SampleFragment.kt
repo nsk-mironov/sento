@@ -17,7 +17,7 @@ import io.sento.sample.annotations.OnFocusReceived
 import io.sento.sample.extensions.asTrue
 import io.sento.sample.extensions.notNull
 
-public class SampleFragment : Fragment() {
+class SampleFragment : Fragment() {
   private @Bind(R.id.first_name_input) val first_name_input: EditText? = notNull()
   private @Bind(R.id.first_name_label) val first_name_label: TextView? = notNull()
 

@@ -23,10 +23,10 @@ import org.objectweb.asm.Opcodes.ACC_SYNTHETIC
 import org.objectweb.asm.Opcodes.ASM5
 
 internal class SentoBindingContentGenerator(private val binding: BindingSpec) : ContentGenerator {
-  public companion object {
-    private const val ARGUMENT_TARGET = 0
-    private const val ARGUMENT_SOURCE = 1
-    private const val ARGUMENT_FINDER = 2
+  private companion object {
+    const val ARGUMENT_TARGET = 0
+    const val ARGUMENT_SOURCE = 1
+    const val ARGUMENT_FINDER = 2
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {

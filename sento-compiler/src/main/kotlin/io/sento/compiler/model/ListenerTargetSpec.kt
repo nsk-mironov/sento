@@ -12,16 +12,16 @@ import java.util.ArrayList
 import java.util.LinkedHashSet
 
 internal data class ListenerTargetSpec private constructor(
-    public val clazz: ClassSpec,
-    public val method: MethodSpec,
-    public val annotation: AnnotationSpec,
-    public val listener: ListenerClassSpec,
-    public val views: Collection<ViewSpec>,
-    public val arguments: Collection<ArgumentSpec>,
-    public val type: Type
+    val clazz: ClassSpec,
+    val method: MethodSpec,
+    val annotation: AnnotationSpec,
+    val listener: ListenerClassSpec,
+    val views: Collection<ViewSpec>,
+    val arguments: Collection<ArgumentSpec>,
+    val type: Type
 ) {
-  public companion object {
-    public fun create(clazz: ClassSpec, method: MethodSpec, annotation: AnnotationSpec, optional: Boolean, environment: GenerationEnvironment): ListenerTargetSpec {
+  companion object {
+    fun create(clazz: ClassSpec, method: MethodSpec, annotation: AnnotationSpec, optional: Boolean, environment: GenerationEnvironment): ListenerTargetSpec {
       val listener = environment.registry.resolveListenerClassSpec(annotation)!!
       val binding = environment.naming.getBindingType(clazz)
 

@@ -23,47 +23,47 @@ internal class Naming {
     private val METHOD_UNBIND_SYNTHETIC_SPEC = MethodSpec(ACC_PUBLIC + ACC_STATIC + ACC_SYNTHETIC, "sento\$unbind", METHOD_UNBIND_SPEC.type)
   }
 
-  public fun getBindingType(spec: ClassSpec): Type {
+  fun getBindingType(spec: ClassSpec): Type {
     return Type.getObjectType("${spec.type.internalName}\$SentoBinding");
   }
 
-  public fun getAnonymousType(type: Type): Type {
+  fun getAnonymousType(type: Type): Type {
     return Type.getObjectType("${type.internalName}\$${anonymous.getOrPut(type) { AtomicInteger() }.andIncrement}")
   }
 
-  public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec): Method {
+  fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec): Method {
     return getSyntheticAccessor(owner, method, getSyntheticAccessorName(owner, method))
   }
 
-  public fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec, name: String): Method {
+  fun getSyntheticAccessor(owner: ClassSpec, method: MethodSpec, name: String): Method {
     return Methods.get(name, method.returns, *arrayOf(owner.type, *method.arguments))
   }
 
-  public fun getSyntheticAccessorName(owner: ClassSpec, method: MethodSpec): String {
+  fun getSyntheticAccessorName(owner: ClassSpec, method: MethodSpec): String {
     return "sento\$accessor\$${method.name}"
   }
 
-  public fun getBindMethodSpec(): MethodSpec {
+  fun getBindMethodSpec(): MethodSpec {
     return METHOD_BIND_SPEC
   }
 
-  public fun getUnbindMethodSpec(): MethodSpec {
+  fun getUnbindMethodSpec(): MethodSpec {
     return METHOD_UNBIND_SPEC
   }
 
-  public fun getSyntheticBindMethodSpec(): MethodSpec {
+  fun getSyntheticBindMethodSpec(): MethodSpec {
     return METHOD_BIND_SYNTHETIC_SPEC
   }
 
-  public fun getSyntheticUnbindMethodSpec(): MethodSpec {
+  fun getSyntheticUnbindMethodSpec(): MethodSpec {
     return METHOD_UNBIND_SYNTHETIC_SPEC
   }
 
-  public fun getSyntheticFieldName(target: ViewSpec): String {
+  fun getSyntheticFieldName(target: ViewSpec): String {
     return "sento\$view\$id_${target.id}"
   }
 
-  public fun getSyntheticFieldName(target: ListenerTargetSpec): String {
+  fun getSyntheticFieldName(target: ListenerTargetSpec): String {
     return "sento\$listener\$${target.method.name}\$${target.annotation.type.simpleName}"
   }
 }

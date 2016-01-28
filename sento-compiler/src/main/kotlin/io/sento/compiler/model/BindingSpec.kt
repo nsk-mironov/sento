@@ -6,13 +6,13 @@ import io.sento.compiler.common.Types
 import io.sento.compiler.reflect.ClassSpec
 
 internal data class BindingSpec private constructor(
-    public val clazz: ClassSpec,
-    public val bindings: Collection<BindTargetSpec>,
-    public val listeners: Collection<ListenerTargetSpec>,
-    public val views: Collection<ViewSpec>
+    val clazz: ClassSpec,
+    val bindings: Collection<BindTargetSpec>,
+    val listeners: Collection<ListenerTargetSpec>,
+    val views: Collection<ViewSpec>
 ) {
-  public companion object {
-    public fun from(clazz: ClassSpec, environment: GenerationEnvironment): BindingSpec {
+  companion object {
+    fun from(clazz: ClassSpec, environment: GenerationEnvironment): BindingSpec {
       val optional = OptionalAware(clazz)
 
       val bindings = createBindingTargets(clazz, optional, environment)

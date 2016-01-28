@@ -8,7 +8,7 @@ import java.util.ArrayList
 import java.util.HashMap
 
 internal object AnnotationProxy {
-  public fun <A> create(clazz: Class<A>, spec: AnnotationSpec): A {
+  fun <A> create(clazz: Class<A>, spec: AnnotationSpec): A {
     return clazz.cast(Proxy.newProxyInstance(clazz.classLoader, arrayOf(clazz), object : AbstractInvocationHandler() {
       private val cache = HashMap<String, Any?>()
 

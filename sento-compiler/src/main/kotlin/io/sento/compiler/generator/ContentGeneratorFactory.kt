@@ -5,17 +5,17 @@ import io.sento.compiler.GenerationEnvironment
 import io.sento.compiler.model.BindingSpec
 
 internal class ContentGeneratorFactory private constructor() {
-  public companion object {
-    public fun from(environment: GenerationEnvironment): ContentGeneratorFactory {
+  companion object {
+    fun from(environment: GenerationEnvironment): ContentGeneratorFactory {
       return ContentGeneratorFactory()
     }
   }
 
-  public fun createBinding(binding: BindingSpec): ContentGenerator {
+  fun createBinding(binding: BindingSpec): ContentGenerator {
     return SentoBindingContentGenerator(binding)
   }
 
-  public fun createFactory(bindings: Collection<BindingSpec>): ContentGenerator {
+  fun createFactory(bindings: Collection<BindingSpec>): ContentGenerator {
     return SentoFactoryContentGenerator(bindings)
   }
 }

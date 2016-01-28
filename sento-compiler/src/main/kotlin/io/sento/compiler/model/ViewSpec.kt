@@ -3,8 +3,8 @@ package io.sento.compiler.model
 import io.sento.compiler.reflect.ClassSpec
 
 internal data class ViewSpec(
-    public val id: Int,
-    public val optional: Boolean,
-    public val clazz: ClassSpec,
-    public val owner: ViewOwner
+    val id: Int,
+    val optional: Boolean,
+    val clazz: ClassSpec,
+    val owner: ViewOwner
 )

@@ -3,14 +3,14 @@ package io.sento.compiler
 import io.sento.compiler.common.Naming
 
 internal class GenerationEnvironment(
-    public val registry: ClassRegistry,
-    public val naming: Naming
+    val registry: ClassRegistry,
+    val naming: Naming
 ) {
-  public fun newClassWriter(): ClassWriter {
+  fun newClassWriter(): ClassWriter {
     return ClassWriter(this)
   }
 
-  public fun newClass(visitor: ClassWriter.() -> Unit): ByteArray {
+  fun newClass(visitor: ClassWriter.() -> Unit): ByteArray {
     return newClassWriter().apply(visitor).toByteArray()
   }
 }

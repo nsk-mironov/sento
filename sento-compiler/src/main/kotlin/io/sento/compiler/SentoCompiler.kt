@@ -7,10 +7,10 @@ import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 import java.io.File
 
-public class SentoCompiler() {
+class SentoCompiler() {
   private val logger = LoggerFactory.getLogger(SentoCompiler::class.java)
 
-  public fun compile(options: SentoOptions) {
+  fun compile(options: SentoOptions) {
     logger.info("Starting sento compiler:").apply {
       options.libs.forEach {
         logger.info("Referenced classes - {}", it)

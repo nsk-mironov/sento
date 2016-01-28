@@ -9,55 +9,55 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.commons.Method
 
 internal class GeneratorAdapter(visitor: ClassVisitor, access: Int, method: Method, signature: String?) : org.objectweb.asm.commons.GeneratorAdapter(Opcodes.ASM5, visitor.visitMethod(access, method.name, method.descriptor, signature, null), access, method.name, method.descriptor) {
-  public fun pushNull() {
+  fun pushNull() {
     visitInsn(Opcodes.ACONST_NULL)
   }
 
-  public fun checkCast(spec: ClassSpec) {
+  fun checkCast(spec: ClassSpec) {
     checkCast(spec.type)
   }
 
-  public fun getField(owner: ClassSpec, field: FieldSpec) {
+  fun getField(owner: ClassSpec, field: FieldSpec) {
     getField(owner.type, field.name, field.type)
   }
 
-  public fun getField(owner: ClassSpec, name: String, type: ClassSpec) {
+  fun getField(owner: ClassSpec, name: String, type: ClassSpec) {
     getField(owner.type, name, type.type)
   }
 
-  public fun getField(owner: ClassSpec, name: String, type: Type) {
+  fun getField(owner: ClassSpec, name: String, type: Type) {
     getField(owner.type, name, type)
   }
 
-  public fun putField(owner: ClassSpec, field: FieldSpec) {
+  fun putField(owner: ClassSpec, field: FieldSpec) {
     putField(owner.type, field.name, field.type)
   }
 
-  public fun putField(owner: ClassSpec, name: String, type: ClassSpec) {
+  fun putField(owner: ClassSpec, name: String, type: ClassSpec) {
     putField(owner.type, name, type.type)
   }
 
-  public fun putField(owner: ClassSpec, name: String, type: Type) {
+  fun putField(owner: ClassSpec, name: String, type: Type) {
     putField(owner.type, name, type)
   }
 
-  public fun invokeStatic(owner: ClassSpec, method: Method) {
+  fun invokeStatic(owner: ClassSpec, method: Method) {
     invokeStatic(owner.type, method)
   }
 
-  public fun invokeStatic(owner: ClassSpec, method: MethodSpec) {
+  fun invokeStatic(owner: ClassSpec, method: MethodSpec) {
     invokeStatic(owner.type, Methods.get(method))
   }
 
-  public fun invokeVirtual(owner: ClassSpec, method: Method) {
+  fun invokeVirtual(owner: ClassSpec, method: Method) {
     invokeVirtual(owner.type, method)
   }
 
-  public fun invokeVirtual(owner: ClassSpec, method: MethodSpec) {
+  fun invokeVirtual(owner: ClassSpec, method: MethodSpec) {
     invokeVirtual(owner.type, Methods.get(method))
   }
 
-  public fun newInstance(type: Type, method: Method, args: () -> Unit = {}) {
+  fun newInstance(type: Type, method: Method, args: () -> Unit = {}) {
     newInstance(type)
     dup()
     args()

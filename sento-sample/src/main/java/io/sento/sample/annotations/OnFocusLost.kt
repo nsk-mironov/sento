@@ -11,9 +11,9 @@ import io.sento.annotations.ListenerClass
     setter = "setOnFocusChangeListener",
     callback = "onFocusLost"
 )
-public annotation class OnFocusLost(vararg val value: Int)
+annotation class OnFocusLost(vararg val value: Int)
 
-public abstract class OnFocusLostListener : View.OnFocusChangeListener {
+abstract class OnFocusLostListener : View.OnFocusChangeListener {
   override fun onFocusChange(view: View, focused: Boolean) {
     if (!focused) {
       onFocusLost(view)
