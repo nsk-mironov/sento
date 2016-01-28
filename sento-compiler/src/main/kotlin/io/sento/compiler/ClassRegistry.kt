@@ -17,10 +17,7 @@ internal class ClassRegistry(
     public val references: Collection<ClassReference>,
     public val inputs: Collection<ClassReference>
 ) {
-  private val refs = HashMap<Type, ClassReference>(references.size).withDefault {
-    throw SentoException("Unable to find a class \"${it.className}\". Make sure it is present in application classpath.")
-  }
-
+  private val refs = HashMap<Type, ClassReference>(references.size)
   private val listeners = HashMap<Type, ListenerClassSpec?>()
   private val specs = HashMap<Type, ClassSpec>()
 
@@ -57,7 +54,7 @@ internal class ClassRegistry(
   }
 
   public fun reference(type: Type): ClassReference {
-    return refs.getOrImplicitDefault(type)
+    return refs[type] ?: throw SentoException("Unable to find a class \"${type.className}\". Make sure it is present in application classpath.")
   }
 
   public fun resolve(reference: ClassReference, cacheable: Boolean = true): ClassSpec {
@@ -67,11 +64,11 @@ internal class ClassRegistry(
   public fun resolve(type: Type, cacheable: Boolean = true): ClassSpec {
     return if (cacheable) {
       specs.getOrPut(type) {
-        refs.getOrImplicitDefault(type).resolve()
+        reference(type).resolve()
       }
     } else {
       specs.getOrElse(type) {
-        refs.getOrImplicitDefault(type).resolve()
+        reference(type).resolve()
       }
     }
   }

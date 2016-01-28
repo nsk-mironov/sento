@@ -1,6 +1,7 @@
 buildscript {
   repositories {
     mavenLocal()
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     jcenter()
   }
 }
@@ -9,12 +10,14 @@ allprojects {
   buildscript {
     repositories {
       mavenLocal()
+      maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
       jcenter()
     }
   }
 
   repositories {
     mavenLocal()
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     jcenter()
   }
 }
@@ -27,7 +30,7 @@ ext {
   projectTargetSdkVersion = 23
 
   androidToolsVersion = "1.5.0"
-  kotlinVersion = "1.0.0-beta-4589"
+  kotlinVersion = "1.0.0-rc-1017"
   bintrayVersion = "1.4"
 
   guavaVersion = "18.0"

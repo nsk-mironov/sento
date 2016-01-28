@@ -4,6 +4,7 @@ import com.google.common.reflect.AbstractInvocationHandler
 import io.sento.compiler.reflect.AnnotationSpec
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import java.util.ArrayList
 import java.util.HashMap
 
 internal object AnnotationProxy {
@@ -48,7 +49,7 @@ internal object AnnotationProxy {
       resolve(type, it)
     }
 
-    return list.toArrayList().toArray(array)
+    return ArrayList(list).toArray(array)
   }
 
   private fun resolveAnnotation(type: Class<*>, value: Any): Any {

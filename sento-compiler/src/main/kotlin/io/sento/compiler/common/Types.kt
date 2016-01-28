@@ -57,12 +57,8 @@ internal object Types {
   public val BIND = Type.getObjectType("io/sento/annotations/Bind")
 
   public fun getClassType(name: String): Type {
-    val mapping = PRIMITIVES.withDefault {
-      "L$it;"
-    }
-
     return if (!name.endsWith("[]")) {
-      Type.getType("${mapping.getOrImplicitDefault(name.replace('.', '/'))}")
+      Type.getType("${PRIMITIVES[name.replace('.', '/')] ?: "L${name.replace('.', '/')};"}")
     } else {
       getArrayType(getClassType(name.substring(0, name.length - 2)))
     }
