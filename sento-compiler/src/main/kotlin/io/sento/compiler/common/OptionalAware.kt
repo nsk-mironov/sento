@@ -1,10 +1,12 @@
 package io.sento.compiler.common
 
+import io.sento.compiler.annotations.Metadata
+import io.sento.compiler.annotations.data
+import io.sento.compiler.annotations.strings
 import io.sento.compiler.reflect.AnnotationSpec
 import io.sento.compiler.reflect.ClassSpec
 import io.sento.compiler.reflect.FieldSpec
 import io.sento.compiler.reflect.MethodSpec
-import kotlin.jvm.internal.KotlinClass
 import kotlin.reflect.jvm.internal.impl.serialization.ClassData
 import kotlin.reflect.jvm.internal.impl.serialization.jvm.JvmProtoBufUtil
 
@@ -53,7 +55,7 @@ internal class OptionalAware(private val spec: ClassSpec) {
   }
 
   private fun createKotlinMetaData(): ClassData?  {
-    val annotation = spec.getAnnotation<KotlinClass>() ?: return null
+    val annotation = spec.getAnnotation<Metadata>() ?: return null
 
     val strings = annotation.strings
     val data = annotation.data

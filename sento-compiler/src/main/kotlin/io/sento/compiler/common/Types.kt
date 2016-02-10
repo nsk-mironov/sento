@@ -5,7 +5,6 @@ import org.objectweb.asm.Type
 import java.util.HashMap
 import java.util.HashSet
 import java.util.IdentityHashMap
-import kotlin.jvm.internal.KotlinClass
 
 internal object Types {
   private val PRIMITIVE_TYPES = HashSet<Type>().apply {
@@ -89,7 +88,7 @@ internal object Types {
       return false
     }
 
-    if (name == KotlinClass::class.qualifiedName) {
+    if (name == "kotlin.Metadata") {
       return false
     }
 
