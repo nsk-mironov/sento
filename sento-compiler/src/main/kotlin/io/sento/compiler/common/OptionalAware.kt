@@ -2,6 +2,7 @@ package io.sento.compiler.common
 
 import io.sento.compiler.annotations.Metadata
 import io.sento.compiler.annotations.data
+import io.sento.compiler.annotations.kind
 import io.sento.compiler.annotations.strings
 import io.sento.compiler.reflect.AnnotationSpec
 import io.sento.compiler.reflect.ClassSpec
@@ -56,6 +57,10 @@ internal class OptionalAware(private val spec: ClassSpec) {
 
   private fun createKotlinMetaData(): ClassData?  {
     val annotation = spec.getAnnotation<Metadata>() ?: return null
+
+    if (annotation.kind != Metadata.KIND_CLASS) {
+      return null
+    }
 
     val strings = annotation.strings
     val data = annotation.data
