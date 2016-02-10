@@ -19,7 +19,11 @@ internal object AnnotationProxy {
       init {
         for ((key, value) in spec.values) {
           if (value != null) {
-            cache.put(key, resolve(clazz.getMethod(key).returnType, value))
+            try {
+              cache.put(key, resolve(clazz.getMethod(key).returnType, value))
+            } catch (exception: NoSuchMethodException) {
+              // just ignore
+            }
           }
         }
       }
