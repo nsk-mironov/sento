@@ -1,7 +1,6 @@
 buildscript {
   repositories {
     mavenLocal()
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     jcenter()
   }
 }
@@ -10,14 +9,12 @@ allprojects {
   buildscript {
     repositories {
       mavenLocal()
-      maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
       jcenter()
     }
   }
 
   repositories {
     mavenLocal()
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     jcenter()
   }
 }
