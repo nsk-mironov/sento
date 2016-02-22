@@ -18,7 +18,7 @@ import org.objectweb.asm.commons.TableSwitchGenerator
 
 internal class SentoFactoryContentGenerator(private val bindings: Collection<BindingSpec>) : ContentGenerator {
   private companion object {
-    private val BINDING = Type.getObjectType("io/sento/SentoFactory\$\$HandleAwareBinding")
+    private val BINDING = Type.getObjectType("io/mironov/sento/SentoFactory\$\$HandleAwareBinding")
   }
 
   override fun generate(environment: GenerationEnvironment): Collection<GeneratedContent> {

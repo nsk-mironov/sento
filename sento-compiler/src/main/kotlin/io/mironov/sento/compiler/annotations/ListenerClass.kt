@@ -1,6 +1,6 @@
 package io.mironov.sento.compiler.annotations
 
-@AnnotationDelegate("io.sento.annotations.ListenerClass")
+@AnnotationDelegate("io.mironov.sento.annotations.ListenerClass")
 internal interface ListenerClass {
   fun owner(): String
 
