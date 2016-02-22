@@ -1,4 +1,4 @@
-package io.sento;
+package io.mironov.sento;
 
 public final class SentoFactory {
   public static Binding createBinding(final Class clazz) {

@@ -1,4 +1,4 @@
-package io.sento.annotations;
+package io.mironov.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,10 +9,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @ListenerClass(
     owner = "android.view.View",
-    listener = "android.view.View$OnKeyListener",
-    setter = "setOnKeyListener",
-    callback = "onKey"
+    listener = "android.view.View$OnTouchListener",
+    setter = "setOnTouchListener",
+    callback = "onTouch"
 )
-public @interface OnKey {
+public @interface OnTouch {
   public int[] value();
 }

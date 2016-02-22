@@ -1,4 +1,4 @@
-package io.sento.annotations;
+package io.mironov.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,11 +8,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @ListenerClass(
-    owner = "android.widget.CompoundButton",
-    listener = "android.widget.CompoundButton$OnCheckedChangeListener",
+    owner = "android.widget.RadioGroup",
+    listener = "android.widget.RadioGroup$OnCheckedChangeListener",
     setter = "setOnCheckedChangeListener",
     callback = "onCheckedChanged"
 )
-public @interface OnCheckedChanged {
+public @interface OnRadioGroupCheckedChanged {
   public int[] value();
 }

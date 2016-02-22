@@ -1,4 +1,4 @@
-package io.sento.annotations;
+package io.mironov.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
     listener = "android.text.TextWatcher",
     setter = "addTextChangedListener",
     unsetter = "removeTextChangedListener",
-    callback = "beforeTextChanged"
+    callback = "afterTextChanged"
 )
-public @interface BeforeTextChanged {
+public @interface AfterTextChanged {
   public int[] value();
 }

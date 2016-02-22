@@ -1,4 +1,4 @@
-package io.sento;
+package io.mironov.sento;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -67,7 +67,7 @@ public final class Sento {
   }
 
   private static String asResourceName(final int id, final Resources resources) {
-    return "R." + resources.getResourceTypeName(id) + "." + resources.getResourceEntryName(id);
+    return "R." + resources.getResourceTypeName(id) + "" + resources.getResourceEntryName(id);
   }
 
   private static final class CompositeBinding implements Binding {

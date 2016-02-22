@@ -1,4 +1,4 @@
-package io.sento;
+package io.mironov.sento;
 
 import android.content.res.Resources;
 import android.view.View;

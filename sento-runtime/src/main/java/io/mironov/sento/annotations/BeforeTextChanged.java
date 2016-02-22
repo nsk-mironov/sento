@@ -1,4 +1,4 @@
-package io.sento.annotations;
+package io.mironov.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,10 +9,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @ListenerClass(
     owner = "android.widget.TextView",
-    listener = "android.widget.TextView$OnEditorActionListener",
-    setter = "setOnEditorActionListener",
-    callback = "onEditorAction"
+    listener = "android.text.TextWatcher",
+    setter = "addTextChangedListener",
+    unsetter = "removeTextChangedListener",
+    callback = "beforeTextChanged"
 )
-public @interface OnEditorAction {
+public @interface BeforeTextChanged {
   public int[] value();
 }

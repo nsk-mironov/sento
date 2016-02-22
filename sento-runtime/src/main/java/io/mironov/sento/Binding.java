@@ -1,4 +1,4 @@
-package io.sento;
+package io.mironov.sento;
 
 public interface Binding {
   public void bind(final Object target, final Object source, final Finder finder);

@@ -1,4 +1,4 @@
-package io.sento.annotations;
+package io.mironov.sento.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,11 +8,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @ListenerClass(
-    owner = "android.view.View",
-    listener = "android.view.View$OnLongClickListener",
-    setter = "setOnLongClickListener",
-    callback = "onLongClick"
+    owner = "android.widget.CompoundButton",
+    listener = "android.widget.CompoundButton$OnCheckedChangeListener",
+    setter = "setOnCheckedChangeListener",
+    callback = "onCheckedChanged"
 )
-public @interface OnLongClick {
+public @interface OnCheckedChanged {
   public int[] value();
 }
