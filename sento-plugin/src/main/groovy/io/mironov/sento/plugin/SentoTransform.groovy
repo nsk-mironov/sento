@@ -11,7 +11,6 @@ import com.android.build.api.transform.TransformOutputProvider
 import com.google.common.collect.Iterables
 import io.mironov.sento.compiler.SentoCompiler
 import io.mironov.sento.compiler.SentoOptions
-import io.sento.plugin.BuildConfig
 import org.gradle.api.Project
 
 public class SentoTransform extends Transform {

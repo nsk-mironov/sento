@@ -1,6 +1,5 @@
 package io.mironov.sento.plugin
 
-import io.sento.plugin.BuildConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
