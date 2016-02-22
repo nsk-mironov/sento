@@ -1,5 +1,6 @@
-package io.sento.plugin
+package io.mironov.sento.plugin
 
+import io.sento.plugin.BuildConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -11,7 +12,7 @@ public class SentoPlugin implements Plugin<Project> {
   }
 
   private static void onPrepareDependencies(final Project project) {
-    project.dependencies.add("compile", "io.sento:sento-runtime:${BuildConfig.VERSION}@aar")
+    project.dependencies.add("compile", "io.mironov.sento:sento-runtime:${BuildConfig.VERSION}@aar")
   }
 
   private static void onPrepareTransforms(final Project project) {
