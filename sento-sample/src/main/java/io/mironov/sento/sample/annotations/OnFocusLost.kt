@@ -7,7 +7,7 @@ import io.mironov.sento.annotations.ListenerClass
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @ListenerClass(
     owner = "android.view.View",
-    listener = "io.mironov.sento.sample.OnFocusLostListener",
+    listener = "io.mironov.sento.sample.annotations.OnFocusLostListener",
     setter = "setOnFocusChangeListener",
     callback = "onFocusLost"
 )
