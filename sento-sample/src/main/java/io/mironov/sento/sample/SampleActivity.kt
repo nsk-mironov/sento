@@ -1,4 +1,4 @@
-package io.sento.sample
+package io.mironov.sento.sample
 
 import android.app.Activity
 import android.os.Bundle

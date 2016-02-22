@@ -1,4 +1,4 @@
-package io.sento.sample
+package io.mironov.sento.sample
 
 import android.app.Fragment
 import android.os.Bundle
@@ -8,14 +8,14 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import io.sento.Sento
-import io.sento.annotations.Bind
-import io.sento.annotations.OnClick
-import io.sento.annotations.OnLongClick
-import io.sento.annotations.OnTextChanged
-import io.sento.sample.annotations.OnFocusReceived
-import io.sento.sample.extensions.asTrue
-import io.sento.sample.extensions.notNull
+import io.mironov.sento.Sento
+import io.mironov.sento.annotations.Bind
+import io.mironov.sento.annotations.OnClick
+import io.mironov.sento.annotations.OnLongClick
+import io.mironov.sento.annotations.OnTextChanged
+import io.mironov.sento.sample.annotations.OnFocusReceived
+import io.mironov.sento.sample.extensions.asTrue
+import io.mironov.sento.sample.extensions.notNull
 
 class SampleFragment : Fragment() {
   private @Bind(R.id.first_name_input) val first_name_input: EditText? = notNull()

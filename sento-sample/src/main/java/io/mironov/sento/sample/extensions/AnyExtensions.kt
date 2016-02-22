@@ -1,4 +1,4 @@
-package io.sento.sample.extensions
+package io.mironov.sento.sample.extensions
 
 fun <T> Any?.notNull(): T {
   return null as T

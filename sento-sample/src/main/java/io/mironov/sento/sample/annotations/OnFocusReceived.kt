@@ -1,13 +1,13 @@
-package io.sento.sample.annotations
+package io.mironov.sento.sample.annotations
 
 import android.view.View
-import io.sento.annotations.ListenerClass
+import io.mironov.sento.annotations.ListenerClass
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @ListenerClass(
     owner = "android.view.View",
-    listener = "io.sento.sample.annotations.OnFocusReceivedListener",
+    listener = "io.mironov.sento.sample.OnFocusReceivedListener",
     setter = "setOnFocusChangeListener",
     callback = "onFocusReceived"
 )

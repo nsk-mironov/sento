@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="io.sento.sample">
+  package="io.mironov.sento.sample">
 
   <application>
     <activity
