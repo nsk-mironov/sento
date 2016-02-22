@@ -9,8 +9,8 @@ import com.android.build.api.transform.TransformException
 import com.android.build.api.transform.TransformInput
 import com.android.build.api.transform.TransformOutputProvider
 import com.google.common.collect.Iterables
-import io.sento.compiler.SentoCompiler
-import io.sento.compiler.SentoOptions
+import io.mironov.sento.compiler.SentoCompiler
+import io.mironov.sento.compiler.SentoOptions
 import org.gradle.api.Project
 
 public class SentoTransform extends Transform {
