@@ -49,11 +49,11 @@ internal object Types {
   val IDENTITY_MAP = Type.getType(IdentityHashMap::class.java)
   val VIEW = Type.getObjectType("android/view/View")
 
-  val BINDING = Type.getObjectType("io/sento/Binding")
-  val FINDER = Type.getObjectType("io/sento/Finder")
-  val FACTORY = Type.getObjectType("io/sento/SentoFactory")
-  val OPTIONAL = Type.getObjectType("io/sento/annotations/Optional")
-  val BIND = Type.getObjectType("io/sento/annotations/Bind")
+  val BINDING = Type.getObjectType("io/mironov/sento/Binding")
+  val FINDER = Type.getObjectType("io/mironov/sento/Finder")
+  val FACTORY = Type.getObjectType("io/mironov/sento/SentoFactory")
+  val OPTIONAL = Type.getObjectType("io/mironov/sento/annotations/Optional")
+  val BIND = Type.getObjectType("io/mironov/sento/annotations/Bind")
 
   fun getClassType(name: String): Type {
     return if (!name.endsWith("[]")) {
