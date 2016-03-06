@@ -26,7 +26,7 @@ ext {
   projectMinSdkVersion = 14
   projectTargetSdkVersion = 23
 
-  androidToolsVersion = "1.5.0"
+  androidToolsVersion = "2.0.0-beta6"
   kotlinVersion = "1.0.0"
   bintrayVersion = "1.4"
 

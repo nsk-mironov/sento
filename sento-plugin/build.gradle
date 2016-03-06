@@ -16,7 +16,7 @@ dependencies {
   compile gradleApi()
 
   compile "com.android.tools.build:gradle:$androidToolsVersion"
-  compile "com.android.tools.build:transform-api:$androidToolsVersion"
+  compile "com.android.tools.build:gradle-api:$androidToolsVersion"
 }
 
 def GIT_HASH = "git rev-parse HEAD".execute([], project.rootDir).text.trim()
