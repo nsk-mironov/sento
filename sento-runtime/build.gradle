@@ -47,10 +47,8 @@ publishing {
       artifactId POM_ARTIFACT_ID
       version POM_VERSION_NAME
 
-      artifact androidSourcesJar
-      artifact androidJavadocsJar
-
       artifact "$buildDir/outputs/aar/sento-runtime-release.aar"
+      artifact androidSourcesJar
     }
   }
 }
@@ -69,16 +67,6 @@ bintray {
   }
 
   publications = ['mavenAndroid']
-}
-
-task androidJavadocs(type: Javadoc) {
-  source = android.sourceSets.main.java.source
-  classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-  classifier = 'javadoc'
-  from androidJavadocs.destinationDir
 }
 
 task androidSourcesJar(type: Jar) {
